@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Easel"
-version = "0.1.0"
+version = "0.1.1"
 description = "Showcasing work for the lazy. Built on Flask, YAML, Markdown and directories."
 authors = ["Shant Ergenian <shant.ergenian@gmail.com>"]
 maintainers = ["Shant Ergenian <shant.ergenian@gmail.com>"]
