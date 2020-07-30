@@ -255,5 +255,5 @@ Additionally it must contain a `page.html` template in the `templates` directory
 
 # Links / Resources
 
-+ Releases: https://pypi.org/project/easle/
++ Releases: https://pypi.org/project/easel/
 + Flask documentation: https://github.com/pallets/flask
