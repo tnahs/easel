@@ -1,0 +1,59 @@
+# Layout Page
+# dev/pages/embedding
+
+# Page type.
+type: layout
+
+# Layout Page options.
+options:
+  show-captions: true
+
+# Layout page contents.
+contents:
+  - type: embedded
+    html: '<iframe width="560" height="315" src="https://www.youtube.com/embed/R_g4nT4a28U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1019553136&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/421634010&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/421634010&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/249659666&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/249659666&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe src="https://player.vimeo.com/video/62799334" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.
+
+  - type: embedded
+    html: '<iframe src="https://player.vimeo.com/video/73617382" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>'
+    caption:
+      title: Embedded element caption title.
+      description: Embedded element caption description.

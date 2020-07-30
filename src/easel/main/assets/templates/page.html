@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% from "macros.html" import render_content with context %}
+
+
+{% block page %}
+
+    <div id="page">
+
+        <div class="page-contents">
+
+            {% if page.description %}
+
+                <div class="page-description">
+                    <div class="markdown">{{ page.description | safe }}</div>
+                </div>
+
+            {% endif %}
+
+            {% if page.is_gallery %}
+
+                <div class="gallery">
+
+                    {% for content in page.contents %}
+
+                        {{ render_content(page, content, index=loop.index0) }}
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                {% for content in page.contents %}
+
+                    {{ render_content(page, content, index=loop.index0) }}
+
+                {% endfor %}
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+{% endblock %}

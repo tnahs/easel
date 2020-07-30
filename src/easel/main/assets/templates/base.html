@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no" />
+    <title>{{ site.config.title }}</title>
+    <link rel="shortcut icon" href="{{ site.config.favicon if site.config.favicon }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/main.css') }}" />
+    <style type="text/css">
+        :root {
+
+            {%- for key, value in site.css.items() if value -%}
+                {{ key }}: {{ value }};
+            {%- endfor -%}
+
+            {%- for key, value in site.page_current.css.items() if value -%}
+                {{ key }}: {{ value }};
+            {%- endfor -%}
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    {% include "menu.html" %}
+
+    <main>{% block page %}{% endblock %}</main>
+
+</body>
+
+<footer>
+
+    <div>{{ ["©", site.config.year, site.config.name] | join(" ") }}</div>
+    <div>{{ "All rights reserved" }}</div>
+
+</footer>
+
+<script src="{{ url_for('main.static', filename='js/main.js') }}"></script>
+
+</html>

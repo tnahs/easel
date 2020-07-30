@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "Easel"
+version = "0.1.0"
+description = "Showcasing work for the lazy. Built on Flask, YAML, Markdown and directories."
+authors = ["Shant Ergenian <shant.ergenian@gmail.com>"]
+maintainers = ["Shant Ergenian <shant.ergenian@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/tnahs/easel"
+keywords = ["Flask", "YAML", "Markdown", "Portfolio"]
+packages = [
+    { include = "easel", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flask = "^1.1.2"
+markdown = "^3.2.2"
+pymdown-extensions = "^7.1"
+pyyaml = "^5.3.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^19.10b0"
+mypy = "^0.782"
+flake8 = "^3.8.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

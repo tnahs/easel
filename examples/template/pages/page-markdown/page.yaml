@@ -1,0 +1,9 @@
+# Markdown
+# dev/pages/page-markdown
+
+# Page type.
+type: markdown
+
+# Markdown Page options
+options:
+  is-gallery: false

@@ -1,0 +1,120 @@
+{% macro render_menu_header() %}
+
+    {% if site.config.menu.header.image.path %}
+
+        <a href="{{ url_for('main.page_landing') }}">
+            <img class="menu-header-image" src="{{ url_for('site.static', filename=site.config.menu.header.image.path) }}">
+        </a>
+
+    {% else %}
+
+        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label | safe }}</a>
+
+    {% endif %}
+
+{% endmacro %}
+
+
+{% macro render_menu() %}
+
+    <div class="menu-buttons">
+
+        {% for item in site.menu %}
+
+            {# <div></div> is added per button here to prevent the grid display
+            from causing each button to span the whole menu width. #}
+            <div>
+
+                {% if item.is_link_page %}
+
+                    {% set current = "menu-page-current" if item.url == site.page_current.url else "" %}
+
+                    <a class="menu-link-page {{ current }}" href="{{ item.url }}">{{ item.label }}</a>
+
+                {% elif item.is_link_url %}
+
+                    <a class="menu-link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
+
+                {% elif item.is_section %}
+
+                    <div class="menu-section">{{ item.label }}</div>
+
+                {% elif item.is_spacer %}
+
+                    <div class="menu-spacer__{{ item.size }}"></div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endmacro %}
+
+
+{% macro render_content(page, content, index) %}
+
+    <div class="content-item">
+
+        {% if content.is_image %}
+
+            <img class="image" src="{{ content.src }}" data-index="{{ index }}">
+
+        {% elif content.is_video %}
+
+            <video class="video" controls data-index="{{ index }}">
+                <source src="{{ content.src }}" src="{{ content.mime_type }}">
+            </video>
+
+        {% elif content.is_audio %}
+
+            <audio controls preload="metadata" class="audio" data-index="{{ index }}">
+                <source src="{{ content.src }}" src="{{ content.mime_type }}" >
+                Your browser does not support the audio element.
+            </audio>
+
+        {% elif content.is_embedded %}
+
+            <div class="embedded" data-index="{{ index }}">{{ content.html | safe }}</div>
+
+        {% elif content.is_text_block %}
+
+            <div class="text-block" data-index="{{ index }}">
+                <div class="markdown">{{ content.body | safe }}</div>
+            </div>
+
+        {% elif content.is_header %}
+
+            <div class="header__{{ content.size }}">{{ content.body }}</div>
+
+        {% elif content.is_break %}
+
+            <div class="break__{{ content.size }}">&nbsp;</div>
+
+        {% endif %}
+
+        {% if page.show_captions %}
+
+            {% if content.title or content.description %}
+
+                <div class="content-caption">
+
+                    {% if content.title %}
+                        <span class="content-title markdown">{{ content.title | safe }}</span>
+                    {% endif %}
+
+                    {% if content.description %}
+                        <span class="content-description markdown">{{ content.description | safe }}</span>
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+{% endmacro %}

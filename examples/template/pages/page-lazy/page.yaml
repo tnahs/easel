@@ -1,0 +1,12 @@
+# Lazy Page
+# dev/pages/page-lazy
+
+# Specify this page is the 'landing' page.
+is-landing: true
+
+# Page type.
+type: lazy
+
+# Lazy Page options.
+options:
+  show-captions: true

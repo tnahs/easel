@@ -1,0 +1,46 @@
+HIGH:
+  - Make 'Embedded' to work well with any size object.
+
+MEDIUM:
+  - 400/500 page
+  - Generate documentation from repository.
+  - Serve static files from external server?
+
+LOW:
+  - CLI
+    - Generate blank site structure.
+    - Generate page.yaml for a layout page from a directory.
+    - Generate blank site.yaml
+  - Add 'date', 'title' to page.yaml?
+  - Add option to append more css variables in site.yaml/page.yaml.
+  - Text alignment for 'caption', 'header' and 'text'.
+  - Support JSON or YAML
+  - After CSS/Design is cleaned up.
+    - Light/dark theme.
+  - Can we rename to 'Easel' on PyPI?
+
+HOUSEKEEPING:
+  - Type annotations.
+  - Document site.yaml and page.yaml
+  - Cleanup CSS.
+  - Cleanup errors/messages.
+  - Cleanup logging.
+  - Cleanup '__repr__' methods.
+  - Sift through paths and URLs.
+  - Clean-up template whitespace.
+  - Finish all basic functionality then add validation to the items that would
+    throw a KeyError.
+
+
+FEATURES:
+  - Custom template/static folder for themeing
+  - Lightbox with '<' and '>' buttons.
+  - Lazy-loading images.
+    - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+    - https://css-tricks.com/the-complete-guide-to-lazy-loading-images/
+    - https://www.smashingmagazine.com/2018/01/deferring-lazy-loading-intersection-observer-api/
+  - Better template with images.
+    - https://unsplash.com/
+    - https://unsplash.com/t/textures-patterns
+  - Progressive image loading.
+    - https://www.sitepoint.com/how-to-build-your-own-progressive-image-loader/
