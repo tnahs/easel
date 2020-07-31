@@ -43,10 +43,10 @@ def page_landing() -> str:
     return render_template("page.html", page=page)
 
 
-@blueprint_main.route("/<path:url>/", strict_slashes=False)
-def render_page(url: str) -> str:
+@blueprint_main.route("/<path:page_url>")
+def render_page(page_url: str) -> str:
 
-    page: Optional["PageType"] = current_app.site.get_page(url)
+    page: Optional["PageType"] = current_app.site.get_page(page_url=page_url)
 
     if page is None:
         abort(404)

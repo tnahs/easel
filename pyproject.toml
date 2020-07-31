@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Easel"
-version = "0.1.1"
+version = "0.1.2"
 description = "Showcasing work for the lazy. Built on Flask, YAML, Markdown and directories."
 authors = ["Shant Ergenian <shant.ergenian@gmail.com>"]
 maintainers = ["Shant Ergenian <shant.ergenian@gmail.com>"]
@@ -24,6 +24,11 @@ pytest = "^5.2"
 black = "^19.10b0"
 mypy = "^0.782"
 flake8 = "^3.8.3"
+gunicorn = "^20.0.4"
+
+[tool.poetry.scripts]
+_easel = "src.easel.cli:cli"
+easel = "easel.cli:cli"
 
 [build-system]
 requires = ["poetry>=0.12"]

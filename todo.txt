@@ -1,23 +1,20 @@
 HIGH:
   - Make 'Embedded' to work well with any size object.
+  - Custom 400/500 pages.
 
 MEDIUM:
-  - 400/500 page
-  - Generate documentation from repository.
+  - Documentation.
+    - https://docs.readthedocs.io/en/stable/index.html
   - Serve static files from external server?
+  - CLI
+    - https://click.palletsprojects.com/en/7.x/
 
 LOW:
-  - CLI
-    - Generate blank site structure.
-    - Generate page.yaml for a layout page from a directory.
-    - Generate blank site.yaml
-  - Add 'date', 'title' to page.yaml?
   - Add option to append more css variables in site.yaml/page.yaml.
+  - Add 'date', 'title' to page.yaml.
   - Text alignment for 'caption', 'header' and 'text'.
-  - Support JSON or YAML
   - After CSS/Design is cleaned up.
     - Light/dark theme.
-  - Can we rename to 'Easel' on PyPI?
 
 HOUSEKEEPING:
   - Type annotations.
@@ -35,6 +32,7 @@ HOUSEKEEPING:
 FEATURES:
   - Custom template/static folder for themeing
   - Lightbox with '<' and '>' buttons.
+  - Support JSON or YAML
   - Lazy-loading images.
     - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
     - https://css-tricks.com/the-complete-guide-to-lazy-loading-images/

@@ -77,6 +77,7 @@ menu:
       label: my-page
       links-to: my-page
 ```
+
 Every site requires a `site.yaml` in the site's root directory. It's used to configure general site attributes namely the menu. Note that none of the items require a value, however all the items **must** be present. For example, `menu:items` can be an empty list, Easel will render no menu in this case. However if `menu:items` is missing a `ConfigError` will be thrown.
 
 Note that under `menu:items` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the directory `my-page` we will be making shortly. Note that `links-to` always requires a path relative to the `pages` directory.
