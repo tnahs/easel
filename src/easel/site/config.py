@@ -139,7 +139,7 @@ class Config:
                 f"{ConfigKeys.PATH_USER_SITE} directory {path_assets} does not exist."
             ) from error
 
-        logger.debug(f"Using custom assets directory: {path_assets}.")
+        logger.info(f"Using custom assets directory: {path_assets}.")
 
         self._path_assets = path_assets
 

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Site:
     def __init__(self):
 
-        logger.debug(f"Building Site from {config.path_user_site}.")
+        logger.info(f"Building Site from {config.path_user_site}.")
 
         self._pages: List["PageType"] = []
         self._menu: List["MenuType"] = []
@@ -39,7 +39,7 @@ class Site:
 
     def _build_pages(self):
 
-        logger.debug(f"Compiling Pages from {config.path_user_site_pages}.")
+        logger.info(f"Compiling Pages from {config.path_user_site_pages}.")
 
         for path in config.path_user_site_pages.iterdir():
 
