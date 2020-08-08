@@ -104,7 +104,7 @@ class Markdown:
         # markdown files.
         #
         # via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
-        base_path = pathlib.Path(f"{config.path_user_site.name}/{page.path_relative}")
+        base_path = pathlib.Path(f"{config.path_site.name}/{page.path_relative}")
 
         with open(filepath, encoding="utf-8") as f:
             string = f.read()

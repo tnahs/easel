@@ -88,10 +88,10 @@ class Image:
 
             {
                 "type": "image",
-                "path": "image.png",
+                "path": [str: path/to/image],
                 "caption": {
-                    "title": "Image caption title.",
-                    "description": "Image caption description.",
+                    "title": [str: title],
+                    "description": [str: description],
                 },
             }
         """
@@ -153,7 +153,7 @@ class Image:
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_user_site)
+        return self._path_absolute.relative_to(config.path_site)
 
     @property
     def src(self) -> str:
@@ -180,10 +180,10 @@ class Video:
 
             {
                 "type": "video",
-                "path": "video.mp4",
+                "path": [str: path/to/video],
                 "caption": {
-                    "title": "Video caption title.",
-                    "description": "Video caption description.",
+                    "title": [str: title],
+                    "description": [str: description],
                 },
             }
         """
@@ -245,7 +245,7 @@ class Video:
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_user_site)
+        return self._path_absolute.relative_to(config.path_site)
 
     @property
     def src(self) -> str:
@@ -274,13 +274,14 @@ class Embedded:
 
             {
                 "type": "embedded",
-                "html": "",
+                "html": [str: html],
                 "caption": {
-                    "title": "Embedded video caption title.",
-                    "description": "Embedded video caption description.",
+                    "title": [str: title],
+                    "description": [str: description],
                 },
             }
         """
+
         self._page: "PageType" = page
 
         try:
@@ -332,13 +333,14 @@ class Audio:
 
             {
                 "type": "audio",
-                "path": "audio.mp3",
+                "path": [str: path/to/audio],
                 "caption": {
-                    "title": "Audio caption title.",
-                    "description": "Audio caption description.",
+                    "title": [str: title],
+                    "description": [str: description],
                 },
             }
         """
+
         self._page: "PageType" = page
 
         try:
@@ -397,7 +399,7 @@ class Audio:
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_user_site)
+        return self._path_absolute.relative_to(config.path_site)
 
     @property
     def src(self) -> str:
@@ -426,9 +428,10 @@ class TextBlock:
 
             {
                 "type": "text-block",
-                "path": "text-block.md",
+                "path": [str: path/to/text],
             }
         """
+
         self._page: "PageType" = page
 
         try:
@@ -481,7 +484,7 @@ class TextBlock:
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_user_site)
+        return self._path_absolute.relative_to(config.path_site)
 
     @property
     def body(self) -> str:
@@ -498,10 +501,11 @@ class Header:
 
             {
                 "type": "header",
-                "body": "Header text.",
-                "size": "medium", # See easel.site.config.VALID_SIZES
+                "body": [str: body],
+                "size": [str: size], // See easel.site.config.VALID_SIZES
             }
         """
+
         self._page: "PageType" = page
 
         try:
@@ -545,9 +549,10 @@ class Break:
 
             {
                 "type": "break",
-                "size": "medium", # See easel.site.config.VALID_SIZES
+                "size": [str: size], // See easel.site.config.VALID_SIZES
             }
         """
+
         self._page: "PageType" = page
         self._size: str = content_data.get("size", config.DEFAULT_SIZE)
 

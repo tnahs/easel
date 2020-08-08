@@ -9,6 +9,7 @@ from .helpers import utils
 if TYPE_CHECKING:
     from .site import Site
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,46 +33,8 @@ class MenuFactory:
         }
 
     def build(self, site: "Site", menu_data: dict) -> MenuType:
-        """ Builds Menu-like object from a dictionary.
-
-        type: link-page
-        label: menu-label
-        links-to: path/to/page
-
-        type: link-url
-        label: menu-label
-        url: www.url.com
-
-        type: section
-        label: menu-label
-
-        type: spacer
-        size: small | medium | large
-
-        #
-
-        {
-            "type": "link-page",
-            "label": "menu-label",
-            "links-to": "path/to/page",
-        }
-
-        {
-            "type": "link-url",
-            "label": "menu-label",
-            "url": www.url.com,
-        }
-
-        {
-            "type": "section",
-            "label": "menu-label",
-        }
-
-        {
-            "type": "spacer",
-            "size": "small" | "medium" | "large",
-        }
-        """
+        """ Builds Menu-like object from a dictionary. See respective
+        classes for documentation on accepted keys and structure. """
 
         try:
             menu_type: str = menu_data["type"]
@@ -103,6 +66,15 @@ class LinkPage:
     is_link_page: bool = True
 
     def __init__(self, site: "Site", **menu_data):
+        """ Creates an Menu object from a dictionary with the following
+            attributes:
+
+            {
+                "type": "link-page",
+                "label": [str: label],
+                "links-to": [str: path/to/page],
+            }
+        """
 
         self._site: "Site" = site
 
@@ -150,6 +122,15 @@ class LinkURL:
     is_link_url: bool = True
 
     def __init__(self, site: "Site", **menu_data):
+        """ Creates an Menu object from a dictionary with the following
+            attributes:
+
+            {
+                "type": "link-url",
+                "label": [str: label],
+                "url": [str: url],
+            }
+        """
 
         self._site: "Site" = site
 
@@ -184,6 +165,14 @@ class Section:
     is_section: bool = True
 
     def __init__(self, site: "Site", **menu_data):
+        """ Creates an Menu object from a dictionary with the following
+            attributes:
+
+            {
+                "type": "section",
+                "label": [str: label],
+            }
+        """
 
         self._site: "Site" = site
 
@@ -207,6 +196,14 @@ class Spacer:
     is_spacer: bool = True
 
     def __init__(self, site: "Site", **menu_data):
+        """ Creates an Menu object from a dictionary with the following
+            attributes:
+
+            {
+                "type": "spacer",
+                "size": [str: size], // See easel.site.config.VALID_SIZES
+            }
+        """
 
         self._site: "Site" = site
         self._size: str = menu_data.get("size", config.DEFAULT_SIZE)

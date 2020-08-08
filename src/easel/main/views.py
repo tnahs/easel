@@ -40,7 +40,7 @@ def page_landing() -> str:
 
     page: Optional["PageType"] = current_app.site.page_landing
 
-    return render_template("page.html", page=page)
+    return render_template("page.jinja2", page=page)
 
 
 @blueprint_main.route("/<path:page_url>")
@@ -51,7 +51,7 @@ def render_page(page_url: str) -> str:
     if page is None:
         abort(404)
 
-    return render_template("page.html", page=page)
+    return render_template("page.jinja2", page=page)
 
 
 @blueprint_main.errorhandler(404)
@@ -62,7 +62,7 @@ def error_404(error):
     if page is None:
         return redirect(url_for("main.page_landing"))
 
-    return render_template("page.html", page=page)
+    return render_template("page.jinja2", page=page)
 
 
 @blueprint_main.errorhandler(500)
@@ -73,4 +73,4 @@ def error_500(error):
     if page is None:
         return redirect(url_for("main.page_landing"))
 
-    return render_template("page.html", page=page)
+    return render_template("page.jinja2", page=page)

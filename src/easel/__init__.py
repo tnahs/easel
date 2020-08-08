@@ -1,8 +1,9 @@
-__version__ = "0.1.2"
+__version__ = "1.0.0"
 
 
 import logging
 import os
+from typing import Optional, Union
 
 from flask import Flask
 
@@ -23,11 +24,11 @@ logger = logging.getLogger(__name__)
 
 
 class Easel(Flask):
-    def __init__(self, path_user_site: str, path_custom_assets: str = None):
+    def __init__(self, site: str, custom_assets: str = None):
         super().__init__(__name__)
 
-        config.path_user_site = path_user_site
-        config.path_assets = path_custom_assets
+        config.path_site = site
+        config.path_assets = custom_assets
 
         # Load blueprints.
         from .site.views import blueprint_site
@@ -48,7 +49,14 @@ class Easel(Flask):
     def site(self) -> Site:
         return self._site
 
-    def run(self, loglevel: str = "DEBUG"):
-        os.environ["FLASK_ENV"] = "development"
-        logging.getLogger().setLevel(loglevel)
-        super().run(debug=True, extra_files=self._site.assets)
+    def run(
+        self, loglevel: Optional[Union[str, int]] = None, debug: bool = True, **kwargs
+    ):
+
+        if debug:
+            os.environ["FLASK_ENV"] = "development"
+
+        if loglevel is not None:
+            logging.getLogger().setLevel(loglevel)
+
+        super().run(debug=debug, extra_files=self._site.assets, **kwargs)

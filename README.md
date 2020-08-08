@@ -197,14 +197,14 @@ So what did that code do?
 
 This launches a very simple builtin server, which is good enough for testing but probably not what you want to use in production. For deployment options see [Flask Deployment Options](https://flask.palletsprojects.com/en/1.1.x/deploying/#deployment).
 
-<!-- TODO: Create easel-demo / easel-heroku and link here. -->
 
 Now head over to http://127.0.0.1:5000/, and you should see your beautiful work greeting.
 
 
-<!-- TODO: This needs more development and testing.
+<!-- TODO: Create easel-demo and link here. -->
 
-# Public API
+
+# API
 
 ## Custom Types
 
@@ -217,7 +217,7 @@ from easel.site.contents import content_factory
 # Import your custom types.
 from .custom import CustomPage, CustomMenu, CustomContent
 
-
+# Register your custom types.
 page_factory.register_page_type("custom-page", CustomPage)
 menu_factory.register_menu_type("custom-menu", CustomMenu)
 content_factory.register_content_type("custom-content", CustomContent)
@@ -227,21 +227,19 @@ content_factory.register_content_type("custom-content", CustomContent)
 
 ``` python
 easel = Easel(
-    path_user_site="my-site",
-    path_custom_assets="my-custom-theme",
+    site="my-site",
+    custom_assets="my-custom-assets",
 )
 ```
 
 The assets directory **must** follow the following structure.
 
 ``` shell
-my-custom-theme
+my-custom-assets
 │
 ├── templates
-│   ├── base.html
-│   ├── page.html
-│   ├── menu.html
-│   └── macros.html
+│   ├── page.jinja2
+│   └── ...
 │
 └── static
     ├── css
@@ -250,9 +248,8 @@ my-custom-theme
     └── images
 
 ```
-Additionally it must contain a `page.html` template in the `templates` directory. This is the entry-point for rendering pages. See `easel.main.views.render_page` and `easel.main.views.page_landing`.
+Additionally it must contain a `page.jinja2` template in the `templates` directory. This is the entry-point for rendering pages. See `easel.main.views.render_page` and `easel.main.views.page_landing`.
 
--->
 
 # Links / Resources
 

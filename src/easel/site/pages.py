@@ -21,7 +21,7 @@ _PageType = Union[
 ]
 
 PageType = Union[
-    "_Page", "Lazy", "Layout", "Markdown",
+    "Page", "Lazy", "Layout", "Markdown",
 ]
 
 
@@ -65,7 +65,7 @@ class PageFactory:
         self._page_types[name] = page
 
 
-class _Page:
+class Page:
 
     is_lazy: bool = False
     is_layout: bool = False
@@ -108,7 +108,7 @@ class _Page:
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_user_site)
+        return self._path_absolute.relative_to(config.path_site)
 
     @property
     def file_config(self) -> pathlib.Path:
@@ -144,17 +144,6 @@ class _Page:
                 f"Unexpected Error while loading page description {path}."
             ) from error
 
-    @property
-    def css(self) -> dict:
-        """ Returns a dictionary of css-variable:value pairs derived from
-        'site.yaml'. Only pairs with truthy value are rendered into
-        'easel/main/templates/main/base.html'. """
-
-        return {
-            "--gallery__column-count": self.gallery_column_count,
-            "--gallery__column-width": self.gallery_column_width,
-        }
-
     # 'Lazy' and 'Layout' page attributes. Not applicable to 'Markdown' pages.
 
     @property
@@ -177,7 +166,7 @@ class _Page:
         return self._config.get("options", {}).get("gallery-column-width", False)
 
 
-class Lazy(_Page):
+class Lazy(Page):
 
     is_lazy: bool = True
 
@@ -254,7 +243,7 @@ class Lazy(_Page):
         return items
 
 
-class Layout(_Page):
+class Layout(Page):
 
     is_layout = True
 
@@ -287,7 +276,7 @@ class Layout(_Page):
         return items
 
 
-class Markdown(_Page):
+class Markdown(Page):
 
     is_markdown = True
 

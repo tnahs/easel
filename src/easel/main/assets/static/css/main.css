@@ -508,21 +508,18 @@ main #page .page-contents .content-item .audio {
 
 /* content-embedded */
 
-/* main #page .page-contents .content-item .embedded {
+main #page .page-contents .content-item .embedded {
 
-    height: 0;
+    /* height: 0;
     overflow: hidden;
     position: relative;
-    padding-bottom: 56.25%;
+    padding-bottom: 56.25%; */
 }
 
 main #page .page-contents .content-item .embedded iframe {
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-} */
+
+    /* See easel/main/static/assets/static/main.js */
+}
 
 /* content-text-block */
 

@@ -118,3 +118,10 @@
     </div>
 
 {% endmacro %}
+
+
+{% macro render_css(name, value) %}
+
+    {% if value %}{{ name }}: {{ value }};{% endif %}
+
+{% endmacro %}

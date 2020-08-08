@@ -1,13 +1,10 @@
 HIGH:
-  - Make 'Embedded' to work well with any size object.
-  - Custom 400/500 pages.
 
 MEDIUM:
   - Documentation.
     - https://docs.readthedocs.io/en/stable/index.html
   - Serve static files from external server?
-  - CLI
-    - https://click.palletsprojects.com/en/7.x/
+  - CLI Tools: https://click.palletsprojects.com/en/7.x/
 
 LOW:
   - Add option to append more css variables in site.yaml/page.yaml.
@@ -15,10 +12,11 @@ LOW:
   - Text alignment for 'caption', 'header' and 'text'.
   - After CSS/Design is cleaned up.
     - Light/dark theme.
+  - Cleanup Jinja whitespace handling
 
 HOUSEKEEPING:
   - Type annotations.
-  - Document site.yaml and page.yaml
+  - Document site.yaml and page.yaml.
   - Cleanup CSS.
   - Cleanup errors/messages.
   - Cleanup logging.
@@ -30,9 +28,7 @@ HOUSEKEEPING:
 
 
 FEATURES:
-  - Custom template/static folder for themeing
   - Lightbox with '<' and '>' buttons.
-  - Support JSON or YAML
   - Lazy-loading images.
     - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
     - https://css-tricks.com/the-complete-guide-to-lazy-loading-images/

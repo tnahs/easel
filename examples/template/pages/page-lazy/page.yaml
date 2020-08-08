@@ -1,5 +1,5 @@
 # Lazy Page
-# dev/pages/page-lazy
+# template/pages/page-lazy
 
 # Specify this page is the 'landing' page.
 is-landing: true

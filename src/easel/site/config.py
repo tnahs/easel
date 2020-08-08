@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigKeys:
-    PATH_USER_SITE: str = "PATH_USER_SITE"
+    PATH_SITE: str = "PATH_SITE"
 
 
 class Config:
@@ -17,6 +17,9 @@ class Config:
     PATH_ROOT = pathlib.Path(__file__).parent.parent
 
     DIRECTORY_NAME_PAGES: str = "pages"
+    DIRECTORY_NAME_ERRORS: str = "errors"
+    DIRECTORY_NAME_ERROR_404: str = "404"
+    DIRECTORY_NAME_ERROR_500: str = "500"
 
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
@@ -74,51 +77,64 @@ class Config:
 
     def __init__(self):
 
-        self._path_user_site: Optional[pathlib.Path] = None
+        self._path_site: Optional[pathlib.Path] = None
         self._path_assets: pathlib.Path = self.PATH_ROOT / "main" / "assets"
 
     @property
-    def path_user_site(self) -> pathlib.Path:
+    def path_site(self) -> pathlib.Path:
 
-        if self._path_user_site is None:
+        if self._path_site is None:
             raise errors.ConfigError(
-                f"{ConfigKeys.PATH_USER_SITE} must be set before running."
+                f"{ConfigKeys.PATH_SITE} must be set before running."
             )
 
-        return self._path_user_site
+        return self._path_site
 
-    @path_user_site.setter
-    def path_user_site(self, value: str) -> None:
+    @path_site.setter
+    def path_site(self, value: str) -> None:
         # /absolute/path/to/[site]
 
-        path_user_site = pathlib.Path(value)
+        path_site = pathlib.Path(value)
 
         try:
-            path_user_site = path_user_site.resolve(strict=True)
+            path_site = path_site.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.ConfigError(
-                f"{ConfigKeys.PATH_USER_SITE} directory {path_user_site} does not exist."
+                f"{ConfigKeys.PATH_SITE} directory {path_site} does not exist."
             ) from error
 
-        self._path_user_site = path_user_site
+        self._path_site = path_site
 
     @property
-    def path_user_site_pages(self) -> pathlib.Path:
+    def path_site_pages(self) -> pathlib.Path:
         # /absolute/path/to/[site]/pages
 
-        path_user_site_pages = self.path_user_site / self.DIRECTORY_NAME_PAGES
+        path_site_pages = self.path_site / self.DIRECTORY_NAME_PAGES
 
         try:
-            path_user_site_pages = path_user_site_pages.resolve(strict=True)
+            path_site_pages = path_site_pages.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.ConfigError("Site missing 'pages' directory.") from error
 
-        return path_user_site_pages
+        return path_site_pages
+
+    @property
+    def path_site_errors(self) -> Optional[pathlib.Path]:
+        # /absolute/path/to/[site]/errors
+
+        path_site_errors = self.path_site / self.DIRECTORY_NAME_ERRORS
+
+        try:
+            path_site_errors = path_site_errors.resolve(strict=True)
+        except FileNotFoundError:
+            return None
+
+        return path_site_errors
 
     @property
     def file_site_yaml(self) -> pathlib.Path:
         # /absolute/path/to/[site]/site.yaml
-        return self.path_user_site / self.FILENAME_SITE_YAML
+        return self.path_site / self.FILENAME_SITE_YAML
 
     @property
     def path_assets(self) -> pathlib.Path:
@@ -136,7 +152,7 @@ class Config:
             path_assets = path_assets.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.ConfigError(
-                f"{ConfigKeys.PATH_USER_SITE} directory {path_assets} does not exist."
+                f"{ConfigKeys.PATH_SITE} directory {path_assets} does not exist."
             ) from error
 
         logger.info(f"Using custom assets directory: {path_assets}.")

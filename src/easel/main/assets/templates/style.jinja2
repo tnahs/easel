@@ -1,0 +1,30 @@
+{# Extends easel/main/assets/static/main.css #}
+
+
+{% from "macros.jinja2" import render_css with context %}
+
+
+:root {
+
+    {# All Pages CSS #}
+
+    {{ render_css("--page__width", site.config.page.width) }}
+
+    {# Menu CSS #}
+
+    {{ render_css("--menu__width", site.config.menu.width) }}
+    {{ render_css("--menu__align", site.config.menu.align) }}
+    {{ render_css("--menu-header-image__width", site.config.menu.header.image.width) }}
+    {{ render_css("--menu-header-image__height", site.config.menu.header.image.height) }}
+
+    {# Color CSS #}
+
+    {{ render_css("--color-accent__base", site.config.colors.accent_base) }}
+    {{ render_css("--color-accent__light", site.config.colors.accent_light) }}
+
+    {# Current page CSS #}
+
+    {{ render_css("--gallery__column-count", site.page_current.gallery_column_count) }}
+    {{ render_css("--gallery__column-width", site.page_current.gallery_column_width) }}
+
+}

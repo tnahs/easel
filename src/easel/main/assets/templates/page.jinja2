@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% from "macros.jinja2" import render_content with context %}
 
-{% from "macros.html" import render_content with context %}
+
+{% extends "base.jinja2" %}
 
 
 {% block page %}
@@ -23,7 +24,7 @@
 
                     {% for content in page.contents %}
 
-                        {{ render_content(page, content, index=loop.index0) }}
+                        {{ render_content(page, content, loop.index0) }}
 
                     {% endfor %}
 
@@ -33,7 +34,7 @@
 
                 {% for content in page.contents %}
 
-                    {{ render_content(page, content, index=loop.index0) }}
+                    {{ render_content(page, content, loop.index0) }}
 
                 {% endfor %}
 

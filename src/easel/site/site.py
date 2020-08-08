@@ -11,13 +11,14 @@ if TYPE_CHECKING:
     from .pages import PageType
     from .menus import MenuType
 
+
 logger = logging.getLogger(__name__)
 
 
 class Site:
     def __init__(self):
 
-        logger.info(f"Building Site from {config.path_user_site}.")
+        logger.info(f"Building Site from {config.path_site}.")
 
         self._pages: List["PageType"] = []
         self._menu: List["MenuType"] = []
@@ -30,18 +31,19 @@ class Site:
         self._config: dict = config_loader.load(path=config.file_site_yaml)
 
         self._build_pages()
+        self._build_error_pages()
         self._build_menu()
 
         self._validate_build()
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}:{config.path_user_site}>"
+        return f"<{self.__class__.__name__}:{config.path_site}>"
 
     def _build_pages(self):
 
-        logger.info(f"Compiling Pages from {config.path_user_site_pages}.")
+        logger.info(f"Compiling Pages from {config.path_site_pages}.")
 
-        for path in config.path_user_site_pages.iterdir():
+        for path in config.path_site_pages.iterdir():
 
             if not path.is_dir():
                 continue
@@ -53,11 +55,31 @@ class Site:
 
             self._pages.append(page)
 
+    def _build_error_pages(self):
+
+        if not config.path_site_errors:
+            return
+
+        path_error_404 = config.path_site_errors / config.DIRECTORY_NAME_ERROR_404
+
+        if path_error_404.exists():
+            self._page_error_404 = pages.page_factory.build(
+                site=self, path_absolute=path_error_404
+            )
+
+        path_error_500 = config.path_site_errors / config.DIRECTORY_NAME_ERROR_500
+
+        if path_error_500.exists():
+            self._page_error_500 = pages.page_factory.build(
+                site=self, path_absolute=path_error_500
+            )
+
     def _build_menu(self):
 
         if not self._config["menu"]["items"]:
             logger.warn(
-                f"{config.FILENAME_SITE_YAML}:menu:items is empty. No menu will be generated."
+                f"{config.FILENAME_SITE_YAML}:menu:items is empty. "
+                f"No menu will be generated."
             )
             return
 
@@ -123,13 +145,11 @@ class Site:
 
     @property
     def page_error_404(self) -> Optional["PageType"]:
-        # TODO: Implement methods to set custom 404 page.
-        self._page_error_404
+        return self._page_error_404
 
     @property
     def page_error_500(self) -> Optional["PageType"]:
-        # TODO: Implement methods to set custom 500 page.
-        self._page_error_500
+        return self._page_error_500
 
     @property
     def assets(self) -> List[pathlib.Path]:
@@ -140,26 +160,4 @@ class Site:
 
         via. https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
 
-        return list(config.path_user_site.glob("**/*"))
-
-    @property
-    def css(self) -> dict:
-        """ Returns a dictionary of css-variable:value pairs derived from
-        'site.yaml'. Only pairs with truthy value are rendered into
-        'easel/main/templates/main/base.html'. """
-
-        colors: dict = self._config["colors"]
-        menu: dict = self._config["menu"]
-
-        return {
-            # Page CSS
-            "--page__width": self._config["page"]["width"],
-            # Menu CSS
-            "--menu__width": menu["width"],
-            "--menu__align": menu["align"],
-            "--menu-header-image__width": menu["header"]["image"]["width"],
-            "--menu-header-image__height": menu["header"]["image"]["height"],
-            # Color CSS
-            "--color-accent__base": colors["accent-base"],
-            "--color-accent__light": colors["accent-light"],
-        }
+        return list(config.path_site.glob("**/*"))

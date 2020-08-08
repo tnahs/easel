@@ -7,6 +7,6 @@ from .config import config
 blueprint_site = Blueprint(
     name="site",
     import_name=__name__,
-    static_folder=str(config.path_user_site),
+    static_folder=str(config.path_site),
 )
 # fmt:on
