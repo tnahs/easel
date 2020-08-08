@@ -1,40 +1,32 @@
 HIGH:
 
 MEDIUM:
-  - Documentation.
-    - https://docs.readthedocs.io/en/stable/index.html
-  - Serve static files from external server?
   - CLI Tools: https://click.palletsprojects.com/en/7.x/
+  - Documentation: https://docs.readthedocs.io/en/stable/index.html
 
 LOW:
-  - Add option to append more css variables in site.yaml/page.yaml.
-  - Add 'date', 'title' to page.yaml.
   - Text alignment for 'caption', 'header' and 'text'.
-  - After CSS/Design is cleaned up.
-    - Light/dark theme.
-  - Cleanup Jinja whitespace handling
+  - Add 'date', 'title' to page.yaml.
+  - Light/dark theme. (After CSS/Design is cleaned up.)
+  - Serve static files from external server?
 
 HOUSEKEEPING:
-  - Type annotations.
-  - Document site.yaml and page.yaml.
   - Cleanup CSS.
+  - Document site.yaml and page.yaml.
+  - Type annotations.
   - Cleanup errors/messages.
-  - Cleanup logging.
   - Cleanup '__repr__' methods.
   - Sift through paths and URLs.
-  - Clean-up template whitespace.
-  - Finish all basic functionality then add validation to the items that would
-    throw a KeyError.
-
+  - Add validation to the items that would throw a KeyError.
 
 FEATURES:
   - Lightbox with '<' and '>' buttons.
+  - Add option to append more css variables in site.yaml/page.yaml.
   - Lazy-loading images.
+    - https://spikelantern.com/articles/simple-infinite-scroll-in-django/
     - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
     - https://css-tricks.com/the-complete-guide-to-lazy-loading-images/
     - https://www.smashingmagazine.com/2018/01/deferring-lazy-loading-intersection-observer-api/
-  - Better template with images.
+  - Better starting template with images.
     - https://unsplash.com/
     - https://unsplash.com/t/textures-patterns
-  - Progressive image loading.
-    - https://www.sitepoint.com/how-to-build-your-own-progressive-image-loader/
