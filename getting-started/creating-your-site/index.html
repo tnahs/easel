@@ -1,0 +1,714 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <meta name="author" content="Shant Ergenian">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.3">
+    
+    
+      
+        <title>Creating Your Site - Easel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.947af8d5.min.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.7f672a1f.min.css">
+      
+      
+    
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#creating-your-site" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="../.." title="Easel Documentation" class="md-header-nav__button md-logo" aria-label="Easel Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Easel Documentation
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Creating Your Site
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/tnahs/easel/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tnahs/easel
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+        
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Easel Documentation" class="md-nav__button md-logo" aria-label="Easel Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Easel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/tnahs/easel/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tnahs/easel
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Easel" class="md-nav__link">
+      Easel
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      Getting Started
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Getting Started
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Creating Your Site
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
+        </span>
+      </label>
+    
+    <a href="./" title="Creating Your Site" class="md-nav__link md-nav__link--active">
+      Creating Your Site
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-scaffold" class="md-nav__link">
+    Building the Scaffold
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-siteyaml" class="md-nav__link">
+    Configuring the site.yaml
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-pageyaml" class="md-nav__link">
+    Configuring the page.yaml
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-some-content" class="md-nav__link">
+    Adding Some Content
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../a-minimal-application/" title="A Minimal Application" class="md-nav__link">
+      A Minimal Application
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Configuration
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Configuration" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Configuration
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../configuration/site/" title="Site" class="md-nav__link">
+      Site
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../configuration/menus/" title="Menus" class="md-nav__link">
+      Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../configuration/pages/" title="Pages" class="md-nav__link">
+      Pages
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../configuration/contents/" title="Contents" class="md-nav__link">
+      Contents
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      API Reference
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        API Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api-reference/custom-types/" title="Custom Types" class="md-nav__link">
+      Custom Types
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api-reference/custom-assets/" title="Custom Assets" class="md-nav__link">
+      Custom Assets
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-scaffold" class="md-nav__link">
+    Building the Scaffold
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-siteyaml" class="md-nav__link">
+    Configuring the site.yaml
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-pageyaml" class="md-nav__link">
+    Configuring the page.yaml
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-some-content" class="md-nav__link">
+    Adding Some Content
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  
+                
+                
+                <h1 id="creating-your-site">Creating Your Site<a class="headerlink" href="#creating-your-site" title="Permanent link">&para;</a></h1>
+<h2 id="building-the-scaffold">Building the Scaffold<a class="headerlink" href="#building-the-scaffold" title="Permanent link">&para;</a></h2>
+<p>Inside your project directory create an site directory and a <code>site.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code>$ mkdir my-site
+$ <span class="nb">cd</span> my-site
+$ touch site.yaml
+</code></pre></div>
+
+<p>Our project directory should now look like this:</p>
+<div class="highlight"><pre><span></span><code>my-easel
+├── my-site
+│   └── site.yaml
+└── venv
+</code></pre></div>
+
+<p>Create a page directory and a <code>page.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code>$ mkdir pages
+$ <span class="nb">cd</span> pages
+$ mkdir my-page
+$ <span class="nb">cd</span> my-page
+$ touch page.yaml
+</code></pre></div>
+
+<p>Our project directory should now look like this:</p>
+<div class="highlight"><pre><span></span><code>my-easel
+├── my-site
+│   ├── site.yaml
+│   └── pages
+│       └── my-page
+│           └── page.yaml
+└── venv
+</code></pre></div>
+
+<h2 id="configuring-the-siteyaml">Configuring the <code>site.yaml</code><a class="headerlink" href="#configuring-the-siteyaml" title="Permanent link">&para;</a></h2>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Every site requires a <code>site.yaml</code> in the site&rsquo;s root directory. It&rsquo;s used to configure general site attributes as well as the menu.</p>
+</div>
+<p>Add the following to the <code>site.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># my-easel/my-site/site.yaml</span>
+
+<span class="nt">title</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-site</span>
+<span class="nt">favicon</span><span class="p">:</span>
+<span class="nt">copyright</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">© 2020 My Full Name</span>
+
+<span class="nt">page</span><span class="p">:</span>
+  <span class="nt">width</span><span class="p">:</span>
+
+<span class="nt">colors</span><span class="p">:</span>
+  <span class="nt">accent-base</span><span class="p">:</span>
+  <span class="nt">accent-light</span><span class="p">:</span>
+
+<span class="nt">menu</span><span class="p">:</span>
+  <span class="nt">width</span><span class="p">:</span>
+  <span class="nt">align</span><span class="p">:</span>
+  <span class="nt">header</span><span class="p">:</span>
+    <span class="nt">label</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-site</span>
+    <span class="nt">image</span><span class="p">:</span>
+      <span class="nt">path</span><span class="p">:</span>
+      <span class="nt">width</span><span class="p">:</span>
+      <span class="nt">height</span><span class="p">:</span>
+  <span class="nt">items</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">link-page</span>
+      <span class="nt">label</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-page</span>
+      <span class="nt">links-to</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-page</span>
+</code></pre></div>
+
+<p>Note that under <code>menu:items</code> we have a single item with the attribute <code>links-to</code> set to <code>my-page</code>. This is a path relative to the <code>pages</code> directory referring to the <code>my-page</code> directory. Note that <code>links-to</code> always requires a path relative to the <code>pages</code> directory.</p>
+<h2 id="configuring-the-pageyaml">Configuring the <code>page.yaml</code><a class="headerlink" href="#configuring-the-pageyaml" title="Permanent link">&para;</a></h2>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Each page directory requires a <code>page.yaml</code> file. In the way that <code>site.yaml</code> configures the site, <code>page.yaml</code> configures the page.</p>
+</div>
+<p>For this page we will do the laziest thing possible, create a <code>Lazy</code> page. This particular type of page auto-populates its contents from the contents of its respective folder sorted alphabetically by the absolute path of each item.</p>
+<p>Add the following to the <code>page.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># my-easel/my-site/my-page/page.yaml</span>
+
+<span class="c1"># Specify this page is the &#39;landing&#39; page.</span>
+<span class="nt">is-landing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># Page type.</span>
+<span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lazy</span>
+
+<span class="c1"># Lazy Page options.</span>
+<span class="nt">options</span><span class="p">:</span>
+  <span class="nt">show-captions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+
+<h2 id="adding-some-content">Adding Some Content<a class="headerlink" href="#adding-some-content" title="Permanent link">&para;</a></h2>
+<p>Now make sure to add some content: images, videos etc to the <code>my-page</code> directory:</p>
+<div class="highlight"><pre><span></span><code>my-easel
+├── my-site
+│   ├── site.yaml
+│   └── pages
+│       └── my-page
+│           ├── page.yaml
+│           ├── image-01.jpg
+│           ├── image-02.jpg
+│           ├── video.mp4
+│           └── ...
+└── venv
+</code></pre></div>
+
+<p>Et voilà! Your site is ready almost for deployment!</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../installation/" title="Installation" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Installation
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../a-minimal-application/" title="A Minimal Application" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                A Minimal Application
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Shant Ergenian
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.c3dc8c49.min.js"></script>
+      <script src="../../assets/javascripts/bundle.f9edbbd5.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.8e2cddea.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
