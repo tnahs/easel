@@ -2,8 +2,6 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
-from flask import url_for
-
 from . import errors
 from .config import config
 from .helpers import markdown
@@ -156,10 +154,6 @@ class Image:
         return self._path_absolute.relative_to(config.path_site)
 
     @property
-    def src(self) -> str:
-        return url_for("site.static", filename=self.path_relative)
-
-    @property
     def title(self) -> str:
         return markdown.from_string(self._title)
 
@@ -246,10 +240,6 @@ class Video:
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
         return self._path_absolute.relative_to(config.path_site)
-
-    @property
-    def src(self) -> str:
-        return url_for("site.static", filename=self.path_relative)
 
     @property
     def mime_type(self) -> str:
@@ -400,10 +390,6 @@ class Audio:
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
         return self._path_absolute.relative_to(config.path_site)
-
-    @property
-    def src(self) -> str:
-        return url_for("site.static", filename=self.path_relative)
 
     @property
     def mime_type(self) -> str:

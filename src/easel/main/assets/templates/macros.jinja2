@@ -8,7 +8,7 @@
 
     {% else %}
 
-        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label | safe }}</a>
+        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label if label | safe }}</a>
 
     {% endif %}
 
@@ -60,18 +60,18 @@
 
         {% if content.is_image %}
 
-            <img class="image" src="{{ content.src }}" data-index="{{ index }}">
+            <img class="image" src="{{ url_for('site.static', filename=content.path_relative) }}" data-index="{{ index }}">
 
         {% elif content.is_video %}
 
             <video class="video" controls data-index="{{ index }}">
-                <source src="{{ content.src }}" src="{{ content.mime_type }}">
+                <source src="{{ url_for('site.static', filename=content.path_relative) }}" src="{{ content.mime_type }}">
             </video>
 
         {% elif content.is_audio %}
 
             <audio controls preload="metadata" class="audio" data-index="{{ index }}">
-                <source src="{{ content.src }}" src="{{ content.mime_type }}" >
+                <source src="{{ url_for('site.static', filename=content.path_relative) }}" src="{{ content.mime_type }}" >
                 Your browser does not support the audio element.
             </audio>
 

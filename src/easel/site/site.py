@@ -30,16 +30,99 @@ class Site:
 
         self._config: dict = config_loader.load(path=config.file_site_yaml)
 
+        self._validate_config()
+
         self._build_pages()
         self._build_error_pages()
         self._build_menu()
 
         self._validate_build()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{config.path_site}>"
 
-    def _build_pages(self):
+    def _validate_config(self) -> None:
+
+        # General
+
+        try:
+            self._config["title"]
+            self._config["favicon"]
+            self._config["copyright"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
+            ) from error
+
+        # Page
+
+        try:
+            self._config["page"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
+            ) from error
+
+        try:
+            self._config["page"]["width"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:page."
+            ) from error
+
+        # Colors
+
+        try:
+            self._config["colors"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
+            ) from error
+
+        try:
+            self._config["colors"]["accent-base"]
+            self._config["colors"]["accent-light"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:colors."
+            ) from error
+
+        # Menu
+
+        try:
+            self._config["menu"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
+            )
+
+        try:
+            self._config["menu"]["width"]
+            self._config["menu"]["align"]
+            self._config["menu"]["header"]
+            self._config["menu"]["items"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu."
+            ) from error
+
+        try:
+            self._config["menu"]["header"]["image"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu:header."
+            ) from error
+
+        try:
+            self._config["menu"]["header"]["image"]["path"]
+            self._config["menu"]["header"]["image"]["width"]
+            self._config["menu"]["header"]["image"]["height"]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu:header:image."
+            ) from error
+
+    def _build_pages(self) -> None:
 
         logger.info(f"Compiling Pages from {config.path_site_pages}.")
 
@@ -55,7 +138,7 @@ class Site:
 
             self._pages.append(page)
 
-    def _build_error_pages(self):
+    def _build_error_pages(self) -> None:
 
         if not config.path_site_errors:
             return
@@ -74,11 +157,11 @@ class Site:
                 site=self, path_absolute=path_error_500
             )
 
-    def _build_menu(self):
+    def _build_menu(self) -> None:
 
         if not self._config["menu"]["items"]:
             logger.warn(
-                f"{config.FILENAME_SITE_YAML}:menu:items is empty. "
+                f"{self}: {config.FILENAME_SITE_YAML} missing 'menu:items'. "
                 f"No menu will be generated."
             )
             return
@@ -89,12 +172,14 @@ class Site:
 
             self._menu.append(menu)
 
-    def _validate_build(self):
+    def _validate_build(self) -> None:
 
-        # Booleans sum like integers. When more than one page is set as the
-        # 'landing' page this will sum to >1.
+        # Boolean types sum like integers. When more than one page is set as
+        # the 'landing' page this will sum to >1.
         if sum([page.is_landing for page in self._pages]) > 1:
-            raise errors.ConfigError("Site cannot have multiple 'landing' pages.")
+            raise errors.ConfigError(
+                f"{self}: Site cannot have multiple 'landing' pages."
+            )
 
     @property
     def config(self) -> dict:
@@ -115,7 +200,7 @@ class Site:
             if page.url != page_url:
                 continue
 
-            self.page_current = page
+            self._page_current = page
 
             return page
 
@@ -129,19 +214,17 @@ class Site:
             if not page.is_landing:
                 continue
 
-            self.page_current = page
+            self._page_current = page
 
             return page
 
-        raise errors.ConfigError("Site must have one page set as the 'landing' page.")
+        raise errors.ConfigError(
+            f"{self}: Site must have one page set as the 'landing' page."
+        )
 
     @property
     def page_current(self) -> "PageType":
         return self._page_current
-
-    @page_current.setter
-    def page_current(self, page) -> None:
-        self._page_current = page
 
     @property
     def page_error_404(self) -> Optional["PageType"]:

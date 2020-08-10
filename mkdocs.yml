@@ -1,0 +1,40 @@
+site_name: Easel Documentation
+site_author: Shant Ergenian
+
+repo_name: tnahs/easel
+repo_url: https://github.com/tnahs/easel/
+edit_uri: ""
+
+copyright: Copyright &copy; 2020 Shant Ergenian
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+
+markdown_extensions:
+  - markdown.extensions.toc:
+      permalink: true
+      toc_depth: 3
+  - markdown.extensions.admonition
+  - markdown.extensions.smarty
+  - markdown.extensions.def_list
+  - pymdownx.mark
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Easel: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Creating Your Site: getting-started/creating-your-site.md
+    - A Minimal Application: getting-started/a-minimal-application.md
+  - Configuration:
+    - Site: configuration/site.md
+    - Menus: configuration/menus.md
+    - Pages: configuration/pages.md
+    - Contents: configuration/contents.md
+  - API Reference:
+    - Custom Types: api-reference/custom-types.md
+    - Custom Assets: api-reference/custom-assets.md

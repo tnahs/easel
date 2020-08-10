@@ -1,91 +1,23 @@
-# -----------------------------------------------------------------------------
-# Sizes must be set in pixels using standard CSS syntax.
-# Colors can be set using standard CSS syntax.
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-# Info
-#
-# title: str
-# year: str
-# user:
-#   name: str
-#   email: str
-# favicon: str relative/path/to/favicon - default: none
-#
-#
 title: easel
-year: 2099
-name: Full Name
 favicon:
-# -----------------------------------------------------------------------------
+copyright: © 2020 Full Name
 
-# -----------------------------------------------------------------------------
-# Page
-#
-# page:
-#   width: str - default: 800px
-#
 page:
   width:
-# -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# Colors
-#
-# colors:
-#   accent-base: str - default: hsla(25, 100%, 85%, 1.00)
-#   accent-light: str - default: hsla(25, 100%, 85%, 1.00)
-#
 colors:
   accent-base:
   accent-light:
-# -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# Menu
-#
-# menu:
-#   width: str - default: 175
-#   align: str - default: left - [left, center, right, justify]
-#
-# menu:
-#   header:
-#     label: str
-#     image:
-#       # Relative to /[site]
-#       path: str - relative/path/to/image - default: none
-#       width: str - default: menu:width
-#       height: str - auto
-#
-# menu:header:image
-#   If 'path' is specified, 'menu:header:label' is set as the 'alt' text of the image.
-#
-# menu:
-#   items:
-#   - type: page
-#     label: str
-#     links-to: str - page directory name
-#
-#   - type: link
-#     label: str
-#     url: str
-#
-#   - type: section
-#     label: str
-#
-#   - type: spacer
-#     size: str: [small, default, large]
-#
 menu:
-  width: 225px
-  align: left
+  width:
+  align:
   header:
     label: easel
     image:
-      path: # images/header-image.png
-      width: # auto
-      height: # 32px
+      path:
+      width:
+      height:
   items:
     - type: section
       label: page types
@@ -119,8 +51,3 @@ menu:
     - type: link-url
       label: link
       url: http://www.link.com
-
-    - type: link-page
-      label: wiki
-      links-to: wiki
-  # -----------------------------------------------------------------------------

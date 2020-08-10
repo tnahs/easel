@@ -1,3 +1,4 @@
+import abc
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
@@ -65,7 +66,7 @@ class PageFactory:
         self._page_types[name] = page
 
 
-class Page:
+class Page(abc.ABC):
 
     is_lazy: bool = False
     is_layout: bool = False
@@ -118,9 +119,9 @@ class Page:
     def config(self) -> dict:
         return self._config
 
-    @property
+    @abc.abstractmethod
     def contents(self) -> List["ContentType"]:
-        raise NotImplementedError
+        pass
 
     @property
     def url(self) -> str:
@@ -144,26 +145,39 @@ class Page:
                 f"Unexpected Error while loading page description {path}."
             ) from error
 
+    @property
+    def options(self) -> dict:
+
+        options = self._config.get("options", {})
+
+        if options is None:
+            raise errors.ConfigError(f"{self}: Cannot set 'options' to None.")
+
+        return options
+
     # 'Lazy' and 'Layout' page attributes. Not applicable to 'Markdown' pages.
 
     @property
     def show_captions(self) -> bool:
-        # TODO: Add a check to make sure this is ignored/errors for markdown pages.
-        return self._config.get("options", {}).get("show-captions", False)
+        return self.options.get("show-captions", False)
 
     # Gallery related attributes.
 
     @property
     def is_gallery(self) -> bool:
-        return self._config.get("options", {}).get("is-gallery", False)
+        return self.options.get("is-gallery", False)
 
     @property
     def gallery_column_count(self) -> bool:
-        return self._config.get("options", {}).get("gallery-column-count", False)
+        return self.options.get(
+            "gallery-column-count", config.DEFAULT_GALLERY_COLUMN_COUNT
+        )
 
     @property
     def gallery_column_width(self) -> bool:
-        return self._config.get("options", {}).get("gallery-column-width", False)
+        return self.options.get(
+            "gallery-column-width", config.DEFAULT_GALLERY_COLUMN_WIDTH
+        )
 
 
 class Lazy(Page):

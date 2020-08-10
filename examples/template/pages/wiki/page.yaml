@@ -1,9 +1,0 @@
-# Markdown Page
-# template/pages/wiki
-
-# Page type.
-type: markdown
-
-# Markdown Page options
-options:
-  is-gallery: false

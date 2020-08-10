@@ -510,10 +510,7 @@ main #page .page-contents .content-item .audio {
 
 main #page .page-contents .content-item .embedded {
 
-    /* height: 0;
-    overflow: hidden;
-    position: relative;
-    padding-bottom: 56.25%; */
+    /* See easel/main/static/assets/static/main.js */
 }
 
 main #page .page-contents .content-item .embedded iframe {

@@ -1,8 +1,17 @@
 HIGH:
+  - Documentation: https://docs.readthedocs.io/en/stable/index.html
+  - Validation.
+  - Design logo/icon.
 
 MEDIUM:
   - CLI Tools: https://click.palletsprojects.com/en/7.x/
-  - Documentation: https://docs.readthedocs.io/en/stable/index.html
+  - Add 'extra' syntax to YAML.
+    - extra:
+      - key: value
+      - key: value
+    - extra-css:
+    - extra-javascript:
+    - extra-templates:
 
 LOW:
   - Text alignment for 'caption', 'header' and 'text'.
@@ -17,7 +26,6 @@ HOUSEKEEPING:
   - Cleanup errors/messages.
   - Cleanup '__repr__' methods.
   - Sift through paths and URLs.
-  - Add validation to the items that would throw a KeyError.
 
 FEATURES:
   - Lightbox with '<' and '>' buttons.
