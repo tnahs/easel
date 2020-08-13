@@ -6,9 +6,9 @@
             <img class="menu-header-image" src="{{ url_for('site.static', filename=site.config.menu.header.image.path) }}">
         </a>
 
-    {% else %}
+    {% elif site.config.menu.header.image.label %}
 
-        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label if label | safe }}</a>
+        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label | safe }}</a>
 
     {% endif %}
 

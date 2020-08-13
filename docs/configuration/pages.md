@@ -1,6 +1,48 @@
-# Pages
+# Page Types
 
-One page *must* have the `is-landing` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
+## Shared Attributes
+
+`type`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+`is-landing`
+:   Default: `false` -- One page *must* have the `is-landing` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
+
+    ``` yaml
+    is-landing: false
+    ```
+
+`options.is-gallery`
+:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      is-gallery: false
+    ```
+
+`options.gallery-column-count`
+:   Default: `auto` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      gallery-column-count: auto
+    ```
+
+`options.gallery-column-width`
+:   Default: `250px` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      gallery-column-width: 250px
+    ```
+
+`options.show-captions`
+:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      show-captions: false
+    ```
 
 ## Lazy Page
 
@@ -8,13 +50,6 @@ Lazy Page Configuration
 
 ``` yaml
 type: lazy
-
-options:
-  is-gallery: # [bool: false]
-  gallery-column-count: # [int|str: "auto"]
-  gallery-column-width: # [str: "250px"]
-  show-captions: # [bool: false]
-
 ```
 
 ## Layout Page
@@ -23,18 +58,113 @@ Layout Page Configuration
 
 ``` yaml
 type: layout
-
-options:
-  is-gallery: # [bool: false]
-  gallery-column-count: # [int|str: "auto"]
-  gallery-column-width: # [str: "250px"]
-  show-captions: # [bool: false]
-
 contents:
-  # [list<ContentTypes>: null]
 ```
 
-See [Contents](contents.md) for a list of available types.
+`contents`
+:   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. See [Content Types](#content-types) for a list of available types.
+
+### Content Types
+
+#### Shared Attributes
+
+`type`
+:   Sed sagittis ipsum non tempus volutpat.
+
+:   Valid options are: `image` `video` `audio` `embedded` `text-block` `header` `break`
+
+`caption.title`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+`caption.description`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+caption:
+  title: "Title"
+  description: "Description"
+```
+
+#### Image
+
+`path`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: image
+    path:
+```
+
+#### Video
+
+`path`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: video
+    path:
+```
+
+#### Audio
+
+`path`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: audio
+    path:
+```
+
+#### Embedded
+
+`html`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: embedded
+    html:
+```
+
+#### Text Block
+
+`path`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: text-block
+    path:
+```
+
+#### Header
+
+`body`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+`size`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: header
+    body:
+    size:
+```
+
+## Break
+
+`size`
+:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+
+``` yaml
+contents:
+  - type: break
+    size:
+```
 
 ## Markdown Page
 
@@ -42,32 +172,4 @@ Markdown Page Configuration
 
 ``` yaml
 type: markdown
-
-options:
-  is-gallery: # [bool: false]
-  gallery-column-count: # [int|str: "auto"]
-  gallery-column-width: # [str: "250px"]
 ```
-
-### Inserting Images
-
-When inserting images into a Markdown page or a Markdown content type item all paths must be relative to the parent page folder. With a structure like this:
-
-``` plaintext
-[site]
-└── pages
-    ├── ...
-    └── [markdown-page]
-        ├── page.yaml
-        ├── page-description.md
-        ├── 000-note.md
-        ├── 001-entry
-        │   ├── body.md
-        │   └── images
-        │       └── 800x400.png
-        └── 002-entry
-            ├── body.md
-            └── 1920x1080.png
-```
-
-The image `800x400.png` in `001-entry/images` would require the path `001-entry/images/800x400.png` to render correctly while `1920x1080.png` in `002-entry` would only require the path `002-entry/1920x1080.png`.

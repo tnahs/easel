@@ -14,16 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 # See easel.site.contents
-_MenuType = Union[
+MenuClass = Union[
     Type["LinkPage"], Type["LinkURL"], Type["Section"], Type["Spacer"],
 ]
 
-MenuType = Union[
+MenuObj = Union[
     "LinkPage", "LinkURL", "Section", "Spacer",
 ]
 
 
-class MenuFactory:
+class _MenuFactory:
     def __init__(self):
         self._menu_types = {
             "link-page": LinkPage,
@@ -32,7 +32,7 @@ class MenuFactory:
             "spacer": Spacer,
         }
 
-    def build(self, site: "Site", menu_data: dict) -> MenuType:
+    def build(self, site: "Site", menu_data: dict) -> MenuObj:
         """ Builds Menu-like object from a dictionary. See respective
         classes for documentation on accepted keys and structure. """
 
@@ -44,7 +44,7 @@ class MenuFactory:
             ) from error
 
         # Get Menu class based on 'menu_type'.
-        Menu: Optional[_MenuType] = self.menu_types(menu_type=menu_type)
+        Menu: Optional[MenuClass] = self.menu_types(menu_type=menu_type)
 
         if Menu is None:
             raise errors.ConfigError(
@@ -53,7 +53,7 @@ class MenuFactory:
 
         return Menu(site=site, **menu_data)
 
-    def menu_types(self, menu_type: str) -> Optional[_MenuType]:
+    def menu_types(self, menu_type: str) -> Optional[MenuClass]:
         return self._menu_types.get(menu_type, None)
 
     def register_menu_type(self, name: str, menu: Any) -> None:
@@ -224,4 +224,4 @@ class Spacer:
         return self._size
 
 
-menu_factory = MenuFactory()
+menu_factory = _MenuFactory()

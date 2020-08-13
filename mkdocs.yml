@@ -21,20 +21,20 @@ markdown_extensions:
   - markdown.extensions.def_list
   - pymdownx.mark
   - pymdownx.details
+  - pymdownx.snippets
   - pymdownx.highlight
   - pymdownx.superfences
 
 nav:
-  - Easel: index.md
+  - Home: index.md
   - Getting Started:
     - Installation: getting-started/installation.md
     - Creating Your Site: getting-started/creating-your-site.md
     - A Minimal Application: getting-started/a-minimal-application.md
-  - Configuration:
-    - Site: configuration/site.md
-    - Menus: configuration/menus.md
-    - Pages: configuration/pages.md
-    - Contents: configuration/contents.md
-  - API Reference:
-    - Custom Types: api-reference/custom-types.md
-    - Custom Assets: api-reference/custom-assets.md
+  # - Configuration:
+  #   - Site: configuration/site.md
+  #   - Pages: configuration/pages.md
+  # - Markdown: markdown.md
+  # - API Reference:
+  #   - Custom Types: api-reference/custom-types.md
+  #   - Custom Assets: api-reference/custom-assets.md

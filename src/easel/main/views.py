@@ -13,7 +13,7 @@ from ..site.config import config
 
 
 if TYPE_CHECKING:
-    from easel.site.pages import PageType
+    from easel.site.pages import PageObj
 
 
 blueprint_main = Blueprint(
@@ -38,7 +38,7 @@ blueprint_main = Blueprint(
 @blueprint_main.route("/")
 def page_landing() -> str:
 
-    page: Optional["PageType"] = current_app.site.page_landing
+    page: Optional["PageObj"] = current_app.site.page_landing
 
     return render_template("page.jinja2", page=page)
 
@@ -46,7 +46,7 @@ def page_landing() -> str:
 @blueprint_main.route("/<path:page_url>")
 def render_page(page_url: str) -> str:
 
-    page: Optional["PageType"] = current_app.site.get_page(page_url=page_url)
+    page: Optional["PageObj"] = current_app.site.get_page(page_url=page_url)
 
     if page is None:
         abort(404)
@@ -57,7 +57,7 @@ def render_page(page_url: str) -> str:
 @blueprint_main.errorhandler(404)
 def error_404(error):
 
-    page: Optional["PageType"] = current_app.site.page_error_404
+    page: Optional["PageObj"] = current_app.site.page_error_404
 
     if page is None:
         return redirect(url_for("main.page_landing"))
@@ -68,7 +68,7 @@ def error_404(error):
 @blueprint_main.errorhandler(500)
 def error_500(error):
 
-    page: Optional["PageType"] = current_app.site.page_error_500
+    page: Optional["PageObj"] = current_app.site.page_error_500
 
     if page is None:
         return redirect(url_for("main.page_landing"))

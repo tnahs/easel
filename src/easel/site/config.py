@@ -8,10 +8,6 @@ from . import errors
 logger = logging.getLogger(__name__)
 
 
-class ConfigKeys:
-    PATH_SITE: str = "PATH_SITE"
-
-
 class Config:
 
     PATH_ROOT = pathlib.Path(__file__).parent.parent
@@ -84,9 +80,7 @@ class Config:
     def path_site(self) -> pathlib.Path:
 
         if self._path_site is None:
-            raise errors.ConfigError(
-                f"{ConfigKeys.PATH_SITE} must be set before running."
-            )
+            raise errors.ConfigError("Site path must be set before running.")
 
         return self._path_site
 
@@ -100,7 +94,7 @@ class Config:
             path_site = path_site.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.ConfigError(
-                f"{ConfigKeys.PATH_SITE} directory {path_site} does not exist."
+                f"Site path '{path_site}' does not exist."
             ) from error
 
         self._path_site = path_site
@@ -152,7 +146,7 @@ class Config:
             path_assets = path_assets.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.ConfigError(
-                f"{ConfigKeys.PATH_SITE} directory {path_assets} does not exist."
+                f"Site 'path' directory {path_assets} does not exist."
             ) from error
 
         logger.info(f"Using custom assets directory: {path_assets}.")

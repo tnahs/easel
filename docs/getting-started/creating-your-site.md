@@ -4,7 +4,7 @@
 
 Inside your project directory create an site directory and a `site.yaml` file:
 
-``` shell
+``` console
 $ mkdir my-site
 $ cd my-site
 $ touch site.yaml
@@ -12,7 +12,7 @@ $ touch site.yaml
 
 Our project directory should now look like this:
 
-``` shell
+``` plaintext
 my-easel
 ├── my-site
 │   └── site.yaml
@@ -21,7 +21,7 @@ my-easel
 
 Create a page directory and a `page.yaml` file:
 
-``` shell
+``` console
 $ mkdir pages
 $ cd pages
 $ mkdir my-page

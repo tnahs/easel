@@ -45,13 +45,16 @@ class Easel(Flask):
         def inject_site() -> dict:
             return {"site": self._site}
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}:{config.path_site}>"
+
     @property
     def site(self) -> Site:
         return self._site
 
     def run(
         self, loglevel: Optional[Union[str, int]] = None, debug: bool = True, **kwargs
-    ):
+    ) -> None:
 
         if debug:
             os.environ["FLASK_ENV"] = "development"

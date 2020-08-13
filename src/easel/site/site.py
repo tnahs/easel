@@ -8,8 +8,8 @@ from .helpers import config_loader
 
 
 if TYPE_CHECKING:
-    from .pages import PageType
-    from .menus import MenuType
+    from .pages import PageObj
+    from .menus import MenuObj
 
 
 logger = logging.getLogger(__name__)
@@ -20,13 +20,13 @@ class Site:
 
         logger.info(f"Building Site from {config.path_site}.")
 
-        self._pages: List["PageType"] = []
-        self._menu: List["MenuType"] = []
+        self._pages: List["PageObj"] = []
+        self._menu: List["MenuObj"] = []
 
-        self._page_error_404: Optional["PageType"] = None
-        self._page_error_500: Optional["PageType"] = None
+        self._page_error_404: Optional["PageObj"] = None
+        self._page_error_500: Optional["PageObj"] = None
 
-        self._page_current: "PageType"
+        self._page_current: "PageObj"
 
         self._config: dict = config_loader.load(path=config.file_site_yaml)
 
@@ -186,14 +186,14 @@ class Site:
         return self._config
 
     @property
-    def pages(self) -> List["PageType"]:
+    def pages(self) -> List["PageObj"]:
         return [*self._pages, self.page_landing]
 
     @property
-    def menu(self) -> List["MenuType"]:
+    def menu(self) -> List["MenuObj"]:
         return self._menu
 
-    def get_page(self, page_url: str) -> Optional["PageType"]:
+    def get_page(self, page_url: str) -> Optional["PageObj"]:
 
         for page in self._pages:
 
@@ -207,7 +207,7 @@ class Site:
         return None
 
     @property
-    def page_landing(self) -> "PageType":
+    def page_landing(self) -> "PageObj":
 
         for page in self._pages:
 
@@ -223,15 +223,15 @@ class Site:
         )
 
     @property
-    def page_current(self) -> "PageType":
+    def page_current(self) -> "PageObj":
         return self._page_current
 
     @property
-    def page_error_404(self) -> Optional["PageType"]:
+    def page_error_404(self) -> Optional["PageObj"]:
         return self._page_error_404
 
     @property
-    def page_error_500(self) -> Optional["PageType"]:
+    def page_error_500(self) -> Optional["PageObj"]:
         return self._page_error_500
 
     @property

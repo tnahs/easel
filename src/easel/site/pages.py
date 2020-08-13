@@ -10,23 +10,23 @@ from .helpers import config_loader, markdown, utils
 
 if TYPE_CHECKING:
     from .site import Site
-    from .contents import ContentType
+    from .contents import ContentObj
 
 
 logger = logging.getLogger(__name__)
 
 
 # See easel.site.contents
-_PageType = Union[
+PageClass = Union[
     Type["Lazy"], Type["Layout"], Type["Markdown"],
 ]
 
-PageType = Union[
+PageObj = Union[
     "Page", "Lazy", "Layout", "Markdown",
 ]
 
 
-class PageFactory:
+class _PageFactory:
     def __init__(self):
         self._page_types = {
             "lazy": Lazy,
@@ -34,7 +34,7 @@ class PageFactory:
             "markdown": Markdown,
         }
 
-    def build(self, site: "Site", path_absolute: pathlib.Path) -> PageType:
+    def build(self, site: "Site", path_absolute: pathlib.Path) -> PageObj:
         """ Builds Page-like object from a path. """
 
         path_page_config: pathlib.Path = path_absolute / config.FILENAME_PAGE_YAML
@@ -49,7 +49,7 @@ class PageFactory:
             ) from error
 
         # Get Menu class based on 'menu_type'.
-        Page: Optional[_PageType] = self.page_types(page_type=page_type)
+        Page: Optional[PageClass] = self.page_types(page_type=page_type)
 
         if Page is None:
             raise errors.ConfigError(
@@ -58,7 +58,7 @@ class PageFactory:
 
         return Page(site=site, path_absolute=path_absolute, config=page_config)
 
-    def page_types(self, page_type: str) -> Optional[_PageType]:
+    def page_types(self, page_type: str) -> Optional[PageClass]:
         return self._page_types.get(page_type, None)
 
     def register_page_type(self, name: str, page: Any) -> None:
@@ -67,36 +67,25 @@ class PageFactory:
 
 
 class Page(abc.ABC):
-
-    is_lazy: bool = False
-    is_layout: bool = False
-    is_markdown: bool = False
-
     def __init__(self, site: "Site", path_absolute: pathlib.Path, config: dict):
 
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
         self._config: dict = config
 
+        self.validate()
+
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.path_relative}>"
 
-    def _validate(self) -> None:
+    @property
+    @abc.abstractmethod
+    def contents(self) -> List["ContentObj"]:
+        pass
 
-        if self.is_gallery:
-
-            if (
-                self.gallery_column_count == "auto"
-                and self.gallery_column_width == "auto"
-            ):
-                raise errors.ConfigError(
-                    f"{self}: Cannot set 'column-count' and 'column-width' to 'auto'."
-                )
-
-            if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
-                raise errors.ConfigError(
-                    f"{self}: Unsupported value for 'column-count'."
-                )
+    @abc.abstractmethod
+    def validate(self) -> None:
+        pass
 
     @property
     def name(self) -> str:
@@ -118,10 +107,6 @@ class Page(abc.ABC):
     @property
     def config(self) -> dict:
         return self._config
-
-    @abc.abstractmethod
-    def contents(self) -> List["ContentType"]:
-        pass
 
     @property
     def url(self) -> str:
@@ -155,13 +140,40 @@ class Page(abc.ABC):
 
         return options
 
-    # 'Lazy' and 'Layout' page attributes. Not applicable to 'Markdown' pages.
+
+class CaptionsMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def options(self) -> dict:
+        pass
 
     @property
     def show_captions(self) -> bool:
         return self.options.get("show-captions", False)
 
-    # Gallery related attributes.
+
+class GalleryMixin(abc.ABC):
+    def validate_gallery(self) -> None:
+
+        if self.is_gallery:
+
+            if (
+                self.gallery_column_count == "auto"
+                and self.gallery_column_width == "auto"
+            ):
+                raise errors.ConfigError(
+                    f"{self}: Cannot set 'column-count' and 'column-width' to 'auto'."
+                )
+
+            if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
+                raise errors.ConfigError(
+                    f"{self}: Unsupported value for 'column-count'."
+                )
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> dict:
+        pass
 
     @property
     def is_gallery(self) -> bool:
@@ -180,27 +192,21 @@ class Page(abc.ABC):
         )
 
 
-class Lazy(Page):
-
-    is_lazy: bool = True
-
+class Lazy(Page, CaptionsMixin, GalleryMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._validate()
-        super()._validate()
-
-    def _validate(self) -> None:
-        pass
+    def validate(self) -> None:
+        self.validate_gallery()
 
     @property
-    def contents(self) -> List["ContentType"]:
+    def contents(self) -> List["ContentObj"]:
         return self._contents
 
     @property
-    def _contents(self) -> List["ContentType"]:
+    def _contents(self) -> List["ContentObj"]:
 
-        items: List["ContentType"] = []
+        items: List["ContentObj"] = []
 
         """ pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
         objects. Contains absolute paths of all items and sub-items in the
@@ -251,37 +257,32 @@ class Lazy(Page):
 
             items.append(item)
 
-        # NOTE: 'VideoEmbedded' doesn't have 'path_absolute' property.
-        items.sort(key=lambda item: item.path_absolute)
+        # Ignoring type because 'VideoEmbedded' doesn't have 'path_absolute'
+        # property. However a 'VideoEmbedded' will never show up in this list.
+        items.sort(key=lambda item: item.path_absolute)  # type: ignore
 
         return items
 
 
-class Layout(Page):
-
-    is_layout = True
-
+class Layout(Page, CaptionsMixin, GalleryMixin):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._validate()
-        super()._validate()
-
-    def _validate(self) -> None:
+    def validate(self) -> None:
         pass
 
     @property
-    def contents(self) -> List["ContentType"]:
+    def contents(self) -> List["ContentObj"]:
         return self._contents
 
     @property
-    def _contents(self) -> List["ContentType"]:
+    def _contents(self) -> List["ContentObj"]:
 
-        items: List["ContentType"] = []
+        items: List["ContentObj"] = []
 
         for content_data in self._config["contents"]:
 
-            item: "ContentType" = contents.content_factory.build(
+            item: "ContentObj" = contents.content_factory.build(
                 page=self, content_data=content_data
             )
 
@@ -290,31 +291,24 @@ class Layout(Page):
         return items
 
 
-class Markdown(Page):
-
-    is_markdown = True
-
+class Markdown(Page, GalleryMixin):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._validate()
-        super()._validate()
+        # TODO: Log warning when 'show-captions' is present.
+        # logger.warning("Cannot set 'options:show-caption' in 'Markdown' page. ")
 
-    def _validate(self) -> None:
-
-        if self.show_captions:
-            raise errors.ConfigError(
-                "Cannot set 'options:show-caption' in 'Markdown' page. "
-            )
+    def validate(self) -> None:
+        pass
 
     @property
-    def contents(self) -> List["ContentType"]:
+    def contents(self) -> List["ContentObj"]:
         return self._contents
 
     @property
-    def _contents(self) -> List["ContentType"]:
+    def _contents(self) -> List["ContentObj"]:
 
-        items: List["ContentType"] = []
+        items: List["ContentObj"] = []
 
         """ pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
         objects. Contains absolute paths of all items and sub-items in the
@@ -340,10 +334,11 @@ class Markdown(Page):
 
             items.append(item)
 
-        # NOTE: 'VideoEmbedded' doesn't have 'path_absolute' property.
-        items.sort(key=lambda items: items.path_absolute)
+        # Ignoring type because 'VideoEmbedded' doesn't have 'path_absolute'
+        # property. However a 'VideoEmbedded' will never show up in this list.
+        items.sort(key=lambda items: items.path_absolute)  # type:ignore
 
         return items
 
 
-page_factory = PageFactory()
+page_factory = _PageFactory()

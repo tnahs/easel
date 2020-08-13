@@ -1,26 +1,27 @@
+import abc
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
-from . import errors
+from . import errors, pages
 from .config import config
 from .helpers import markdown
 
 
 if TYPE_CHECKING:
-    from .pages import PageType
+    from .pages import PageObj
 
 
 logger = logging.getLogger(__name__)
 
 
 """ Ah, it looks like you are trying to instantiate a type, so your dict should
-b typed Dict[int, Type[Message]] not Dict[int, Message]. This will cause mypy
+be typed Dict[int, Type[Message]] not Dict[int, Message]. This will cause mypy
 to complain too many arguments are passed, which is correct I believe, since
 the base Message doesn't have any dataclass attributes, and uses __slots__.
 
 https://github.com/python/mypy/issues/5361#issuecomment-405113523 """
-_ContentType = Union[
+ContentClass = Union[
     Type["Image"],
     Type["Video"],
     Type["Audio"],
@@ -30,12 +31,12 @@ _ContentType = Union[
     Type["Break"],
 ]
 
-ContentType = Union[
+ContentObj = Union[
     "Image", "Video", "Audio", "Embedded", "TextBlock", "Header", "Break",
 ]
 
 
-class ContentFactory:
+class _ContentFactory:
     def __init__(self):
         self._content_types = {
             "image": Image,
@@ -47,7 +48,7 @@ class ContentFactory:
             "break": Break,
         }
 
-    def build(self, page: "PageType", content_data: dict) -> ContentType:
+    def build(self, page: "PageObj", content_data: dict) -> ContentObj:
         """ Builds Content-like object from a dictionary. See respective
         classes for documentation on accepted keys and structure. """
 
@@ -59,7 +60,7 @@ class ContentFactory:
             ) from error
 
         # Get Content class based on 'content_type'.
-        Content: Optional[_ContentType] = self.content_types(content_type=content_type)
+        Content: Optional[ContentClass] = self.content_types(content_type=content_type)
 
         if Content is None:
             raise errors.ConfigError(
@@ -68,7 +69,7 @@ class ContentFactory:
 
         return Content(page=page, **content_data)
 
-    def content_types(self, content_type: str) -> Optional[_ContentType]:
+    def content_types(self, content_type: str) -> Optional[ContentClass]:
         return self._content_types.get(content_type, None)
 
     def register_content_type(self, name: str, content: Any) -> None:
@@ -80,7 +81,7 @@ class Image:
 
     is_image: bool = True
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an Image object from a dictionary with the following
         attributes:
 
@@ -93,7 +94,7 @@ class Image:
                 },
             }
         """
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             path: str = content_data["path"]
@@ -104,7 +105,8 @@ class Image:
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
-        if self._page.is_layout:
+        # TODO: Is there a better way to do this?
+        if isinstance(self._page, pages.Layout):
             self._path_absolute: pathlib.Path = self._page.path_absolute / path
         else:
             self._path_absolute: pathlib.Path = pathlib.Path(path)
@@ -168,7 +170,7 @@ class Video:
 
     MIME_TYPES = {".mp4": "video/mpeg", ".webm": "video/webm"}
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an Video object from a dictionary with the following
         attributes:
 
@@ -181,7 +183,7 @@ class Video:
                 },
             }
         """
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             path: str = content_data["path"]
@@ -192,7 +194,8 @@ class Video:
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
-        if self._page.is_layout:
+        # TODO: Is there a better way to do this?
+        if isinstance(self._page, pages.Layout):
             self._path_absolute: pathlib.Path = self._page.path_absolute / path
         else:
             self._path_absolute: pathlib.Path = pathlib.Path(path)
@@ -258,7 +261,7 @@ class Embedded:
 
     is_embedded: bool = True
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an Embedded object from a dictionary with the following
         attributes:
 
@@ -272,7 +275,7 @@ class Embedded:
             }
         """
 
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             self._html: str = content_data["html"]
@@ -317,7 +320,7 @@ class Audio:
         ".wav": "audio/wav",
     }
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an Audio object from a dictionary with the following
         attributes:
 
@@ -331,7 +334,7 @@ class Audio:
             }
         """
 
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             path: str = content_data["path"]
@@ -342,7 +345,8 @@ class Audio:
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
-        if self._page.is_layout:
+        # TODO: Is there a better way to do this?
+        if isinstance(self._page, pages.Layout):
             self._path_absolute: pathlib.Path = self._page.path_absolute / path
         else:
             self._path_absolute: pathlib.Path = pathlib.Path(path)
@@ -408,7 +412,7 @@ class TextBlock:
 
     is_text_block: bool = True
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an TextBlock object from a dictionary with the following
         attributes:
 
@@ -418,7 +422,7 @@ class TextBlock:
             }
         """
 
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             path: str = content_data["path"]
@@ -429,7 +433,8 @@ class TextBlock:
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
-        if self._page.is_layout:
+        # TODO: Is there a better way to do this?
+        if isinstance(self._page, pages.Layout):
             self._path_absolute: pathlib.Path = self._page.path_absolute / path
         else:
             self._path_absolute: pathlib.Path = pathlib.Path(path)
@@ -481,7 +486,7 @@ class Header:
 
     is_header: bool = True
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an Header object from a dictionary with the following
         attributes:
 
@@ -492,7 +497,7 @@ class Header:
             }
         """
 
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
 
         try:
             self._body: str = content_data["body"]
@@ -529,7 +534,7 @@ class Break:
 
     is_break: bool = True
 
-    def __init__(self, page: "PageType", **content_data):
+    def __init__(self, page: "PageObj", **content_data):
         """ Creates an VideoEmbedded object from a dictionary with the following
         attributes:
 
@@ -539,7 +544,7 @@ class Break:
             }
         """
 
-        self._page: "PageType" = page
+        self._page: "PageObj" = page
         self._size: str = content_data.get("size", config.DEFAULT_SIZE)
 
         self._validate()
@@ -560,4 +565,4 @@ class Break:
         return self._size
 
 
-content_factory = ContentFactory()
+content_factory = _ContentFactory()

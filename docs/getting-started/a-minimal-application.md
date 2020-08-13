@@ -15,6 +15,7 @@ if __name__ == "__main__":
 ```
 
 !!! info
+
     Note that `my-site` refers to the directory `my-site`. We're providing a relative path here, telling Easel that our site directory is in the same directory as our application.
 
 Now save it as `run.py` in your `my-easel` directory next to your `my-site` directory.
@@ -38,7 +39,7 @@ my-easel
 
 To run the application simply run the script.
 
-``` shell
+``` console
 $ python run.py
  * Running on http://127.0.0.1:5000/
 ```

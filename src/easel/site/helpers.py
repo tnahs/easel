@@ -12,7 +12,7 @@ from .config import config
 
 
 if TYPE_CHECKING:
-    from .pages import PageType
+    from .pages import PageObj
 
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ class Markdown:
 
         return md.convert(string)
 
-    def from_file(self, filepath: pathlib.Path, page: "PageType") -> str:
+    def from_file(self, filepath: pathlib.Path, page: "PageObj") -> str:
         """ Render Markdown from a file. """
 
         # 'base_path' is pre-pended to any 'path' or 'src' in <a>, <script>,
