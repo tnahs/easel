@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from . import contents, errors
 from .config import config
-from .helpers import config_loader, markdown, utils
+from .helpers import config_loader, markdown, utils, Keys
 
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ PageClass = Union[
 ]
 
 PageObj = Union[
-    "Page", "Lazy", "Layout", "Markdown",
+    "Lazy", "Layout", "Markdown",
 ]
 
 
@@ -42,10 +42,10 @@ class _PageFactory:
         page_config: dict = config_loader.load(path=path_page_config)
 
         try:
-            page_type: str = page_config["type"]
+            page_type: str = page_config[Keys.TYPE]
         except KeyError as error:
             raise errors.ConfigError(
-                f"Missing 'type' in {path_page_config}."
+                f"Missing required key '{Keys.TYPE}' for Page in {path_absolute}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
@@ -53,7 +53,7 @@ class _PageFactory:
 
         if Page is None:
             raise errors.ConfigError(
-                f"Unsupported value for 'type' '{page_type}' in {path_page_config}."
+                f"Unsupported value '{page_type}' for '{Keys.TYPE}' for Page in {path_absolute}."
             )
 
         return Page(site=site, path_absolute=path_absolute, config=page_config)
@@ -66,14 +66,66 @@ class _PageFactory:
         self._page_types[name] = page
 
 
-class Page(abc.ABC):
+class ShowCaptionsMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def options(self) -> dict:
+        pass
+
+    @property
+    def show_captions(self) -> bool:
+        return self.options.get(Keys.SHOW_CAPTIONS, False)
+
+
+class GalleryMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def options(self) -> dict:
+        pass
+
+    def validate__gallery_config(self) -> None:
+
+        if not self.is_gallery:
+            return
+
+        if self.gallery_column_count == "auto" and self.gallery_column_width == "auto":
+            raise errors.ConfigError(
+                f"{self}: Cannot set '{Keys.GALLERY_COLUMN_COUNT}' and "
+                f"'{Keys.GALLERY_COLUMN_WIDTH}' to 'auto'."
+            )
+
+        if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
+            raise errors.ConfigError(
+                f"{self}: Unsupported value '{self.gallery_column_count}' for "
+                f"'{Keys.GALLERY_COLUMN_COUNT}'."
+            )
+
+    @property
+    def is_gallery(self) -> bool:
+        return self.options.get(Keys.IS_GALLERY, False)
+
+    @property
+    def gallery_column_count(self) -> bool:
+        return self.options.get(Keys.GALLERY_COLUMN_COUNT, None)
+
+    @property
+    def gallery_column_width(self) -> bool:
+        return self.options.get(Keys.GALLERY_COLUMN_WIDTH, None)
+
+    @property
+    def gallery_column_gap(self) -> bool:
+        return self.options.get(Keys.GALLERY_COLUMN_GAP, None)
+
+
+class PageInterface(abc.ABC):
     def __init__(self, site: "Site", path_absolute: pathlib.Path, config: dict):
 
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
         self._config: dict = config
 
-        self.validate()
+        self.validate__options()
+        self.validate__config()
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.path_relative}>"
@@ -84,8 +136,38 @@ class Page(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def validate(self) -> None:
+    def validate__config(self) -> None:
         pass
+
+    def validate__options(self) -> None:
+
+        try:
+            options = self.config[Keys.OPTIONS]
+        except KeyError:
+            return
+
+        if type(options) is not dict:
+            raise errors.ConfigError(
+                f"{self}: Expected type 'dict' for '{Keys.OPTIONS}' got '{type(options).__name__}'."
+            )
+
+    @property
+    def config(self) -> dict:
+        return self._config
+
+    @property
+    def options(self) -> dict:
+        """ Returns a dictionary of optional page attributes defined in
+        the 'page.yaml':
+
+            {
+                "is-gallery": [bool: false],
+                "gallery-column-count": [str|int: auto],
+                "gallery-column-width": [str: 250px],
+                Keys.SHOW_CAPTIONS: [bool: false]
+            }
+        """
+        return self.config.get(Keys.OPTIONS, {})
 
     @property
     def name(self) -> str:
@@ -101,12 +183,8 @@ class Page(abc.ABC):
         return self._path_absolute.relative_to(config.path_site)
 
     @property
-    def file_config(self) -> pathlib.Path:
+    def file_page_yaml(self) -> pathlib.Path:
         return self._path_absolute / config.FILENAME_PAGE_YAML
-
-    @property
-    def config(self) -> dict:
-        return self._config
 
     @property
     def url(self) -> str:
@@ -114,7 +192,7 @@ class Page(abc.ABC):
 
     @property
     def is_landing(self) -> bool:
-        return self._config.get("is-landing", False)
+        return self.config.get(Keys.IS_LANDING, False)
 
     @property
     def description(self) -> Optional[str]:
@@ -122,6 +200,7 @@ class Page(abc.ABC):
         path = self._path_absolute / config.FILENAME_PAGE_DESCRIPTION
 
         try:
+            # TODO: Figure out how to properly type this.
             return markdown.from_file(filepath=path, page=self)
         except FileNotFoundError:
             return None
@@ -130,87 +209,27 @@ class Page(abc.ABC):
                 f"Unexpected Error while loading page description {path}."
             ) from error
 
-    @property
-    def options(self) -> dict:
 
-        options = self._config.get("options", {})
+class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
+    """ Creates an Markdown Page object from a dictionary with the following
+    attributes:
 
-        if options is None:
-            raise errors.ConfigError(f"{self}: Cannot set 'options' to None.")
+        {
+            "type": "lazy",
+        }
+    """
 
-        return options
-
-
-class CaptionsMixin(abc.ABC):
-    @property
-    @abc.abstractmethod
-    def options(self) -> dict:
-        pass
-
-    @property
-    def show_captions(self) -> bool:
-        return self.options.get("show-captions", False)
-
-
-class GalleryMixin(abc.ABC):
-    def validate_gallery(self) -> None:
-
-        if self.is_gallery:
-
-            if (
-                self.gallery_column_count == "auto"
-                and self.gallery_column_width == "auto"
-            ):
-                raise errors.ConfigError(
-                    f"{self}: Cannot set 'column-count' and 'column-width' to 'auto'."
-                )
-
-            if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
-                raise errors.ConfigError(
-                    f"{self}: Unsupported value for 'column-count'."
-                )
-
-    @property
-    @abc.abstractmethod
-    def options(self) -> dict:
-        pass
-
-    @property
-    def is_gallery(self) -> bool:
-        return self.options.get("is-gallery", False)
-
-    @property
-    def gallery_column_count(self) -> bool:
-        return self.options.get(
-            "gallery-column-count", config.DEFAULT_GALLERY_COLUMN_COUNT
-        )
-
-    @property
-    def gallery_column_width(self) -> bool:
-        return self.options.get(
-            "gallery-column-width", config.DEFAULT_GALLERY_COLUMN_WIDTH
-        )
-
-
-class Lazy(Page, CaptionsMixin, GalleryMixin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def validate(self) -> None:
-        self.validate_gallery()
+    def validate__config(self) -> None:
+        self.validate__gallery_config()
 
     @property
     def contents(self) -> List["ContentObj"]:
-        return self._contents
-
-    @property
-    def _contents(self) -> List["ContentObj"]:
 
         items: List["ContentObj"] = []
 
-        """ pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
-        objects. Contains absolute paths of all items and sub-items in the
-        page's folder. """
+        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
+        # objects. Contains absolute paths of all items and sub-items in the
+        # page's folder.
         for path in self.path_absolute.glob("**/*"):
 
             # Ignore directories.
@@ -231,17 +250,17 @@ class Lazy(Page, CaptionsMixin, GalleryMixin):
 
             if path.suffix in config.VALID_IMAGE_TYPES:
                 item = contents.Image(
-                    page=self, path=path, caption={"title": path.stem}
+                    page=self, path=path, caption={Keys.TITLE: path.stem}
                 )
 
             elif path.suffix in config.VALID_VIDEO_TYPES:
                 item = contents.Video(
-                    page=self, path=path, caption={"title": path.stem}
+                    page=self, path=path, caption={Keys.TITLE: path.stem}
                 )
 
             elif path.suffix in config.VALID_AUDIO_TYPES:
                 item = contents.Audio(
-                    page=self, path=path, caption={"title": path.stem}
+                    page=self, path=path, caption={Keys.TITLE: path.stem}
                 )
 
             elif path.suffix in config.VALID_TEXT_TYPES:
@@ -257,30 +276,49 @@ class Lazy(Page, CaptionsMixin, GalleryMixin):
 
             items.append(item)
 
-        # Ignoring type because 'VideoEmbedded' doesn't have 'path_absolute'
-        # property. However a 'VideoEmbedded' will never show up in this list.
+        # 'VideoEmbedded' doesn't have the property 'path_absolute' however
+        # we're ignoring the typing error here because 'VideoEmbedded' will
+        # never show up in this list.
         items.sort(key=lambda item: item.path_absolute)  # type: ignore
 
         return items
 
 
-class Layout(Page, CaptionsMixin, GalleryMixin):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
+    """ Creates an Markdown Page object from a dictionary with the following
+    attributes:
 
-    def validate(self) -> None:
-        pass
+        {
+            "type": "layout",
+            "contents": [list<Contents>: []],
+        }
+    """
+
+    def validate__config(self) -> None:
+
+        try:
+            contents = self.config[Keys.CONTENTS]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"Missing required key '{Keys.CONTENTS}' in for "
+                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+            ) from error
+        else:
+            if type(contents) is not list:
+                raise errors.ConfigError(
+                    f"{self}: Expected type 'list' for '{Keys.CONTENTS}' got '{type(contents).__name__}'."
+                )
+            if not len(contents):
+                logger.warning(f"{self}: Page has no contents.")
+
+        self.validate__gallery_config()
 
     @property
     def contents(self) -> List["ContentObj"]:
-        return self._contents
-
-    @property
-    def _contents(self) -> List["ContentObj"]:
 
         items: List["ContentObj"] = []
 
-        for content_data in self._config["contents"]:
+        for content_data in self.config[Keys.CONTENTS]:
 
             item: "ContentObj" = contents.content_factory.build(
                 page=self, content_data=content_data
@@ -291,28 +329,33 @@ class Layout(Page, CaptionsMixin, GalleryMixin):
         return items
 
 
-class Markdown(Page, GalleryMixin):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+class Markdown(PageInterface, GalleryMixin):
+    """ Creates an Markdown Page object from a dictionary with the following
+    attributes:
 
-        # TODO: Log warning when 'show-captions' is present.
-        # logger.warning("Cannot set 'options:show-caption' in 'Markdown' page. ")
+        {
+            "type": "markdown",
+        }
+    """
 
-    def validate(self) -> None:
-        pass
+    def validate__config(self) -> None:
+
+        if Keys.SHOW_CAPTIONS in self.options.keys():
+            logger.warning(
+                f"{self}: Markdown pages do not support captions. "
+                f"Ignoring '{Keys.OPTIONS}.{Keys.SHOW_CAPTIONS}'."
+            )
+
+        self.validate__gallery_config()
 
     @property
     def contents(self) -> List["ContentObj"]:
-        return self._contents
-
-    @property
-    def _contents(self) -> List["ContentObj"]:
 
         items: List["ContentObj"] = []
 
-        """ pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
-        objects. Contains absolute paths of all items and sub-items in the
-        page's folder. """
+        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
+        # objects. Contains absolute paths of all items and sub-items in the
+        # page's folder.
         for path in self.path_absolute.glob("**/*"):
 
             # Ignore directories.
@@ -334,8 +377,9 @@ class Markdown(Page, GalleryMixin):
 
             items.append(item)
 
-        # Ignoring type because 'VideoEmbedded' doesn't have 'path_absolute'
-        # property. However a 'VideoEmbedded' will never show up in this list.
+        # 'VideoEmbedded' doesn't have the property 'path_absolute' however
+        # we're ignoring the typing error here because 'VideoEmbedded' will
+        # never show up in this list.
         items.sort(key=lambda items: items.path_absolute)  # type:ignore
 
         return items

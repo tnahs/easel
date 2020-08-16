@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors, pages
 from .config import config
-from .helpers import markdown
+from .helpers import markdown, Keys
 
 
 if TYPE_CHECKING:
@@ -53,10 +53,11 @@ class _ContentFactory:
         classes for documentation on accepted keys and structure. """
 
         try:
-            content_type: str = content_data["type"]
+            content_type: str = content_data[Keys.TYPE]
         except KeyError as error:
             raise errors.ConfigError(
-                f"Missing 'type' in {content_data} in {page.file_config}."
+                f"{page}: Missing required key '{Keys.TYPE}' for Content in "
+                f"{config.FILENAME_PAGE_YAML}."
             ) from error
 
         # Get Content class based on 'content_type'.
@@ -64,7 +65,8 @@ class _ContentFactory:
 
         if Content is None:
             raise errors.ConfigError(
-                f"Unsupported value for 'type' '{content_type}' in {page.file_config}."
+                f"{page}: Unsupported value '{content_type}' for '{Keys.TYPE}' "
+                f"in {config.FILENAME_PAGE_YAML}."
             )
 
         return Content(page=page, **content_data)
@@ -77,492 +79,345 @@ class _ContentFactory:
         self._content_types[name] = content
 
 
-class Image:
+class CaptionMixin(abc.ABC):
+    """ Adds support for parsing and render captions from a dictionary with the
+    following attributes:
 
-    is_image: bool = True
-
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an Image object from a dictionary with the following
-        attributes:
-
-            {
-                "type": "image",
-                "path": [str: path/to/image],
-                "caption": {
-                    "title": [str: title],
-                    "description": [str: description],
-                },
-            }
-        """
-        self._page: "PageObj" = page
-
-        try:
-            path: str = content_data["path"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing 'path' in {content_data} in {self._page.file_config}."
-            ) from error
-
-        # For Layout pages, 'path' is passed as a path relative to the page
-        # directory. In this case, concatenate both paths.
-        # TODO: Is there a better way to do this?
-        if isinstance(self._page, pages.Layout):
-            self._path_absolute: pathlib.Path = self._page.path_absolute / path
-        else:
-            self._path_absolute: pathlib.Path = pathlib.Path(path)
-
-        caption: Optional[dict] = content_data.get("caption")
-
-        if caption is not None:
-            self._title: str = caption.get("title", "")
-            self._description: str = caption.get("description", "")
-
-        self._validate()
-
-    def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}: page:{self._page} filename:{self._filename}>"
-        )
-
-    def _validate(self) -> None:
-
-        # Validate image exists.
-        if not self._path_absolute.exists():
-            raise errors.MissingContent(
-                f"Missing '{self._filename}' in {self._path_absolute}."
-            )
-
-        # Validate if supported image type.
-        if self._filetype not in config.VALID_IMAGE_TYPES:
-            raise errors.UnsupportedContentType(
-                f"Unsupported image type '{self._filename}' in {self._path_absolute}."
-            )
+        {
+            "caption": {
+                "title": [str: title],
+                "description": [str: description],
+            },
+        }
+    """
 
     @property
-    def _filename(self) -> str:
-        return self._path_absolute.name
-
-    @property
-    def _filetype(self) -> str:
-        return self._path_absolute.suffix
-
-    @property
-    def path_absolute(self) -> pathlib.Path:
-        return self._path_absolute
-
-    @property
-    def path_relative(self) -> pathlib.Path:
-        """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_site)
-
-    @property
-    def title(self) -> str:
-        return markdown.from_string(self._title)
-
-    @property
-    def description(self) -> str:
-        return markdown.from_string(self._description)
-
-
-class Video:
-
-    is_video: bool = True
-
-    MIME_TYPES = {".mp4": "video/mpeg", ".webm": "video/webm"}
-
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an Video object from a dictionary with the following
-        attributes:
-
-            {
-                "type": "video",
-                "path": [str: path/to/video],
-                "caption": {
-                    "title": [str: title],
-                    "description": [str: description],
-                },
-            }
-        """
-        self._page: "PageObj" = page
-
-        try:
-            path: str = content_data["path"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing 'path' in {content_data} in {self._page.file_config}."
-            ) from error
-
-        # For Layout pages, 'path' is passed as a path relative to the page
-        # directory. In this case, concatenate both paths.
-        # TODO: Is there a better way to do this?
-        if isinstance(self._page, pages.Layout):
-            self._path_absolute: pathlib.Path = self._page.path_absolute / path
-        else:
-            self._path_absolute: pathlib.Path = pathlib.Path(path)
-
-        caption: Optional[dict] = content_data.get("caption")
-
-        if caption is not None:
-            self._title: str = caption.get("title", "")
-            self._description: str = caption.get("description", "")
-
-        self._validate()
-
-    def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}: page:{self._page} filename:{self._filename}>"
-        )
-
-    def _validate(self) -> None:
-
-        # Validate video exists.
-        if not self._path_absolute.exists():
-            raise errors.MissingContent(
-                f"Missing '{self._filename}' in {self._path_absolute}."
-            )
-
-        # Validate if supported video type.
-        if self._filetype not in config.VALID_VIDEO_TYPES:
-            raise errors.UnsupportedContentType(
-                f"Unsupported video type '{self._filename}' in {self._path_absolute}."
-            )
-
-    @property
-    def _filename(self) -> str:
-        return self._path_absolute.name
-
-    @property
-    def _filetype(self) -> str:
-        return self._path_absolute.suffix
-
-    @property
-    def path_absolute(self) -> pathlib.Path:
-        return self._path_absolute
-
-    @property
-    def path_relative(self) -> pathlib.Path:
-        """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_site)
-
-    @property
-    def mime_type(self) -> str:
-        return self.MIME_TYPES[self._filetype]
-
-    @property
-    def title(self) -> str:
-        return markdown.from_string(self._title)
-
-    @property
-    def description(self) -> str:
-        return markdown.from_string(self._description)
-
-
-class Embedded:
-
-    is_embedded: bool = True
-
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an Embedded object from a dictionary with the following
-        attributes:
-
-            {
-                "type": "embedded",
-                "html": [str: html],
-                "caption": {
-                    "title": [str: title],
-                    "description": [str: description],
-                },
-            }
-        """
-
-        self._page: "PageObj" = page
-
-        try:
-            self._html: str = content_data["html"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing 'html' in {content_data} in {self._page.file_config}."
-            ) from error
-
-        caption: Optional[dict] = content_data.get("caption")
-
-        if caption is not None:
-            self._title: str = caption.get("title", "")
-            self._description: str = caption.get("description", "")
-
-        self._validate()
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self._page} html:{self._html}>"
-
-    def _validate(self) -> None:
+    @abc.abstractmethod
+    def content_data(self) -> dict:
         pass
 
     @property
-    def html(self) -> str:
-        return self._html
+    @abc.abstractmethod
+    def page(self) -> "PageObj":
+        pass
 
     @property
-    def title(self) -> str:
-        return markdown.from_string(self._title)
+    def caption(self) -> dict:
+        return self.content_data.get(Keys.CAPTION, {})
 
     @property
-    def description(self) -> str:
-        return markdown.from_string(self._description)
+    def caption_title(self) -> str:
+        return markdown.from_string(self.caption.get(Keys.TITLE, ""))
+
+    @property
+    def caption_description(self) -> str:
+        return markdown.from_string(self.caption.get(Keys.DESCRIPTION, ""))
+
+    @property
+    def caption_align(self) -> dict:
+        return self.caption.get(Keys.ALIGN, None)
+
+    def validate__caption_config(self) -> None:
+
+        if type(self.caption) is not dict:
+            raise errors.ConfigError(
+                f"{self.page}: Expected type 'dict' for "
+                f"'{Keys.CAPTION}' got '{type(self.caption).__name__}'."
+            )
+
+        if (
+            self.caption_align is not None
+            and self.caption_align not in config.VALID_ALIGNMENTS
+        ):
+            raise errors.ConfigError(
+                f"{self.page}: Unsupported value '{self.caption_align}' for '{Keys.ALIGN}'."
+            )
 
 
-class Audio:
+class ContentInterface(abc.ABC):
+    def __init__(self, page: "PageObj", **content_data):
+
+        self._page: "PageObj" = page
+        self._content_data = content_data
+
+        self.validate__config()
+
+    @abc.abstractmethod
+    def validate__config(self) -> None:
+        pass
+
+    @property
+    def content_data(self) -> dict:
+        return self._content_data
+
+    @property
+    def page(self) -> "PageObj":
+        return self._page
+
+
+class FileContent(ContentInterface):
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: page:{self.page.name} filename:{self.filename}>"
+
+    def validate__config(self) -> None:
+
+        try:
+            self.content_data[Keys.PATH]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self.page}: Missing required key '{Keys.PATH}' for "
+                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+            ) from error
+
+        if not self.path_absolute.exists():
+            raise errors.MissingContent(
+                f"Missing '{self.filename}' in {self.path_absolute}."
+            )
+
+    @property
+    def filename(self) -> str:
+        return self.path_absolute.name
+
+    @property
+    def filetype(self) -> str:
+        return self.path_absolute.suffix
+
+    @property
+    def path_absolute(self) -> pathlib.Path:
+
+        path = self.content_data[Keys.PATH]
+
+        # For Layout pages, 'path' is passed as a path relative to the page
+        # directory. In this case, concatenate both paths.
+        if isinstance(self.page, pages.Layout):
+            return self.page.path_absolute / path
+
+        return pathlib.Path(path)
+
+    @property
+    def path_relative(self) -> pathlib.Path:
+        """ Returns a path relative to to /[site]. """
+        return self.path_absolute.relative_to(config.path_site)
+
+    @property
+    def mimetype(self) -> str:
+        return config.get_mimetype(filetype=self.filetype)
+
+
+class Image(FileContent, CaptionMixin):
+    """ Creates an Image object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "image",
+            "path": [str: path/to/image],
+        }
+    """
+
+    is_image: bool = True
+
+    def validate__config(self) -> None:
+        super().validate__config()
+
+        if self.filetype not in config.VALID_IMAGE_TYPES:
+            raise errors.UnsupportedContentType(
+                f"{self}: Unsupported {self.__class__.__name__} type "
+                f"'{self.filename}' in {self.path_absolute}."
+            )
+
+        self.validate__caption_config()
+
+
+class Video(FileContent, CaptionMixin):
+    """ Creates an Video object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "video",
+            "path": [str: path/to/video],
+        }
+    """
+
+    is_video: bool = True
+
+    def validate__config(self) -> None:
+        super().validate__config()
+
+        if self.filetype not in config.VALID_VIDEO_TYPES:
+            raise errors.UnsupportedContentType(
+                f"{self}: Unsupported {self.__class__.__name__} type "
+                f"'{self.filename}' in {self.path_absolute}."
+            )
+
+        self.validate__caption_config()
+
+
+class Audio(FileContent, CaptionMixin):
+    """ Creates an Audio object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "audio",
+            "path": [str: path/to/audio],
+        }
+    """
 
     is_audio: bool = True
 
-    MIME_TYPES = {
-        ".mp3": "audio/mpeg",
-        ".wav": "audio/wav",
-    }
+    def validate__config(self) -> None:
+        super().validate__config()
 
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an Audio object from a dictionary with the following
-        attributes:
-
-            {
-                "type": "audio",
-                "path": [str: path/to/audio],
-                "caption": {
-                    "title": [str: title],
-                    "description": [str: description],
-                },
-            }
-        """
-
-        self._page: "PageObj" = page
-
-        try:
-            path: str = content_data["path"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing 'path' in {content_data} in {self._page.file_config}."
-            ) from error
-
-        # For Layout pages, 'path' is passed as a path relative to the page
-        # directory. In this case, concatenate both paths.
-        # TODO: Is there a better way to do this?
-        if isinstance(self._page, pages.Layout):
-            self._path_absolute: pathlib.Path = self._page.path_absolute / path
-        else:
-            self._path_absolute: pathlib.Path = pathlib.Path(path)
-
-        caption: Optional[dict] = content_data.get("caption")
-
-        if caption is not None:
-            self._title: str = caption.get("title", "")
-            self._description: str = caption.get("description", "")
-
-        self._validate()
-
-    def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}: page:{self._page} filename:{self._filename}>"
-        )
-
-    def _validate(self) -> None:
-
-        # Validate audio exists.
-        if not self._path_absolute.exists():
-            raise errors.MissingContent(
-                f"Missing '{self._filename}' in {self._path_absolute}."
-            )
-
-        # Validate if supported audio type.
-        if self._filetype not in config.VALID_AUDIO_TYPES:
+        if self.filetype not in config.VALID_AUDIO_TYPES:
             raise errors.UnsupportedContentType(
-                f"Unsupported audio type '{self._filename}' in {self._path_absolute}."
+                f"{self}: Unsupported {self.__class__.__name__} type "
+                f"'{self.filename}' in {self.path_absolute}."
             )
 
-    @property
-    def _filename(self) -> str:
-        return self._path_absolute.name
-
-    @property
-    def _filetype(self) -> str:
-        return self._path_absolute.suffix
-
-    @property
-    def path_absolute(self) -> pathlib.Path:
-        return self._path_absolute
-
-    @property
-    def path_relative(self) -> pathlib.Path:
-        """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_site)
-
-    @property
-    def mime_type(self) -> str:
-        return self.MIME_TYPES[self._filetype]
-
-    @property
-    def title(self) -> str:
-        return markdown.from_string(self._title)
-
-    @property
-    def description(self) -> str:
-        return markdown.from_string(self._description)
+        self.validate__caption_config()
 
 
-class TextBlock:
+class TextBlock(FileContent):
+    """ Creates an TextBlock object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "text-block",
+            "path": [str: path/to/text-block],
+        }
+    """
 
     is_text_block: bool = True
 
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an TextBlock object from a dictionary with the following
-        attributes:
+    def validate__config(self) -> None:
+        super().validate__config()
 
-            {
-                "type": "text-block",
-                "path": [str: path/to/text],
-            }
-        """
-
-        self._page: "PageObj" = page
-
-        try:
-            path: str = content_data["path"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing 'path' in {content_data} in {self._page.file_config}."
-            ) from error
-
-        # For Layout pages, 'path' is passed as a path relative to the page
-        # directory. In this case, concatenate both paths.
-        # TODO: Is there a better way to do this?
-        if isinstance(self._page, pages.Layout):
-            self._path_absolute: pathlib.Path = self._page.path_absolute / path
-        else:
-            self._path_absolute: pathlib.Path = pathlib.Path(path)
-
-        self._validate()
-
-    def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}: page:{self._page} filename:{self._filename}>"
-        )
-
-    def _validate(self) -> None:
-
-        # Validate text file exists.
-        if not self._path_absolute.exists():
-            raise errors.MissingContent(
-                f"Missing '{self._filename}' in {self._path_absolute}."
-            )
-
-        # Validate if supported text type.
-        if self._filetype not in config.VALID_TEXT_TYPES:
+        if self.filetype not in config.VALID_TEXT_TYPES:
             raise errors.UnsupportedContentType(
-                f"Unsupported text type '{self._filename}' in {self._path_absolute}."
+                f"{self}: Unsupported {self.__class__.__name__} type "
+                f"'{self.filename}' in {self.path_absolute}."
             )
 
-    @property
-    def _filename(self) -> str:
-        return self._path_absolute.name
-
-    @property
-    def _filetype(self) -> str:
-        return self._path_absolute.suffix
-
-    @property
-    def path_absolute(self) -> pathlib.Path:
-        return self._path_absolute
-
-    @property
-    def path_relative(self) -> pathlib.Path:
-        """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_site)
+        if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
+            raise errors.ConfigError(
+                f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
+            )
 
     @property
     def body(self) -> str:
-        return markdown.from_file(filepath=self._path_absolute, page=self._page)
+        return markdown.from_file(filepath=self.path_absolute, page=self.page)
+
+    @property
+    def align(self) -> dict:
+        return self.content_data.get(Keys.ALIGN, None)
 
 
-class Header:
+class Embedded(ContentInterface, CaptionMixin):
+    """ Creates an Embedded object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "embedded",
+            "html": [str: html],
+        }
+    """
+
+    is_embedded: bool = True
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: page:{self.page.name} html:{self.html[:32].strip()}>"
+
+    def validate__config(self) -> None:
+        super().validate__config()
+
+        try:
+            self.content_data[Keys.HTML]
+        except KeyError as error:
+            raise errors.ConfigError(
+                f"{self.page}: Missing required key '{Keys.HTML}' for "
+                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+            ) from error
+
+        self.validate__caption_config()
+
+    @property
+    def html(self) -> str:
+        return self.content_data[Keys.HTML]
+
+
+class Header(ContentInterface):
+    """ Creates an Header object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "header",
+            "text": [str: text],
+            "size": [str: size], // See easel.site.config.VALID_SIZES
+        }
+    """
 
     is_header: bool = True
 
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an Header object from a dictionary with the following
-        attributes:
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: page:{self.page.name} text:{self.text[:32].strip()}>"
 
-            {
-                "type": "header",
-                "body": [str: body],
-                "size": [str: size], // See easel.site.config.VALID_SIZES
-            }
-        """
-
-        self._page: "PageObj" = page
+    def validate__config(self) -> None:
 
         try:
-            self._body: str = content_data["body"]
+            self.content_data[Keys.TEXT]
         except KeyError as error:
             raise errors.ConfigError(
-                f"Missing 'body' in {content_data} in {self._page.file_config}."
+                f"{self.page}: Missing required key '{Keys.TEXT}' for "
+                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
 
-        self._size: str = content_data.get("size", config.DEFAULT_SIZE)
-
-        self._validate()
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self._page} body:{self.body[:32].strip()}>"
-
-    def _validate(self) -> None:
-
-        # Validate size.
-        if self._size not in config.VALID_SIZES:
+        if self.size is not None and self.size not in config.VALID_SIZES:
             raise errors.ConfigError(
-                f"{self}: Unsupported size '{self._size}' for Header."
+                f"{self.page}: Unsupported value '{self.size}' for '{Keys.SIZE}'."
+            )
+
+        if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
+            raise errors.ConfigError(
+                f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
             )
 
     @property
-    def body(self) -> str:
-        return self._body
+    def text(self) -> str:
+        return self.content_data[Keys.TEXT]
 
     @property
     def size(self) -> str:
-        return self._size
+        return self.content_data.get(Keys.SIZE, None)
+
+    @property
+    def align(self) -> dict:
+        return self.content_data.get(Keys.ALIGN, None)
 
 
-class Break:
+class Break(ContentInterface):
+    """ Creates an Break object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "break",
+            "size": [str: size], // See easel.site.config.VALID_SIZES
+        }
+    """
 
     is_break: bool = True
 
-    def __init__(self, page: "PageObj", **content_data):
-        """ Creates an VideoEmbedded object from a dictionary with the following
-        attributes:
-
-            {
-                "type": "break",
-                "size": [str: size], // See easel.site.config.VALID_SIZES
-            }
-        """
-
-        self._page: "PageObj" = page
-        self._size: str = content_data.get("size", config.DEFAULT_SIZE)
-
-        self._validate()
-
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self._page} size:{self._size}>"
+        return f"<{self.__class__.__name__}: page:{self.page.name} size:{self.size}>"
 
-    def _validate(self) -> None:
+    def validate__config(self) -> None:
 
-        # Validate size.
-        if self._size not in config.VALID_SIZES:
+        if self.size is not None and self.size not in config.VALID_SIZES:
             raise errors.ConfigError(
-                f"{self}: Unsupported size '{self._size}' for Break."
+                f"{self.page} Unsupported value '{self.size}' for '{Keys.SIZE}'."
             )
 
     @property
     def size(self) -> str:
-        return self._size
+        return self.content_data.get(Keys.SIZE, None)
 
 
 content_factory = _ContentFactory()

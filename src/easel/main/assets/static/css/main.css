@@ -7,9 +7,10 @@
 
     /*
      * base
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --body__background-color: hsla(0, 0%, 100%, 1.00);
+    --body__padding-top: 100px;
 
     --color-accent__base: hsla(25, 90%, 60%, 1.00); /* customizable */
     --color-accent__light: hsla(25, 100%, 85%, 1.00); /* customizable */
@@ -20,14 +21,11 @@
 
     /*
      * menu
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --menu__width: 175px; /* customizable */
     --menu__align: left; /* customizable */
-
     --menu__padding-left: 50px;
-    --menu__padding-right: 25px;
-    --menu__width-calculated: calc(var(--menu__padding-left) + var(--menu__width) + var(--menu__padding-right));
 
     --menu__font-family: var(--font-family__sans-serif-alternate);
     --menu__font-size: 10pt;
@@ -51,7 +49,7 @@
 
     /*
     * menu mobile
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --menu-mobile__toggle-button-size: 32px;
 
@@ -64,10 +62,13 @@
 
     /*
      * pages
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --page__width: 800px; /* customizable */
     --page__min-width: 64px;
+
+    --page__padding-left: 50px;
+    --page__padding-right: 50px;
 
     --page__font-family: var(--font-family__sans-serif);
     --page__font-size: 10pt;
@@ -75,14 +76,15 @@
 
     /*
      * page options
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --gallery__column-count: auto; /* customizable */
     --gallery__column-width: 250px; /* customizable */
+    --gallery__column-gap: 25px; /* customizable */
 
     /*
      * page contents
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --page-text__font-family: var(--page__font-family);
     --page-text__font-size: var(--page__font-size);
@@ -100,7 +102,7 @@
 
     /*
      * contents
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --content-caption__font-family: var(--font-family__sans-serif-alternate);
     --content-caption__font-size: var(--page__font-size);
@@ -110,7 +112,7 @@
 
     /*
     * markdown
-     * -------------------------------------------------- */
+     * --------------------------------------------------------------------- */
 
     --markdown__font-family: var(--page__font-family);
 
@@ -131,7 +133,7 @@
 
     /*
     * footer
-    * -------------------------------------------------- */
+    * ---------------------------------------------------------------------- */
 
     --footer__font-family: var(--page__font-family);
     --footer__text-color: hsla(0, 0%, 0%, 0.10);
@@ -163,14 +165,14 @@ body {
     background-color: var(--body__background-color);
 
     display: grid;
-    grid-template-areas: "area-menu""area-main";
-    grid-template-columns: var(--menu__width-calculated) 1fr;
+    grid-template-areas: "area-menu area-main";
+    grid-template-columns: var(--menu__width) 1fr;
 }
 
 
 /*
 * menu
-* ------------------------------------------------------------------------- */
+* -------------------------------------------------------------------------- */
 
 menu {
 
@@ -179,18 +181,26 @@ menu {
 
 
 /*
- * menu desktop
- * ------------------------------------------------------------------------- */
+* menu desktop
+* ------------------------------------------------------------------------- */
 
 menu .menu-desktop {
 
-    grid-area: "area-menu";
+
+    /* width: var(--menu__width);
+
+    padding-top: var(--body__padding-top);
+    padding-left: var(--menu__padding-left);
+    padding-right: 0;
+    padding-bottom: 0;
+
+    text-align: var(--menu__align); */
+
+    grid-area: area-menu;
 
     position: fixed;
-    top: 100px;
+    top: var(--body__padding-top);
     left: var(--menu__padding-left);
-
-    text-align: var(--menu__align);
 }
 
 menu .menu-desktop .menu-header {
@@ -422,23 +432,16 @@ menu .menu-mobile * .menu-buttons div.menu-spacer__large {
 
 /*
  * pages
- * ------------------------------------------------------------ */
+ * ------------------------------------------------------------------------- */
 
 main {
 
     display: block;
 
-    padding-top: 100px;
+    padding-top: var(--body__padding-top);
     padding-left: 0;
     padding-right: 50px;
     padding-bottom: 200px;
-}
-
-main * .page-contents {
-
-    display: grid;
-    grid-template-columns: minmax(var(--page__min-width), var(--page__width));
-    grid-row-gap: 25px;
 }
 
 
@@ -448,15 +451,23 @@ main * .page-contents {
 
 main #page {
 
-    grid-area: "area-main";
+    grid-area: area-main;
     font-size: var(--page__font-size);
     color: var(--page__text-color);
 }
 
 main #page .page-contents {
 
-    font-family: var(--page__font-family);
+    display: grid;
+    grid-template-columns: minmax(var(--page__min-width), var(--page__width));
+    grid-row-gap: 25px;
 
+    padding-top: 0;
+    padding-left: var(--page__padding-left);
+    padding-right: var(--page__padding-right);
+    padding-bottom: 0;
+
+    font-family: var(--page__font-family);
 }
 
 /* gallery */
@@ -465,7 +476,7 @@ main #page .page-contents .gallery {
 
     column-count: var(--gallery__column-count);
     column-width: var(--gallery__column-width);
-    column-gap: 15px;
+    column-gap: var(--gallery__column-gap);
 }
 
 main #page .page-contents .gallery .content-item {
@@ -480,6 +491,26 @@ main #page .page-contents .gallery .content-item {
 main #page .page-contents .content-item {
 
     /* This is the container that holds an images/videos/text etc. */
+}
+
+main #page .page-contents .content-item *.align__left {
+
+    text-align: left;
+}
+
+main #page .page-contents .content-item *.align__center {
+
+    text-align: center;
+}
+
+main #page .page-contents .content-item *.align__right {
+
+    text-align: right;
+}
+
+main #page .page-contents .content-item *.align__justify {
+
+    text-align: justify;
 }
 
 /* content-image */
@@ -497,7 +528,6 @@ main #page .page-contents .content-item .video {
     max-width: 100%;
     height: auto;
 }
-
 
 /* content-audio */
 
@@ -573,7 +603,7 @@ main #page .page-contents .content-item .content-caption {
 
     padding-top: 5px;
     padding-left: 5px;
-    padding-right: 0;
+    padding-right: 5px;
     padding-bottom: 0;
 
     font-family: var(--content-caption__font-family);
@@ -605,7 +635,9 @@ footer {
 
     position: fixed;
     bottom: 50px;
-    left: 50px;
+    right: 50px;
+
+    text-align: right;
 
     display: grid;
     grid-row-gap: 4px;
@@ -630,7 +662,7 @@ footer {
     body {
 
         display: grid;
-        grid-template-areas: "area-main";
+        grid-template-areas: area-main;
         grid-template-rows: 1fr;
         grid-template-columns: unset;
     }

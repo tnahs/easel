@@ -36,6 +36,14 @@
       gallery-column-width: 250px
     ```
 
+`options.gallery-column-gap`
+:   Default: `25px` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      gallery-column-gap: 25px
+    ```
+
 `options.show-captions`
 :   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
 
@@ -74,21 +82,25 @@ contents:
 :   Valid options are: `image` `video` `audio` `embedded` `text-block` `header` `break`
 
 `caption.title`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `""` -- Sed sagittis ipsum non tempus volutpat.
 
 `caption.description`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `""` -- Sed sagittis ipsum non tempus volutpat.
+
+`caption.align`
+:   Default: `left` -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 caption:
-  title: "Title"
-  description: "Description"
+  title: Caption Title.
+  description: Caption Description.
+  align: left
 ```
 
 #### Image
 
 `path`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
@@ -99,7 +111,7 @@ contents:
 #### Video
 
 `path`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
@@ -110,7 +122,7 @@ contents:
 #### Audio
 
 `path`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
@@ -121,7 +133,7 @@ contents:
 #### Embedded
 
 `html`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
@@ -132,38 +144,46 @@ contents:
 #### Text Block
 
 `path`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
+
+`align`
+:   Default: `justify` -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
   - type: text-block
-    path:
+    path: path/to/text-block.md
+    align: justify
 ```
 
 #### Header
 
-`body`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+`text`
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 `size`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `medium` -- Sed sagittis ipsum non tempus volutpat.
+
+`align`
+:   Default: `left` -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
   - type: header
-    body:
-    size:
+    text: Header Text
+    size: medium
+    align: left
 ```
 
 ## Break
 
 `size`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `medium` -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 contents:
   - type: break
-    size:
+    size: medium
 ```
 
 ## Markdown Page

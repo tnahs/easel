@@ -6,7 +6,7 @@
             <img class="menu-header-image" src="{{ url_for('site.static', filename=site.config.menu.header.image.path) }}">
         </a>
 
-    {% elif site.config.menu.header.image.label %}
+    {% elif site.config.menu.header.label %}
 
         <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.config.menu.header.label | safe }}</a>
 
@@ -65,13 +65,13 @@
         {% elif content.is_video %}
 
             <video class="video" controls data-index="{{ index }}">
-                <source src="{{ url_for('site.static', filename=content.path_relative) }}" src="{{ content.mime_type }}">
+                <source src="{{ url_for('site.static', filename=content.path_relative) }}" type="{{ content.mimetype }}">
             </video>
 
         {% elif content.is_audio %}
 
             <audio controls preload="metadata" class="audio" data-index="{{ index }}">
-                <source src="{{ url_for('site.static', filename=content.path_relative) }}" src="{{ content.mime_type }}" >
+                <source src="{{ url_for('site.static', filename=content.path_relative) }}" type="{{ content.mimetype }}" >
                 Your browser does not support the audio element.
             </audio>
 
@@ -81,32 +81,42 @@
 
         {% elif content.is_text_block %}
 
-            <div class="text-block" data-index="{{ index }}">
+            {% set align = content.align if content.align else "justify" %}
+
+            <div class="text-block align__{{ align }}" data-index="{{ index }}">
                 <div class="markdown">{{ content.body | safe }}</div>
             </div>
 
         {% elif content.is_header %}
 
-            <div class="header__{{ content.size }}">{{ content.body }}</div>
+            {% set size = content.size if content.size else "medium" %}
+            {% set align = content.align if content.align else "left" %}
+
+            <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
 
         {% elif content.is_break %}
 
-            <div class="break__{{ content.size }}">&nbsp;</div>
+            {% set size = content.size if content.size else "medium" %}
+            {% set align = content.align if content.align else "left" %}
+
+            <div class="header__{{ size }} align__{{ align }}">&nbsp;</div>
 
         {% endif %}
 
         {% if page.show_captions %}
 
-            {% if content.title or content.description %}
+            {% if content.caption %}
 
-                <div class="content-caption">
+                {% set align = content.caption_align if content.caption_align else "left" %}
 
-                    {% if content.title %}
-                        <span class="content-title markdown">{{ content.title | safe }}</span>
+                <div class="content-caption align__{{ align }}">
+
+                    {% if content.caption_title %}
+                        <span class="content-title markdown">{{ content.caption_title | safe }}</span>
                     {% endif %}
 
-                    {% if content.description %}
-                        <span class="content-description markdown">{{ content.description | safe }}</span>
+                    {% if content.caption_description %}
+                        <span class="content-description markdown">{{ content.caption_description | safe }}</span>
                     {% endif %}
 
                 </div>

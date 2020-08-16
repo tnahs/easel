@@ -8,4 +8,5 @@ options:
   is-gallery: true
   gallery-column-count: 3
   gallery-column-width: 250px
+  gallery-column-gap: 25px
   show-captions: false

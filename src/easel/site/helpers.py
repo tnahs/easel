@@ -18,6 +18,29 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class Keys:
+    URL: str = "url"
+    TYPE: str = "type"
+    PATH: str = "path"
+    HTML: str = "html"
+    TEXT: str = "text"
+    SIZE: str = "size"
+    LABEL: str = "label"
+    ALIGN: str = "align"
+    LINKS_TO: str = "links-to"
+    CONTENTS: str = "contents"
+    IS_LANDING: str = "is-landing"
+    OPTIONS: str = "options"
+    IS_GALLERY: str = "is-gallery"
+    SHOW_CAPTIONS: str = "show-captions"
+    CAPTION: str = "caption"
+    TITLE: str = "title"
+    DESCRIPTION: str = "description"
+    GALLERY_COLUMN_COUNT: str = "gallery-column-count"
+    GALLERY_COLUMN_WIDTH: str = "gallery-column-width"
+    GALLERY_COLUMN_GAP: str = "gallery-column-gap"
+
+
 class ConfigLoader:
     @staticmethod
     def load(path: pathlib.Path) -> dict:
@@ -26,7 +49,7 @@ class ConfigLoader:
 
         try:
             with open(path, "r") as f:
-                config = yaml.safe_load(f)
+                data = yaml.safe_load(f)
         except yaml.YAMLError as error:
             raise errors.ConfigError(
                 f"YAML Parsing Error while loading {path}."
@@ -40,7 +63,10 @@ class ConfigLoader:
                 f"Unexpected Error while loading {path}."
             ) from error
 
-        return config
+        if data is None:
+            return {}
+
+        return data
 
 
 class Utils:

@@ -15,112 +15,79 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class SafeDict(dict):
+    """ https://stackoverflow.com/a/25840834 """
+
+    def __getitem__(self, key):
+
+        if key not in self:
+            return self.setdefault(key, type(self)())
+
+        return super().__getitem__(key)
+
+
 class Site:
+
+    _pages: List["PageObj"] = []
+    _page_error_404: Optional["PageObj"] = None
+    _page_error_500: Optional["PageObj"] = None
+    _page_current: "PageObj"
+    _menu: List["MenuObj"] = []
+
     def __init__(self):
 
         logger.info(f"Building Site from {config.path_site}.")
 
-        self._pages: List["PageObj"] = []
-        self._menu: List["MenuObj"] = []
-
-        self._page_error_404: Optional["PageObj"] = None
-        self._page_error_500: Optional["PageObj"] = None
-
-        self._page_current: "PageObj"
-
-        self._config: dict = config_loader.load(path=config.file_site_yaml)
-
-        self._validate_config()
+        self._config = self._load_config()
 
         self._build_pages()
         self._build_error_pages()
         self._build_menu()
 
-        self._validate_build()
+        self._validate__build()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{config.path_site}>"
 
-    def _validate_config(self) -> None:
+    def _load_config(self) -> dict:
 
-        # General
+        data: dict = config_loader.load(path=config.file_site_yaml)
 
-        try:
-            self._config["title"]
-            self._config["favicon"]
-            self._config["copyright"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
-            ) from error
+        page = data.get("page", {})
 
-        # Page
+        colors = data.get("colors", {})
 
-        try:
-            self._config["page"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
-            ) from error
+        menu = data.get("menu", {})
+        menu_header = menu.get("header", {})
+        menu_header_image = menu_header.get("image", {})
 
-        try:
-            self._config["page"]["width"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:page."
-            ) from error
-
-        # Colors
-
-        try:
-            self._config["colors"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
-            ) from error
-
-        try:
-            self._config["colors"]["accent-base"]
-            self._config["colors"]["accent-light"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:colors."
-            ) from error
-
-        # Menu
-
-        try:
-            self._config["menu"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}."
-            )
-
-        try:
-            self._config["menu"]["width"]
-            self._config["menu"]["align"]
-            self._config["menu"]["header"]
-            self._config["menu"]["items"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu."
-            ) from error
-
-        try:
-            self._config["menu"]["header"]["image"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu:header."
-            ) from error
-
-        try:
-            self._config["menu"]["header"]["image"]["path"]
-            self._config["menu"]["header"]["image"]["width"]
-            self._config["menu"]["header"]["image"]["height"]
-        except KeyError as error:
-            raise errors.ConfigError(
-                f"{self}: Missing required key {error} in {config.FILENAME_SITE_YAML}:menu:header:image."
-            ) from error
+        return {
+            "title": data.get("title", ""),
+            "favicon": data.get("favicon", ""),
+            "copyright": data.get("copyright", ""),
+            "author": data.get("author", ""),
+            "page": {
+                "width": page.get("width", ""),
+                #
+            },
+            "colors": {
+                "accent-base": colors.get("accent-base", ""),
+                "accent-light": colors.get("accent-light", ""),
+            },
+            "menu": {
+                "width": menu.get("width", ""),
+                "align": menu.get("align", ""),
+                "items_": menu.get("items", []),
+                "header": {
+                    "label": menu_header.get("label", ""),
+                    "image": {
+                        "path": menu_header_image.get("path", ""),
+                        "width": menu_header_image.get("width", ""),
+                        "height": menu_header_image.get("height", ""),
+                    },
+                },
+            },
+        }
 
     def _build_pages(self) -> None:
 
@@ -159,20 +126,20 @@ class Site:
 
     def _build_menu(self) -> None:
 
-        if not self._config["menu"]["items"]:
+        if not self._config["menu"]["items_"]:
             logger.warn(
-                f"{self}: {config.FILENAME_SITE_YAML} missing 'menu:items'. "
+                f"{self}: {config.FILENAME_SITE_YAML} missing 'menu.items'. "
                 f"No menu will be generated."
             )
             return
 
-        for menu_data in self._config["menu"]["items"]:
+        for menu_data in self._config["menu"]["items_"]:
 
             menu = menus.menu_factory.build(site=self, menu_data=menu_data)
 
             self._menu.append(menu)
 
-    def _validate_build(self) -> None:
+    def _validate__build(self) -> None:
 
         # Boolean types sum like integers. When more than one page is set as
         # the 'landing' page this will sum to >1.
@@ -184,6 +151,10 @@ class Site:
     @property
     def config(self) -> dict:
         return self._config
+
+    @property
+    def theme(self) -> SafeDict:
+        return SafeDict({"key_one": "value_one"})
 
     @property
     def pages(self) -> List["PageObj"]:

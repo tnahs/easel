@@ -10,7 +10,7 @@ options:
 # Layout page contents.
 contents:
   - type: header
-    body: This is a large-sized header.
+    text: This is a large-sized header.
     size: large
 
   - type: image
@@ -35,8 +35,7 @@ contents:
       description: Video caption description.
 
   - type: embedded
-    html: >
-      <iframe src="https://player.vimeo.com/video/73617382" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    html: <iframe src="https://player.vimeo.com/video/73617382" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
     caption:
       title: Embedded element caption title.
       description: Embedded element caption description.

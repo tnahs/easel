@@ -10,7 +10,7 @@
 .markdown p {
 
     line-height: 140%;
-    text-align: justify;
+    /* text-align: justify; */
     hyphens: auto;
 }
 

@@ -8,12 +8,13 @@ options:
   is-gallery: true
   gallery-column-count: 2
   gallery-column-width: 250px
+  gallery-column-gap: 25px
   show-captions: true
 
 # Layout (gallery) page contents.
 contents:
   - type: header
-    body: This is a large-sized header.
+    text: This is a large-sized header.
     size: large
 
   - type: image

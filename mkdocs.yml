@@ -31,9 +31,9 @@ nav:
     - Installation: getting-started/installation.md
     - Creating Your Site: getting-started/creating-your-site.md
     - A Minimal Application: getting-started/a-minimal-application.md
-  # - Configuration:
-  #   - Site: configuration/site.md
-  #   - Pages: configuration/pages.md
+  - Configuration:
+    - Site: configuration/site.md
+    - Pages: configuration/pages.md
   # - Markdown: markdown.md
   # - API Reference:
   #   - Custom Types: api-reference/custom-types.md

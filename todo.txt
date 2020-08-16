@@ -1,34 +1,24 @@
 HIGH:
-  - Documentation: https://docs.readthedocs.io/en/stable/index.html
   - Validation.
+  - Documentation: https://docs.readthedocs.io/en/stable/index.html
   - Design logo/icon.
+  - Split off all theme-related configuration under its own key in 'site.yaml'
 
 MEDIUM:
   - CLI Tools: https://click.palletsprojects.com/en/7.x/
-  - Add 'extra' syntax to YAML.
-    - extra:
-      - key: value
-      - key: value
-    - extra-css:
-    - extra-javascript:
-    - extra-templates:
 
 LOW:
-  - Text alignment for 'caption', 'header' and 'text'.
-  - Add 'date', 'title' to page.yaml.
   - Light/dark theme. (After CSS/Design is cleaned up.)
-  - Serve static files from external server?
 
 HOUSEKEEPING:
   - Cleanup CSS.
-  - Document site.yaml and page.yaml.
-  - Type annotations.
   - Cleanup errors/messages.
   - Cleanup '__repr__' methods.
   - Sift through paths and URLs.
 
 FEATURES:
   - Lightbox with '<' and '>' buttons.
+  - Generate thumbnails for 'gallery' pages.
   - Add option to append more css variables in site.yaml/page.yaml.
   - Lazy-loading images.
     - https://spikelantern.com/articles/simple-infinite-scroll-in-django/
@@ -38,3 +28,10 @@ FEATURES:
   - Better starting template with images.
     - https://unsplash.com/
     - https://unsplash.com/t/textures-patterns
+  - Add 'extra' syntax to YAML.
+    - extra:
+      - key: value
+      - key: value
+    - extra-css:
+    - extra-javascript:
+    - extra-templates:

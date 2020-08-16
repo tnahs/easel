@@ -29,19 +29,15 @@ class Config:
         "large",
     )
 
-    # TODO: Implement this with validation methods.
-    DEFAULT_ALIGNMENT: str = "left"
     VALID_ALIGNMENTS: Tuple[str, ...] = (
-        DEFAULT_ALIGNMENT,
+        "left",
         "center",
         "right",
         "justify",
     )
 
-    DEFAULT_GALLERY_COLUMN_WIDTH: str = "250px"
-    DEFAULT_GALLERY_COLUMN_COUNT: str = "auto"
     VALID_GALLERY_COLUMN_COUNT: Tuple[Union[str, int], ...] = (
-        DEFAULT_GALLERY_COLUMN_COUNT,
+        "auto",
         2,
         3,
         4,
@@ -51,12 +47,14 @@ class Config:
 
     VALID_IMAGE_TYPES: Tuple[str, ...] = (
         ".jpg",
+        ".jpeg",
         ".png",
         ".gif",
     )
     VALID_VIDEO_TYPES: Tuple[str, ...] = (
         ".mp4",
         ".webm",
+        ".mov",
     )
     VALID_AUDIO_TYPES: Tuple[str, ...] = (
         ".mp3",
@@ -70,6 +68,16 @@ class Config:
         ".md",
         ".txt",
     )
+
+    MIMETYPES = {
+        # Video
+        ".mp4": "video/mp4",
+        ".webm": "video/webm",
+        ".mov": "video/quicktime",
+        # Audio
+        ".mp3": "audio/mpeg",
+        ".wav": "audio/wav",
+    }
 
     def __init__(self):
 
@@ -160,6 +168,19 @@ class Config:
     @property
     def path_static(self) -> pathlib.Path:
         return self._path_assets / "static"
+
+    def get_mimetype(self, filetype: str) -> str:
+
+        if not filetype.startswith("."):
+            filetype = f".{filetype}"
+
+        mimetype = self.MIMETYPES.get(filetype, None)
+
+        if mimetype is None:
+            logger.warning(f"Unsupported MIME Type '{filetype}' detected.")
+            return ""
+
+        return mimetype
 
 
 config = Config()
