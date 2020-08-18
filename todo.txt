@@ -1,24 +1,25 @@
 HIGH:
-  - Validation.
-  - Documentation: https://docs.readthedocs.io/en/stable/index.html
-  - Design logo/icon.
+  - CLI Tools: https://click.palletsprojects.com/en/7.x/
+  - Re-design page 'description' procedure.
 
 MEDIUM:
-  - CLI Tools: https://click.palletsprojects.com/en/7.x/
+  - Design logo/icon.
+  - Documentation: https://docs.readthedocs.io/en/stable/index.html
 
 LOW:
-  - Light/dark theme. (After CSS/Design is cleaned up.)
 
 HOUSEKEEPING:
-  - Cleanup CSS.
-  - Cleanup errors/messages.
-  - Cleanup '__repr__' methods.
   - Sift through paths and URLs.
+    - Allow menu items to accept: 'pages/page-01' instead of just 'page-01'
+    - Check to see if menu items work with: 'nested-page/page-01'
+  - Light/dark and vertical horizontal theme.
+  - Cleanup CSS.
 
 FEATURES:
-  - Lightbox with '<' and '>' buttons.
-  - Generate thumbnails for 'gallery' pages.
-  - Add option to append more css variables in site.yaml/page.yaml.
+  - Gallery enhancements:
+    - Lightbox view
+    - Generate thumbnails
+  - Add 'append-css' and 'append-javascript' syntax to 'site.yaml'.
   - Lazy-loading images.
     - https://spikelantern.com/articles/simple-infinite-scroll-in-django/
     - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
@@ -27,10 +28,3 @@ FEATURES:
   - Better starting template with images.
     - https://unsplash.com/
     - https://unsplash.com/t/textures-patterns
-  - Add 'extra' syntax to YAML.
-    - extra:
-      - key: value
-      - key: value
-    - extra-css:
-    - extra-javascript:
-    - extra-templates:

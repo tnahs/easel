@@ -69,15 +69,15 @@ class Utils:
             with open(path, "r") as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as error:
-            raise errors.SiteConfigError(
+            raise errors.ConfigLoadError(
                 f"YAML Parsing Error while loading {path}."
             ) from error
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(
+            raise errors.ConfigLoadError(
                 f"Config '{path.name}' not found in {path.parent}."
             ) from error
         except Exception as error:
-            raise errors.SiteConfigError(
+            raise errors.ConfigLoadError(
                 f"Unexpected Error while loading {path}."
             ) from error
 

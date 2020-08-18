@@ -162,7 +162,8 @@ class PageInterface(abc.ABC):
 
         if type(options) is not dict:
             raise errors.PageConfigError(
-                f"{self}: Expected type 'dict' for '{Keys.OPTIONS}' got '{type(options).__name__}'."
+                f"{self}: Expected type 'dict' for '{Keys.OPTIONS}' got "
+                f"'{type(options).__name__}'."
             )
 
     @property

@@ -52,19 +52,16 @@ Add the following to the `site.yaml` file:
 ``` yaml
 # my-easel/my-site/site.yaml
 
-# General
 title: easel
 author: My Full Name
 copyright: © 2020 My Full Name
 favicon:
 
-# Menu
 menu:
-  - type: link-page
-    label: my-page
-    links-to: my-page
+- type: link-page
+  label: my-page
+  links-to: my-page
 
-# Theme
 theme:
   menu:
     width:
@@ -83,7 +80,11 @@ theme:
     accent-light:
 ```
 
-Note that under `menu` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory. Note that `links-to` always requires a path relative to the `pages` directory.
+Note that under `menu` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory we just created.
+
+!!! note
+
+    A menu items `links-to` attribute always requires a path relative to the `pages` directory.
 
 ## Configuring the `page.yaml`
 
@@ -91,23 +92,33 @@ Note that under `menu` we have a single item with the attribute `links-to` set t
 
     Each page directory requires a `page.yaml` file. In the way that `site.yaml` configures the site, `page.yaml` configures the page.
 
-For this page we will do the laziest thing possible, create a `Lazy` page. This particular type of page auto-populates its contents from the contents of its respective folder sorted alphabetically by the absolute path of each item.
+For this page we will do the laziest thing possible, create a `Lazy` page. This particular type of page auto-populates its contents from the contents of its respective directory sorted alphabetically by the absolute path of each item.
 
 Add the following to the `page.yaml` file:
 
 ``` yaml
 # my-easel/my-site/my-page/page.yaml
 
-# Specify this page is the 'landing' page.
 is-landing: true
 
-# Page type.
 type: lazy
 
-# Lazy Page options.
 options:
   show-captions: true
 ```
+
+`is-landing`
+:   Defines which page will be the landing page for the site i.e. www.site.com as opposed to www.site.com/page. Seeing as we only have one page in our site, it must be the landing page.
+
+!!! note
+
+    Every site must have one and only one page defined as the landing page. A `SiteConfigError` will be thrown if no page or more than one page has `is-landing` set to `true`.
+
+`type`
+:   Defines the type of page its respective directory represents. In this case, `lazy`.
+
+`options.show-caption`
+:   Enables (lazy) captions. On a `Lazy` page, captions are generated from the filename (minus the file extention) of each item that supports captions.
 
 ## Adding Some Content
 

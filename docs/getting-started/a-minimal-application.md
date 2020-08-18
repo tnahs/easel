@@ -32,8 +32,8 @@ my-easel
 │       │   ├── page.yaml
 │       │   ├── image-001.jpg
 │       │   ├── image-002.jpg
-│       │   └── ...
-│       └── ...
+│       │   └── ... Additional Content
+│       └── ... Additional Pages
 └── venv
 ```
 

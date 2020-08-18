@@ -10,6 +10,10 @@ class Error(Exception):
         logger.error(message)
 
 
+class ConfigLoadError(Error):
+    pass
+
+
 class SiteConfigError(Error):
     pass
 
