@@ -88,7 +88,7 @@ class Config:
     def path_site(self) -> pathlib.Path:
 
         if self._path_site is None:
-            raise errors.ConfigError("Site path must be set before running.")
+            raise errors.SiteConfigError("Site path must be set before running.")
 
         return self._path_site
 
@@ -101,7 +101,7 @@ class Config:
         try:
             path_site = path_site.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"Site path '{path_site}' does not exist."
             ) from error
 
@@ -116,7 +116,7 @@ class Config:
         try:
             path_site_pages = path_site_pages.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.ConfigError("Site missing 'pages' directory.") from error
+            raise errors.SiteConfigError("Site missing 'pages' directory.") from error
 
         return path_site_pages
 
@@ -153,7 +153,7 @@ class Config:
         try:
             path_assets = path_assets.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"Site 'path' directory {path_assets} does not exist."
             ) from error
 

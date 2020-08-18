@@ -3,7 +3,7 @@
 ## Shared Attributes
 
 `type`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 `is-landing`
 :   Default: `false` -- One page *must* have the `is-landing` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
@@ -72,9 +72,17 @@ contents:
 `contents`
 :   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. See [Content Types](#content-types) for a list of available types.
 
-### Content Types
+## Markdown Page
 
-#### Shared Attributes
+Markdown Page Configuration
+
+``` yaml
+type: markdown
+```
+
+## Content Types
+
+### Shared Attributes
 
 `type`
 :   Sed sagittis ipsum non tempus volutpat.
@@ -97,7 +105,7 @@ caption:
   align: left
 ```
 
-#### Image
+### Image
 
 `path`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -108,7 +116,7 @@ contents:
     path:
 ```
 
-#### Video
+### Video
 
 `path`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -119,7 +127,7 @@ contents:
     path:
 ```
 
-#### Audio
+### Audio
 
 `path`
 :   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -130,7 +138,7 @@ contents:
     path:
 ```
 
-#### Embedded
+### Embedded
 
 `html`
 :   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -141,7 +149,7 @@ contents:
     html:
 ```
 
-#### Text Block
+### Text Block
 
 `path`
 :   Default: `null`-- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -156,7 +164,7 @@ contents:
     align: justify
 ```
 
-#### Header
+### Header
 
 `text`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
@@ -175,7 +183,7 @@ contents:
     align: left
 ```
 
-## Break
+### Break
 
 `size`
 :   Default: `medium` -- Sed sagittis ipsum non tempus volutpat.
@@ -186,7 +194,47 @@ contents:
     size: medium
 ```
 
-## Markdown Page
+## Example Configurations
+
+Lazy Page Configuration
+
+``` yaml
+type: lazy
+
+options:
+  is-gallery: true
+  gallery-column-count: auto
+  gallery-column-width: 300px
+  gallery-column-gap: 15px
+  show-captions: true
+```
+
+Layout Page Configuration
+
+``` yaml
+type: layout
+
+contents:
+ - type: header
+   text: My Page Header
+   size: large
+
+ - type: image
+   path: image.png
+   caption:
+     title: Caption title.
+     description: Caption description.
+
+ - type: text-block
+   path: my-blurb.md
+
+options:
+  is-gallery: true
+  gallery-column-count: auto
+  gallery-column-width: 300px
+  gallery-column-gap: 15px
+  show-captions: true
+```
 
 Markdown Page Configuration
 

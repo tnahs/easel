@@ -662,7 +662,7 @@ footer {
     body {
 
         display: grid;
-        grid-template-areas: area-main;
+        grid-template-areas: "area-main";
         grid-template-rows: 1fr;
         grid-template-columns: unset;
     }
@@ -685,9 +685,14 @@ footer {
         padding-bottom: 200px;
     }
 
-    main * .page-contents {
+    main #page .page-contents {
 
         grid-row-gap: 20px;
+
+        padding-top: 0;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 0;
     }
 
     footer {

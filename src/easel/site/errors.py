@@ -10,16 +10,29 @@ class Error(Exception):
         logger.error(message)
 
 
-class ConfigError(Error):
-    def __init__(self, message: str):
-        super().__init__(message)
+class SiteConfigError(Error):
+    pass
+
+
+class MenuConfigError(Error):
+    pass
+
+
+class PageConfigError(Error):
+    pass
+
+
+class ContentConfigError(Error):
+    pass
+
+
+class TemplateConfigError(Error):
+    pass
 
 
 class MissingContent(Error):
-    def __init__(self, message: str):
-        super().__init__(message)
+    pass
 
 
 class UnsupportedContentType(Error):
-    def __init__(self, message: str):
-        super().__init__(message)
+    pass

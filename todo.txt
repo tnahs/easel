@@ -2,7 +2,6 @@ HIGH:
   - Validation.
   - Documentation: https://docs.readthedocs.io/en/stable/index.html
   - Design logo/icon.
-  - Split off all theme-related configuration under its own key in 'site.yaml'
 
 MEDIUM:
   - CLI Tools: https://click.palletsprojects.com/en/7.x/

@@ -52,33 +52,38 @@ Add the following to the `site.yaml` file:
 ``` yaml
 # my-easel/my-site/site.yaml
 
-title: my-site
-favicon:
+# General
+title: easel
+author: My Full Name
 copyright: © 2020 My Full Name
+favicon:
 
-page:
-  width:
-
-colors:
-  accent-base:
-  accent-light:
-
+# Menu
 menu:
-  width:
-  align:
-  header:
-    label: my-site
-    image:
-      path:
-      width:
-      height:
-  items:
-    - type: link-page
-      label: my-page
-      links-to: my-page
+  - type: link-page
+    label: my-page
+    links-to: my-page
+
+# Theme
+theme:
+  menu:
+    width:
+    align:
+    header:
+      label: easel
+      image:
+        path:
+        width:
+        height:
+  page:
+    width:
+    align:
+  colors:
+    accent-base:
+    accent-light:
 ```
 
-Note that under `menu:items` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory. Note that `links-to` always requires a path relative to the `pages` directory.
+Note that under `menu` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory. Note that `links-to` always requires a path relative to the `pages` directory.
 
 ## Configuring the `page.yaml`
 

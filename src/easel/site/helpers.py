@@ -1,4 +1,5 @@
 import logging
+from os import stat
 import pathlib
 import re
 import unicodedata
@@ -19,31 +20,48 @@ logger = logging.getLogger(__name__)
 
 
 class Keys:
-    URL: str = "url"
-    TYPE: str = "type"
-    PATH: str = "path"
-    HTML: str = "html"
-    TEXT: str = "text"
-    SIZE: str = "size"
-    LABEL: str = "label"
     ALIGN: str = "align"
-    LINKS_TO: str = "links-to"
-    CONTENTS: str = "contents"
-    IS_LANDING: str = "is-landing"
-    OPTIONS: str = "options"
-    IS_GALLERY: str = "is-gallery"
-    SHOW_CAPTIONS: str = "show-captions"
+    AUTHOR: str = "author"
     CAPTION: str = "caption"
-    TITLE: str = "title"
+    CONTENTS: str = "contents"
+    COPYRIGHT: str = "copyright"
     DESCRIPTION: str = "description"
+    EXTRAS: str = "extras"
+    FAVICON: str = "favicon"
     GALLERY_COLUMN_COUNT: str = "gallery-column-count"
-    GALLERY_COLUMN_WIDTH: str = "gallery-column-width"
     GALLERY_COLUMN_GAP: str = "gallery-column-gap"
+    GALLERY_COLUMN_WIDTH: str = "gallery-column-width"
+    HTML: str = "html"
+    IS_GALLERY: str = "is-gallery"
+    IS_LANDING: str = "is-landing"
+    LABEL: str = "label"
+    LINKS_TO: str = "links-to"
+    MENU: str = "menu"
+    OPTIONS: str = "options"
+    PATH: str = "path"
+    SHOW_CAPTIONS: str = "show-captions"
+    SIZE: str = "size"
+    TEXT: str = "text"
+    THEME: str = "theme"
+    TITLE: str = "title"
+    TYPE: str = "type"
+    URL: str = "url"
 
 
-class ConfigLoader:
+class SafeDict(dict):
+    """ https://stackoverflow.com/a/25840834 """
+
+    def __getitem__(self, key):
+
+        if key not in self:
+            return self.setdefault(key, type(self)())
+
+        return super().__getitem__(key)
+
+
+class Utils:
     @staticmethod
-    def load(path: pathlib.Path) -> dict:
+    def load_config(path: pathlib.Path) -> dict:
 
         logger.debug(f"Loading config file from {path}.")
 
@@ -51,15 +69,15 @@ class ConfigLoader:
             with open(path, "r") as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as error:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"YAML Parsing Error while loading {path}."
             ) from error
         except FileNotFoundError as error:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"Config '{path.name}' not found in {path.parent}."
             ) from error
         except Exception as error:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"Unexpected Error while loading {path}."
             ) from error
 
@@ -68,11 +86,8 @@ class ConfigLoader:
 
         return data
 
-
-class Utils:
-    def slugify(
-        self, string: str, delimiter: str = "-", allow_unicode: bool = False
-    ) -> str:
+    @staticmethod
+    def slugify(string: str, delimiter: str = "-", allow_unicode: bool = False) -> str:
         """ Convert to ASCII if 'allow_unicode' is False. Convert spaces to
         hyphens. Remove characters that aren't alphanumerics, underscores, or
         hyphens. Convert to lowercase. Also strip leading and trailing
@@ -146,6 +161,4 @@ class Markdown:
         return ""
 
 
-config_loader = ConfigLoader()
-utils = Utils()
 markdown = Markdown()

@@ -1,10 +1,10 @@
 import logging
 import pathlib
-from typing import TYPE_CHECKING, List, Optional
+from typing import Any, TYPE_CHECKING, List, Optional
 
 from . import errors, menus, pages
 from .config import config
-from .helpers import config_loader
+from .helpers import Utils, Keys, SafeDict
 
 
 if TYPE_CHECKING:
@@ -13,17 +13,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-
-class SafeDict(dict):
-    """ https://stackoverflow.com/a/25840834 """
-
-    def __getitem__(self, key):
-
-        if key not in self:
-            return self.setdefault(key, type(self)())
-
-        return super().__getitem__(key)
 
 
 class Site:
@@ -38,7 +27,7 @@ class Site:
 
         logger.info(f"Building Site from {config.path_site}.")
 
-        self._config = self._load_config()
+        self._config_data = Utils.load_config(path=config.file_site_yaml)
 
         self._build_pages()
         self._build_error_pages()
@@ -48,46 +37,6 @@ class Site:
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{config.path_site}>"
-
-    def _load_config(self) -> dict:
-
-        data: dict = config_loader.load(path=config.file_site_yaml)
-
-        page = data.get("page", {})
-
-        colors = data.get("colors", {})
-
-        menu = data.get("menu", {})
-        menu_header = menu.get("header", {})
-        menu_header_image = menu_header.get("image", {})
-
-        return {
-            "title": data.get("title", ""),
-            "favicon": data.get("favicon", ""),
-            "copyright": data.get("copyright", ""),
-            "author": data.get("author", ""),
-            "page": {
-                "width": page.get("width", ""),
-                #
-            },
-            "colors": {
-                "accent-base": colors.get("accent-base", ""),
-                "accent-light": colors.get("accent-light", ""),
-            },
-            "menu": {
-                "width": menu.get("width", ""),
-                "align": menu.get("align", ""),
-                "items_": menu.get("items", []),
-                "header": {
-                    "label": menu_header.get("label", ""),
-                    "image": {
-                        "path": menu_header_image.get("path", ""),
-                        "width": menu_header_image.get("width", ""),
-                        "height": menu_header_image.get("height", ""),
-                    },
-                },
-            },
-        }
 
     def _build_pages(self) -> None:
 
@@ -126,14 +75,14 @@ class Site:
 
     def _build_menu(self) -> None:
 
-        if not self._config["menu"]["items_"]:
+        if not self._config[Keys.MENU]:
             logger.warn(
-                f"{self}: {config.FILENAME_SITE_YAML} missing 'menu.items'. "
+                f"{self}: {config.FILENAME_SITE_YAML} 'menu' is empty. "
                 f"No menu will be generated."
             )
             return
 
-        for menu_data in self._config["menu"]["items_"]:
+        for menu_data in self._config[Keys.MENU]:
 
             menu = menus.menu_factory.build(site=self, menu_data=menu_data)
 
@@ -144,17 +93,72 @@ class Site:
         # Boolean types sum like integers. When more than one page is set as
         # the 'landing' page this will sum to >1.
         if sum([page.is_landing for page in self._pages]) > 1:
-            raise errors.ConfigError(
+            raise errors.SiteConfigError(
                 f"{self}: Site cannot have multiple 'landing' pages."
             )
 
     @property
-    def config(self) -> dict:
-        return self._config
+    def _config(self) -> dict:
+        return {
+            Keys.TITLE: self._config_data.get(Keys.TITLE, ""),
+            Keys.AUTHOR: self._config_data.get(Keys.AUTHOR, ""),
+            Keys.COPYRIGHT: self._config_data.get(Keys.COPYRIGHT, ""),
+            Keys.FAVICON: self._config_data.get(Keys.FAVICON, ""),
+            Keys.MENU: self._config_data.get(Keys.MENU, []),
+        }
 
     @property
-    def theme(self) -> SafeDict:
-        return SafeDict({"key_one": "value_one"})
+    def _theme(self) -> SafeDict:
+
+        data: dict = self._config_data.get(Keys.THEME, {})
+
+        if data is None:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Keys.THEME}' got '{type(data).__name__}'."
+            )
+
+        return SafeDict(**data)
+
+    @property
+    def _extras(self) -> SafeDict:
+
+        data: dict = self._config_data.get(Keys.EXTRAS, {})
+
+        if data is None:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Keys.EXTRAS}' got '{type(data).__name__}'."
+            )
+
+        return SafeDict(**data)
+
+    @staticmethod
+    def _get_config(basename: str, obj: dict, path: str) -> Any:
+        """ Template Accessor Helper """
+
+        value: dict = obj
+
+        for key in path.split("."):
+
+            try:
+                value = value[key]
+            except (KeyError, TypeError) as error:
+                raise errors.TemplateConfigError(
+                    f"Error accessing '{key}' in '{basename}.{path}' from object '{obj}'."
+                ) from error
+
+        return value
+
+    def config(self, path: str) -> Any:
+        """ Template Accessor """
+        return self._get_config(basename="config", obj=self._config, path=path)
+
+    def theme(self, path: str) -> Any:
+        """ Template Accessor """
+        return self._get_config(basename="theme", obj=self._theme, path=path)
+
+    def extras(self, path: str) -> Any:
+        """ Template Accessor """
+        return self._get_config(basename="extras", obj=self._extras, path=path)
 
     @property
     def pages(self) -> List["PageObj"]:
@@ -189,7 +193,7 @@ class Site:
 
             return page
 
-        raise errors.ConfigError(
+        raise errors.SiteConfigError(
             f"{self}: Site must have one page set as the 'landing' page."
         )
 

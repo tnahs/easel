@@ -3,66 +3,78 @@
 ## General
 
 `title`
-:   Default: `null` -- The title of the site. Placed in the `<title>` tag.
+:   Default: `""` -- The title of the site. Placed in the `<title>` tag.
 
-`favicon`
-:   Default: `null` -- A path to a favicon. This must be a path relative to the site directory i.e, the one containing the `site.yaml` file.
+`author`
+:   Default: `""` -- Sed sagittis ipsum non tempus volutpat.
 
 `copyright`
-:   Default: `null` -- Copyright information to be displayed inside the `<footer>` tag.
+:   Default: `""` -- Copyright information to be displayed inside the `<footer>` tag.
 
-## Page
-
-`page.width`
-:   Default: `800px` -- Width of the site not including the menu.
-
-## Colors
-
-`colors.accent-base`
-:   Default: `hsla(25, 90%, 60%, 1.00)` -- Base accent color.
-
-`colors.accent-light`
-:   Default: `hsla(25, 100%, 85%, 1.00)` -- Donec convallis convallis tellus, id dictum metus porttitor at.
+`favicon`
+:   Default: `""` -- A path to a favicon. This must be a path relative to the site directory i.e, the one containing the `site.yaml` file.
 
 ## Menu
 
-`menu.width`
-:   Default: `175px"` -- Sed eget porttitor enim, quis mattis tortor.
+`menu`
+:   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulputate tellus euismod sed. Sed iaculis dui at vehicula mollis. Ut fringilla consequat nibh id tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. See [Menu Item Types](#menu-item-types) for a list of available types.
 
-`menu.align`
+## Theme
+
+Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulputate tellus euismod sed. Sed iaculis dui at vehicula mollis. Ut fringilla consequat nibh id tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+
+### Menu
+
+`theme.menu.width`
+:   Default: `175px` -- Sed eget porttitor enim, quis mattis tortor.
+
+`theme.menu.align`
 :   Default: `left` -- Donec blandit leo eros, at tincidunt augue elementum id.
 
-`menu.header.label`
+`theme.menu.header.label`
 :   Default: `null` -- Etiam porta rhoncus mi, vel vulputate ante placerat eu.
 
-`menu.header.image.path`
+`theme.menu.header.image.path`
 :   Default: `null` -- Fusce quam justo, accumsan non vehicula a, aliquet eget metus.
 
-`menu.header.image.width`
-:   Default: `menu.width` -- Aenean eget erat nec libero dictum tempus bibendum ut turpis.
+`theme.menu.header.image.width`
+:   Default: `theme.menu.width` -- Aenean eget erat nec libero dictum tempus bibendum ut turpis.
 
-`menu.header.image.height`
+`theme.menu.header.image.height`
 :   Default: `auto` -- Fusce nec luctus nisi, non elementum ipsum.
 
-`menu.items`
-:   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. See [Menu Item Types](#menu-item-types) for a list of available types.
+### Page
 
-### Menu Item Types
+`theme.page.width`
+:   Default: `800px` -- Width of the site not including the menu.
 
-#### Shared Attributes
+`theme.page.align`
+:   Default: `left` -- Width of the site not including the menu.
+
+### Colors
+
+`theme.colors.accent-base`
+:   Default: `hsla(25, 90%, 60%, 1.00)` -- Base accent color.
+
+`theme.colors.accent-light`
+:   Default: `hsla(25, 100%, 85%, 1.00)` -- Donec convallis convallis tellus, id dictum metus left at.
+
+## Menu Item Types
+
+### Shared Attributes
 
 `type`
-:   Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulputate tellus euismod sed. Sed iaculis dui at vehicula mollis. Ut fringilla consequat nibh id tincidunt.
 
 :   Valid options are: `link-page` `link-url` `section` `spacer`
 
-#### Link Page
+### Link Page
 
 `label`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 `links-to`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 menu:
@@ -72,13 +84,13 @@ menu:
       links-to: my-page-directory
 ```
 
-#### Link URL
+### Link URL
 
 `label`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 `url`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 menu:
@@ -88,10 +100,10 @@ menu:
       url: www.external-url.com
 ```
 
-#### Section
+### Section
 
 `label`
-:   Default: `null` -- Sed sagittis ipsum non tempus volutpat.
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
 ``` yaml
 menu:
@@ -100,7 +112,7 @@ menu:
       label: other-projects
 ```
 
-#### Spacer
+### Spacer
 
 `size`
 :   Default: `medium` -- Valid options are: `small`, `medium` or `large`.
@@ -116,50 +128,38 @@ menu:
 
 ``` yaml
 title:
-favicon:
+author:
 copyright:
-
-page:
-  width:
-
-colors:
-  accent-base:
-  accent-light:
+favicon:
 
 menu:
-  width:
-  align:
-  header:
-    label:
-    image:
-      path:
-      width:
-      height:
-  items:
-```
+- type: link-page
+  label:
+  links-to:
+- type: link-url
+  label:
+  url:
+- type: section
+  label:
+- type: spacer
+  size:
 
-## Blank Configuration
+theme:
+  menu:
+    width:
+    align:
+    header:
+      label: easel
+      image:
+        path:
+        width:
+        height:
+  page:
+    width:
+    align:
+  colors:
+    accent-base:
+    accent-light:
 
-``` yaml
-title:
-favicon:
-copyright:
-
-page:
-  width:
-
-colors:
-  accent-base:
-  accent-light:
-
-menu:
-  width:
-  align:
-  header:
-    label:
-    image:
-      path:
-      width:
-      height:
-  items:
+extras: {}
 ```

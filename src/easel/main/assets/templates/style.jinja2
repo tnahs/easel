@@ -8,19 +8,19 @@
 
     {# All Pages CSS #}
 
-    {{ render_css("--page__width", site.config.page.width) }}
+    {{ render_css("--page__width", site.theme("page.width")) }}
 
     {# Menu CSS #}
 
-    {{ render_css("--menu__width", site.config.menu.width) }}
-    {{ render_css("--menu__align", site.config.menu.align) }}
-    {{ render_css("--menu-header-image__width", site.config.menu.header.image.width) }}
-    {{ render_css("--menu-header-image__height", site.config.menu.header.image.height) }}
+    {{ render_css("--menu__width", site.theme("menu.width")) }}
+    {{ render_css("--menu__align", site.theme("menu.align")) }}
+    {{ render_css("--menu-header-image__width", site.theme("menu.header.image.width")) }}
+    {{ render_css("--menu-header-image__height", site.theme("menu.header.image.height")) }}
 
     {# Color CSS #}
 
-    {{ render_css("--color-accent__base", site.config.colors.accent_base) }}
-    {{ render_css("--color-accent__light", site.config.colors.accent_light) }}
+    {{ render_css("--color-accent__base", site.theme("colors.accent-base")) }}
+    {{ render_css("--color-accent__light", site.theme("colors.accent-light")) }}
 
     {# Current page CSS #}
 

@@ -5,8 +5,8 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no" />
-    <title>{{ site.config.title }}</title>
-    {% if site.config.favicon %}<link rel="shortcut icon" href="{{ url_for('site.static', filename=site.config.favicon) }}">{% endif %}
+    <title>{{ site.config("title") }}</title>
+    {% if site.config("favicon") %}<link rel="shortcut icon" href="{{ url_for('site.static', filename=site.config('favicon')) }}">{% endif %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/main.css') }}" />
     <style type="text/css">{% include "style.jinja2" %}</style>
 
@@ -22,9 +22,9 @@
 
 <footer>
 
-    {% if site.config.copyright %}
+    {% if site.config("copyright") %}
 
-        <div>{{ site.config.copyright }}</div>
+        <div>{{ site.config("copyright") }}</div>
         <div>All rights reserved</div>
 
     {% endif %}

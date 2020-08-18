@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
 from .config import config
-from .helpers import utils, Keys
+from .helpers import Utils, Keys
 
 
 if TYPE_CHECKING:
@@ -40,18 +40,18 @@ class _MenuFactory:
         try:
             menu_type: str = menu_data[Keys.TYPE]
         except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing required key '{Keys.TYPE}' for Menu in "
-                f"{config.FILENAME_SITE_YAML}"
+            raise errors.MenuConfigError(
+                f"Missing required key '{Keys.TYPE}' for Menu-like item in "
+                f"{config.FILENAME_SITE_YAML}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
         Menu: Optional[MenuClass] = self.menu_types(menu_type=menu_type)
 
         if Menu is None:
-            raise errors.ConfigError(
-                f"Unsupported value '{menu_type}' for {Keys.TYPE} for Menu in "
-                f"{config.FILENAME_SITE_YAML}"
+            raise errors.MenuConfigError(
+                f"Unsupported value '{menu_type}' for '{Keys.TYPE}' for "
+                f"Menu-like item in {config.FILENAME_SITE_YAML}."
             )
 
         return Menu(site=site, **menu_data)
@@ -104,7 +104,7 @@ class LinkPage(MenuInterface):
         try:
             self.menu_data[Keys.LABEL]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Missing required key '{Keys.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
@@ -112,7 +112,7 @@ class LinkPage(MenuInterface):
         try:
             self.menu_data[Keys.LINKS_TO]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Missing required key '{Keys.LINKS_TO}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
@@ -125,7 +125,7 @@ class LinkPage(MenuInterface):
             if page.name == self.links_to:
                 return
 
-        raise errors.ConfigError(
+        raise errors.MenuConfigError(
             f"Menu item '{self.label}' has no corresponding page. "
             f"Page '{self.links_to}' does not exist."
         )
@@ -140,7 +140,7 @@ class LinkPage(MenuInterface):
 
     @property
     def url(self) -> str:
-        return utils.slugify(self.links_to)
+        return Utils.slugify(self.links_to)
 
 
 class LinkURL(MenuInterface):
@@ -164,7 +164,7 @@ class LinkURL(MenuInterface):
         try:
             self.menu_data[Keys.LABEL]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Missing required key '{Keys.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
@@ -172,7 +172,7 @@ class LinkURL(MenuInterface):
         try:
             self.menu_data[Keys.URL]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Missing required key '{Keys.URL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
@@ -206,7 +206,7 @@ class Section(MenuInterface):
         try:
             self.menu_data[Keys.LABEL]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Missing required key '{Keys.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
@@ -234,7 +234,7 @@ class Spacer(MenuInterface):
     def validate__config(self) -> None:
 
         if self.size is not None and self.size not in config.VALID_SIZES:
-            raise errors.ConfigError(
+            raise errors.MenuConfigError(
                 f"Unsupported value '{self.size}' for {Keys.SIZE} for "
                 f"{self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             )

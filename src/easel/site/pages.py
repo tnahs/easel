@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from . import contents, errors
 from .config import config
-from .helpers import config_loader, markdown, utils, Keys
+from .helpers import markdown, Utils, Keys
 
 
 if TYPE_CHECKING:
@@ -39,21 +39,22 @@ class _PageFactory:
 
         path_page_config: pathlib.Path = path_absolute / config.FILENAME_PAGE_YAML
 
-        page_config: dict = config_loader.load(path=path_page_config)
+        page_config: dict = Utils.load_config(path=path_page_config)
 
         try:
             page_type: str = page_config[Keys.TYPE]
         except KeyError as error:
-            raise errors.ConfigError(
-                f"Missing required key '{Keys.TYPE}' for Page in {path_absolute}."
+            raise errors.PageConfigError(
+                f"Missing required key '{Keys.TYPE}' for Page-like item in {path_absolute}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
         Page: Optional[PageClass] = self.page_types(page_type=page_type)
 
         if Page is None:
-            raise errors.ConfigError(
-                f"Unsupported value '{page_type}' for '{Keys.TYPE}' for Page in {path_absolute}."
+            raise errors.PageConfigError(
+                f"Unsupported value '{page_type}' for '{Keys.TYPE}' for "
+                f"Page-like item in {path_absolute}."
             )
 
         return Page(site=site, path_absolute=path_absolute, config=page_config)
@@ -89,13 +90,13 @@ class GalleryMixin(abc.ABC):
             return
 
         if self.gallery_column_count == "auto" and self.gallery_column_width == "auto":
-            raise errors.ConfigError(
+            raise errors.PageConfigError(
                 f"{self}: Cannot set '{Keys.GALLERY_COLUMN_COUNT}' and "
                 f"'{Keys.GALLERY_COLUMN_WIDTH}' to 'auto'."
             )
 
         if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
-            raise errors.ConfigError(
+            raise errors.PageConfigError(
                 f"{self}: Unsupported value '{self.gallery_column_count}' for "
                 f"'{Keys.GALLERY_COLUMN_COUNT}'."
             )
@@ -139,6 +140,19 @@ class PageInterface(abc.ABC):
     def validate__config(self) -> None:
         pass
 
+    """ TODO
+    def validate__description(self) -> None:
+
+        try:
+            self.config["description"]
+        except KeyError:
+            self.config["description"] = None
+            return
+
+        if not self.file_description.exists():
+            raise errors.MissingContent("")
+    """
+
     def validate__options(self) -> None:
 
         try:
@@ -147,7 +161,7 @@ class PageInterface(abc.ABC):
             return
 
         if type(options) is not dict:
-            raise errors.ConfigError(
+            raise errors.PageConfigError(
                 f"{self}: Expected type 'dict' for '{Keys.OPTIONS}' got '{type(options).__name__}'."
             )
 
@@ -186,9 +200,15 @@ class PageInterface(abc.ABC):
     def file_page_yaml(self) -> pathlib.Path:
         return self._path_absolute / config.FILENAME_PAGE_YAML
 
+    """ TODO
+    @property
+    def file_description(self) -> pathlib.Path:
+        return self._path_absolute / self.config["description"]
+    """
+
     @property
     def url(self) -> str:
-        return utils.slugify(self.name)
+        return Utils.slugify(self.name)
 
     @property
     def is_landing(self) -> bool:
@@ -205,7 +225,7 @@ class PageInterface(abc.ABC):
         except FileNotFoundError:
             return None
         except Exception as error:
-            raise errors.ConfigError(
+            raise errors.PageConfigError(
                 f"Unexpected Error while loading page description {path}."
             ) from error
 
@@ -299,14 +319,15 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
         try:
             contents = self.config[Keys.CONTENTS]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.PageConfigError(
                 f"Missing required key '{Keys.CONTENTS}' in for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
         else:
             if type(contents) is not list:
-                raise errors.ConfigError(
-                    f"{self}: Expected type 'list' for '{Keys.CONTENTS}' got '{type(contents).__name__}'."
+                raise errors.PageConfigError(
+                    f"{self}: Expected type 'list' for '{Keys.CONTENTS}' got "
+                    f"'{type(contents).__name__}'."
                 )
             if not len(contents):
                 logger.warning(f"{self}: Page has no contents.")

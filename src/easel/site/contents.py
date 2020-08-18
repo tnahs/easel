@@ -55,18 +55,18 @@ class _ContentFactory:
         try:
             content_type: str = content_data[Keys.TYPE]
         except KeyError as error:
-            raise errors.ConfigError(
-                f"{page}: Missing required key '{Keys.TYPE}' for Content in "
-                f"{config.FILENAME_PAGE_YAML}."
+            raise errors.ContentConfigError(
+                f"{page}: Missing required key '{Keys.TYPE}' for Content-like "
+                f"item in {config.FILENAME_PAGE_YAML}."
             ) from error
 
         # Get Content class based on 'content_type'.
         Content: Optional[ContentClass] = self.content_types(content_type=content_type)
 
         if Content is None:
-            raise errors.ConfigError(
-                f"{page}: Unsupported value '{content_type}' for '{Keys.TYPE}' "
-                f"in {config.FILENAME_PAGE_YAML}."
+            raise errors.ContentConfigError(
+                f"{page}: Unsupported value '{content_type}' for "
+                f"'{Keys.TYPE}' for Content-like item in {config.FILENAME_PAGE_YAML}."
             )
 
         return Content(page=page, **content_data)
@@ -120,7 +120,7 @@ class CaptionMixin(abc.ABC):
     def validate__caption_config(self) -> None:
 
         if type(self.caption) is not dict:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Expected type 'dict' for "
                 f"'{Keys.CAPTION}' got '{type(self.caption).__name__}'."
             )
@@ -129,7 +129,7 @@ class CaptionMixin(abc.ABC):
             self.caption_align is not None
             and self.caption_align not in config.VALID_ALIGNMENTS
         ):
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.caption_align}' for '{Keys.ALIGN}'."
             )
 
@@ -164,7 +164,7 @@ class FileContent(ContentInterface):
         try:
             self.content_data[Keys.PATH]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Keys.PATH}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
@@ -298,7 +298,7 @@ class TextBlock(FileContent):
             )
 
         if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
             )
 
@@ -332,7 +332,7 @@ class Embedded(ContentInterface, CaptionMixin):
         try:
             self.content_data[Keys.HTML]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Keys.HTML}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
@@ -365,18 +365,18 @@ class Header(ContentInterface):
         try:
             self.content_data[Keys.TEXT]
         except KeyError as error:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Keys.TEXT}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
 
         if self.size is not None and self.size not in config.VALID_SIZES:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.size}' for '{Keys.SIZE}'."
             )
 
         if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
             )
 
@@ -411,7 +411,7 @@ class Break(ContentInterface):
     def validate__config(self) -> None:
 
         if self.size is not None and self.size not in config.VALID_SIZES:
-            raise errors.ConfigError(
+            raise errors.ContentConfigError(
                 f"{self.page} Unsupported value '{self.size}' for '{Keys.SIZE}'."
             )
 

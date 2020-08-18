@@ -1,10 +1,3 @@
 # template/pages/page-markdown
 
-# Page type.
 type: markdown
-
-# Markdown Page options.
-# options:
-#   is-gallery: true
-#   gallery-column-count: auto
-#   gallery-column-width: 250px
