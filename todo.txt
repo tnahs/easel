@@ -1,6 +1,5 @@
 HIGH:
   - CLI Tools: https://click.palletsprojects.com/en/7.x/
-  - Re-design page 'description' procedure.
 
 MEDIUM:
   - Design logo/icon.

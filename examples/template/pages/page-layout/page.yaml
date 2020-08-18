@@ -1,6 +1,7 @@
 # template/pages/page-layout
 
 type: layout
+description: description.md
 
 options:
   show-captions: true

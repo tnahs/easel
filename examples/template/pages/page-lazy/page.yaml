@@ -3,6 +3,7 @@
 is-landing: true
 
 type: lazy
+description: description.md
 
 options:
   show-captions: true

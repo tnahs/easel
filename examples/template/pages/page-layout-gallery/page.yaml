@@ -1,6 +1,7 @@
 # template/pages/page-layout-gallery
 
 type: layout
+description: description.md
 
 options:
   is-gallery: true

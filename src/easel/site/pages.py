@@ -124,9 +124,12 @@ class PageInterface(abc.ABC):
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
         self._config: dict = config
+        self._description: Optional[str] = None
 
-        self.validate__options()
+        self._validate__options()
         self.validate__config()
+
+        self._load_description()
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.path_relative}>"
@@ -140,20 +143,29 @@ class PageInterface(abc.ABC):
     def validate__config(self) -> None:
         pass
 
-    """ TODO
-    def validate__description(self) -> None:
+    def _load_description(self) -> None:
 
         try:
-            self.config["description"]
+            self.config[Keys.DESCRIPTION]
         except KeyError:
-            self.config["description"] = None
             return
 
-        if not self.file_description.exists():
-            raise errors.MissingContent("")
-    """
+        try:
+            # TODO: Figure out how to properly type this.
+            self._description = markdown.from_file(
+                filepath=self.file_description, page=self
+            )
+        except FileNotFoundError:
+            raise errors.MissingContent(
+                f"{self}: Missing '{self.file_description.name}' in {self.path_absolute}."
+            )
+        except Exception as error:
+            raise errors.PageConfigError(
+                f"Unexpected Error while loading "
+                f"'{self.file_description.name}' in {self.path_absolute}."
+            ) from error
 
-    def validate__options(self) -> None:
+    def _validate__options(self) -> None:
 
         try:
             options = self.config[Keys.OPTIONS]
@@ -176,10 +188,11 @@ class PageInterface(abc.ABC):
         the 'page.yaml':
 
             {
+                "show-captions": [bool: false],
                 "is-gallery": [bool: false],
                 "gallery-column-count": [str|int: auto],
                 "gallery-column-width": [str: 250px],
-                Keys.SHOW_CAPTIONS: [bool: false]
+                "gallery-column-gap": [str: 25px],
             }
         """
         return self.config.get(Keys.OPTIONS, {})
@@ -201,11 +214,9 @@ class PageInterface(abc.ABC):
     def file_page_yaml(self) -> pathlib.Path:
         return self._path_absolute / config.FILENAME_PAGE_YAML
 
-    """ TODO
     @property
     def file_description(self) -> pathlib.Path:
-        return self._path_absolute / self.config["description"]
-    """
+        return self._path_absolute / self.config.get(Keys.DESCRIPTION, "")
 
     @property
     def url(self) -> str:
@@ -217,18 +228,7 @@ class PageInterface(abc.ABC):
 
     @property
     def description(self) -> Optional[str]:
-
-        path = self._path_absolute / config.FILENAME_PAGE_DESCRIPTION
-
-        try:
-            # TODO: Figure out how to properly type this.
-            return markdown.from_file(filepath=path, page=self)
-        except FileNotFoundError:
-            return None
-        except Exception as error:
-            raise errors.PageConfigError(
-                f"Unexpected Error while loading page description {path}."
-            ) from error
+        return self._description
 
 
 class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):

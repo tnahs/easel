@@ -1,9 +1,8 @@
 # template/pages/page-lazy-gallery
 
-# Page type.
 type: lazy
+description: description.md
 
-# Lazy (gallery) Page options.
 options:
   is-gallery: true
   gallery-column-count: 3

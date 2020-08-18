@@ -2,14 +2,29 @@
 
 ## Shared Attributes
 
-`type`
-:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
-
 `is-landing`
 :   Default: `false` -- One page *must* have the `is-landing` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
 
     ``` yaml
     is-landing: false
+    ```
+
+`type`
+:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
+
+`description`
+:   Default: `null` -- Relative path to a markdown file that serves as the page's description. In the default template this renders as a full-page-width text block.
+
+    ``` yaml
+      description: description.md
+    ```
+
+`options.show-captions`
+:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
+
+    ``` yaml
+    options:
+      show-captions: false
     ```
 
 `options.is-gallery`
@@ -42,14 +57,6 @@
     ``` yaml
     options:
       gallery-column-gap: 25px
-    ```
-
-`options.show-captions`
-:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
-
-    ``` yaml
-    options:
-      show-captions: false
     ```
 
 ## Lazy Page
@@ -202,11 +209,11 @@ Lazy Page Configuration
 type: lazy
 
 options:
+  show-captions: true
   is-gallery: true
   gallery-column-count: auto
   gallery-column-width: 300px
   gallery-column-gap: 15px
-  show-captions: true
 ```
 
 Layout Page Configuration
@@ -229,11 +236,11 @@ contents:
    path: my-blurb.md
 
 options:
+  show-captions: true
   is-gallery: true
   gallery-column-count: auto
   gallery-column-width: 300px
   gallery-column-gap: 15px
-  show-captions: true
 ```
 
 Markdown Page Configuration

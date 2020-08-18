@@ -1,5 +1,4 @@
 import logging
-from os import stat
 import pathlib
 import re
 import unicodedata
