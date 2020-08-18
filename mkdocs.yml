@@ -20,6 +20,7 @@ markdown_extensions:
   - markdown.extensions.smarty
   - markdown.extensions.def_list
   - pymdownx.mark
+  - pymdownx.tabbed
   - pymdownx.details
   - pymdownx.snippets
   - pymdownx.highlight
@@ -31,9 +32,9 @@ nav:
     - Installation: getting-started/installation.md
     - Creating Your Site: getting-started/creating-your-site.md
     - A Minimal Application: getting-started/a-minimal-application.md
-  - Configuration:
-    - Site: configuration/site.md
-    - Pages: configuration/pages.md
+  # - Configuration:
+  #   - Site: configuration/site.md
+  #   - Pages: configuration/pages.md
   # - Markdown: markdown.md
   # - API Reference:
   #   - Custom Types: api-reference/custom-types.md

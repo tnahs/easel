@@ -19,14 +19,14 @@ my-easel
 └── venv
 ```
 
-Create a page directory and a `page.yaml` file:
+Create a page directory and its `page.yaml` and description file:
 
 ``` console
 $ mkdir pages
 $ cd pages
 $ mkdir my-page
 $ cd my-page
-$ touch page.yaml
+$ touch page.yaml description.md
 ```
 
 Our project directory should now look like this:
@@ -37,7 +37,8 @@ my-easel
 │   ├── site.yaml
 │   └── pages
 │       └── my-page
-│           └── page.yaml
+│           ├── page.yaml
+│           └── description.md
 └── venv
 ```
 
@@ -82,10 +83,6 @@ theme:
 
 Note that under `menu` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory we just created.
 
-!!! note
-
-    A menu items `links-to` attribute always requires a path relative to the `pages` directory.
-
 ## Configuring the `page.yaml`
 
 !!! info
@@ -97,28 +94,32 @@ For this page we will do the laziest thing possible, create a `Lazy` page. This 
 Add the following to the `page.yaml` file:
 
 ``` yaml
-# my-easel/my-site/my-page/page.yaml
+# my-easel/my-site/pages/my-page/page.yaml
 
 is-landing: true
 
 type: lazy
+description: description.md
 
 options:
   show-captions: true
 ```
 
 `is-landing`
-:   Defines which page will be the landing page for the site i.e. www.site.com as opposed to www.site.com/page. Seeing as we only have one page in our site, it must be the landing page.
+:   Defines which page will be the landing page for the site i.e. `www.site.com` as opposed to `www.site.com/page`. Seeing as we only have one page in our site, it must be the landing page.
 
-!!! note
+!!! warning
 
     Every site must have one and only one page defined as the landing page. A `SiteConfigError` will be thrown if no page or more than one page has `is-landing` set to `true`.
 
 `type`
-:   Defines the type of page its respective directory represents. In this case, `lazy`.
+:   Defines the type of page. In this case, `lazy`.
+
+`description`
+:   Defines a relative path to a markdown file that serves as the page's description. In the default template this renders as a full page-width text block.
 
 `options.show-caption`
-:   Enables (lazy) captions. On a `Lazy` page, captions are generated from the filename (minus the file extention) of each item that supports captions.
+:   Enables (lazy) captions. On a `Lazy` page, captions are generated from the filename (minus the file extension) of each item that supports captions.
 
 ## Adding Some Content
 
@@ -131,6 +132,7 @@ my-easel
 │   └── pages
 │       └── my-page
 │           ├── page.yaml
+│           ├── description.md
 │           ├── image-01.jpg
 │           ├── image-02.jpg
 │           ├── video.mp4

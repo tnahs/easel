@@ -1,4 +1,5 @@
 import abc
+import pathlib
 import logging
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
@@ -94,6 +95,9 @@ class LinkPage(MenuInterface):
 
     is_link_page: bool = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def __repr__(self) -> str:
         return (
             f"<{self.__class__.__name__}: label:{self.label} links_to:{self.links_to}>"
@@ -117,12 +121,36 @@ class LinkPage(MenuInterface):
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
+        self._normalize__links_to()
         self._validate__links_to()
+
+    def _normalize__links_to(self) -> None:
+        """ Ensures the 'links-to' attribute from 'menu_data' is always a path
+        relative to the 'config.path_site_pages' directory.
+
+            pages/page-000 --> page-000
+            page-001       --> page-001
+
+        This allows users to use paths relative to the [site] or or 'pages'
+        directory. """
+
+        links_to = self.menu_data[Keys.LINKS_TO]
+
+        try:
+            links_to = pathlib.Path(links_to).relative_to(config.DIRECTORY_NAME_PAGES)
+        except ValueError:
+            # pathlib raises a ValueError if the path does not begin with the
+            # value passed to Path.relative_to(). In this case 'pages'.
+            pass
+        else:
+            links_to = str(links_to)
+
+        self.menu_data[Keys.LINKS_TO] = links_to
 
     def _validate__links_to(self) -> None:
 
         for page in self._site.pages:
-            if page.name == self.links_to:
+            if page.url == self.href:
                 return
 
         raise errors.MenuConfigError(
@@ -139,7 +167,7 @@ class LinkPage(MenuInterface):
         return self.menu_data[Keys.LINKS_TO]
 
     @property
-    def url(self) -> str:
+    def href(self) -> str:
         return Utils.slugify(self.links_to)
 
 

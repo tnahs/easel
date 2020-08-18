@@ -14,23 +14,23 @@ menu:
 
 - type: link-page
   label: lazy
-  links-to: page-lazy
+  links-to: pages/page-lazy
 
 - type: link-page
   label: lazy (gallery)
-  links-to: page-lazy-gallery
+  links-to: pages/page-lazy-gallery
 
 - type: link-page
   label: layout
-  links-to: page-layout
+  links-to: pages/page-layout
 
 - type: link-page
   label: layout (gallery)
-  links-to: page-layout-gallery
+  links-to: pages/page-layout-gallery
 
 - type: link-page
   label: markdown
-  links-to: page-markdown
+  links-to: pages/page-markdown
 
 - type: spacer
   size: medium

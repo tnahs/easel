@@ -30,6 +30,7 @@ my-easel
 │   └── pages
 │       ├── my-page
 │       │   ├── page.yaml
+│       │   ├── description.md
 │       │   ├── image-001.jpg
 │       │   ├── image-002.jpg
 │       │   └── ... Additional Content

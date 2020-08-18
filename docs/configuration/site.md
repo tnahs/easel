@@ -84,6 +84,39 @@ menu:
       links-to: my-page-directory
 ```
 
+!!! note
+
+    The `links-to` attribute accepts paths relative to the site's root directory i.e. the directory containing the `site.yaml` file, or the `pages` directory.
+
+    For example:
+
+    ``` plaintext
+    my-easel
+    └── my-site
+        ├── site.yaml
+        └── pages
+            └── my-page-directory
+                └── page.yaml
+    ```
+
+    === "Relative to site"
+
+        ``` yaml
+        menu:
+        - type: link-page
+          label: my-page
+          links-to: pages/my-page-directory
+        ```
+
+    === "Relative to pages"
+
+        ``` yaml
+        menu:
+        - type: link-page
+          label: my-page
+          links-to: my-page-directory
+        ```
+
 ### Link URL
 
 `label`

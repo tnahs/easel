@@ -27,13 +27,13 @@
 
                 {% if item.is_link_page %}
 
-                    {% set current = "menu-page-current" if item.url == site.page_current.url else "" %}
+                    {% set current = "menu-page-current" if item.href == site.page_current.url else "" %}
 
-                    <a class="menu-link-page {{ current }}" href="{{ item.url }}">{{ item.label }}</a>
+                    <a class="menu-link-page {{ current }}" href="{{ item.href }}">{{ item.label }}</a>
 
                 {% elif item.is_link_url %}
 
-                    <a class="menu-link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
+                    <a class="menu-link-url" href="{{ item.href }}" target="_blank">{{ item.label }}</a>
 
                 {% elif item.is_section %}
 

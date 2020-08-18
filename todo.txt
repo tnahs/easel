@@ -9,8 +9,6 @@ LOW:
 
 HOUSEKEEPING:
   - Sift through paths and URLs.
-    - Allow menu items to accept: 'pages/page-01' instead of just 'page-01'
-    - Check to see if menu items work with: 'nested-page/page-01'
   - Light/dark and vertical horizontal theme.
   - Cleanup CSS.
 
