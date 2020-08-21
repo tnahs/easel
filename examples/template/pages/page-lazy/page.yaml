@@ -1,6 +1,6 @@
 # template/pages/page-lazy
 
-is-landing: true
+is-index: true
 
 type: lazy
 description: description.md

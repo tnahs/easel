@@ -1,11 +1,11 @@
-{% from "macros.jinja2" import render_menu_header, render_menu with context %}
+{% from "macros.jinja2" import render_header, render_menu with context %}
 
 
 <menu>
 
     <div class="menu-desktop">
 
-        <div class="menu-header">{{ render_menu_header() }}</div>
+        <div class="header">{{ render_header() }}</div>
 
         {{ render_menu() }}
 
@@ -14,11 +14,11 @@
 
     <div class="menu-mobile">
 
-        <div class="menu-header">
+        <div class="header">
 
-            {{ render_menu_header() }}
+            {{ render_header() }}
 
-            {# This <div></div> just takes up space and pushes 'menu-header-label'
+            {# This <div></div> just takes up space and pushes 'header-label'
             and 'menu-mobile__open-button' to their respective sides of the grid. #}
             <div></div>
 

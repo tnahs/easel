@@ -1,14 +1,14 @@
-{% macro render_menu_header() %}
+{% macro render_header() %}
 
-    {% if site.theme('menu.header.image.path') %}
+    {% if site.config.header.image.path %}
 
-        <a href="{{ url_for('main.page_landing') }}">
-            <img class="menu-header-image" src="{{ url_for('site.static', filename=site.theme('menu.header.image.path')) }}">
+        <a href="{{ url_for('main.index') }}">
+            <img class="header-image" src="{{ url_for('site.static', filename=site.config.header.image.path) }}">
         </a>
 
-    {% elif site.theme('menu.header.label') %}
+    {% elif site.config.header.title %}
 
-        <a class="menu-header-label" href="{{ url_for('main.page_landing') }}">{{ site.theme('menu.header.label') | safe }}</a>
+        <a class="header-label" href="{{ url_for('main.index') }}">{{ site.config.header.title | safe }}</a>
 
     {% endif %}
 

@@ -35,7 +35,7 @@ nav:
   # - Configuration:
   #   - Site: configuration/site.md
   #   - Pages: configuration/pages.md
-  # - Markdown: markdown.md
+  - Markdown: markdown.md
   # - API Reference:
   #   - Custom Types: api-reference/custom-types.md
   #   - Custom Assets: api-reference/custom-assets.md

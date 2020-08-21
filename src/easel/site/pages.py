@@ -1,11 +1,11 @@
 import abc
 import logging
 import pathlib
-from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
 from . import contents, errors
 from .config import config
-from .helpers import markdown, Utils, Keys
+from .helpers import Key, Utils, markdown
 
 
 if TYPE_CHECKING:
@@ -42,10 +42,10 @@ class _PageFactory:
         page_config: dict = Utils.load_config(path=path_page_config)
 
         try:
-            page_type: str = page_config[Keys.TYPE]
+            page_type: str = page_config[Key.TYPE]
         except KeyError as error:
             raise errors.PageConfigError(
-                f"Missing required key '{Keys.TYPE}' for Page-like item in {path_absolute}."
+                f"Missing required key '{Key.TYPE}' for Page-like item in {path_absolute}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
@@ -53,7 +53,7 @@ class _PageFactory:
 
         if Page is None:
             raise errors.PageConfigError(
-                f"Unsupported value '{page_type}' for '{Keys.TYPE}' for "
+                f"Unsupported value '{page_type}' for '{Key.TYPE}' for "
                 f"Page-like item in {path_absolute}."
             )
 
@@ -75,7 +75,7 @@ class ShowCaptionsMixin(abc.ABC):
 
     @property
     def show_captions(self) -> bool:
-        return self.options.get(Keys.SHOW_CAPTIONS, False)
+        return self.options.get(Key.SHOW_CAPTIONS, False)
 
 
 class GalleryMixin(abc.ABC):
@@ -91,31 +91,31 @@ class GalleryMixin(abc.ABC):
 
         if self.gallery_column_count == "auto" and self.gallery_column_width == "auto":
             raise errors.PageConfigError(
-                f"{self}: Cannot set '{Keys.GALLERY_COLUMN_COUNT}' and "
-                f"'{Keys.GALLERY_COLUMN_WIDTH}' to 'auto'."
+                f"{self}: Cannot set '{Key.GALLERY_COLUMN_COUNT}' and "
+                f"'{Key.GALLERY_COLUMN_WIDTH}' to 'auto'."
             )
 
         if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
             raise errors.PageConfigError(
                 f"{self}: Unsupported value '{self.gallery_column_count}' for "
-                f"'{Keys.GALLERY_COLUMN_COUNT}'."
+                f"'{Key.GALLERY_COLUMN_COUNT}'."
             )
 
     @property
     def is_gallery(self) -> bool:
-        return self.options.get(Keys.IS_GALLERY, False)
+        return self.options.get(Key.IS_GALLERY, False)
 
     @property
     def gallery_column_count(self) -> bool:
-        return self.options.get(Keys.GALLERY_COLUMN_COUNT, None)
+        return self.options.get(Key.GALLERY_COLUMN_COUNT, None)
 
     @property
     def gallery_column_width(self) -> bool:
-        return self.options.get(Keys.GALLERY_COLUMN_WIDTH, None)
+        return self.options.get(Key.GALLERY_COLUMN_WIDTH, None)
 
     @property
     def gallery_column_gap(self) -> bool:
-        return self.options.get(Keys.GALLERY_COLUMN_GAP, None)
+        return self.options.get(Key.GALLERY_COLUMN_GAP, None)
 
 
 class PageInterface(abc.ABC):
@@ -146,7 +146,7 @@ class PageInterface(abc.ABC):
     def _load_description(self) -> None:
 
         try:
-            self.config[Keys.DESCRIPTION]
+            self.config[Key.DESCRIPTION]
         except KeyError:
             return
 
@@ -168,15 +168,40 @@ class PageInterface(abc.ABC):
     def _validate__options(self) -> None:
 
         try:
-            options = self.config[Keys.OPTIONS]
+            options = self.config[Key.OPTIONS]
         except KeyError:
             return
 
         if type(options) is not dict:
             raise errors.PageConfigError(
-                f"{self}: Expected type 'dict' for '{Keys.OPTIONS}' got "
+                f"{self}: Expected type 'dict' for '{Key.OPTIONS}' got "
                 f"'{type(options).__name__}'."
             )
+
+    @property
+    def _contents(self) -> Generator[pathlib.Path, None, None]:
+        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
+        # objects. Contains absolute paths of all items and sub-items in the
+        # page's folder.
+        for path in self.path_absolute.glob("**/*"):
+
+            # Ignore directories.
+            if path.is_dir():
+                continue
+
+            # Ignore hidden files.
+            if path.name.startswith("."):
+                continue
+
+            # Ignore page yaml file.
+            if path.name == config.FILENAME_PAGE_YAML:
+                continue
+
+            # Ignore page description markdown file.
+            if path.name == self.file_description.name:
+                continue
+
+            yield path
 
     @property
     def config(self) -> dict:
@@ -195,7 +220,7 @@ class PageInterface(abc.ABC):
                 "gallery-column-gap": [str: 25px],
             }
         """
-        return self.config.get(Keys.OPTIONS, {})
+        return self.config.get(Key.OPTIONS, {})
 
     @property
     def name(self) -> str:
@@ -216,15 +241,15 @@ class PageInterface(abc.ABC):
 
     @property
     def file_description(self) -> pathlib.Path:
-        return self._path_absolute / self.config.get(Keys.DESCRIPTION, "")
+        return self._path_absolute / self.config.get(Key.DESCRIPTION, "")
 
     @property
     def url(self) -> str:
         return Utils.slugify(self.name)
 
     @property
-    def is_landing(self) -> bool:
-        return self.config.get(Keys.IS_LANDING, False)
+    def is_index(self) -> bool:
+        return self.config.get(Key.IS_INDEX, False)
 
     @property
     def description(self) -> Optional[str]:
@@ -248,47 +273,30 @@ class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
 
         items: List["ContentObj"] = []
 
-        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
-        # objects. Contains absolute paths of all items and sub-items in the
-        # page's folder.
-        for path in self.path_absolute.glob("**/*"):
+        for path in self._contents:
 
-            # Ignore directories.
-            if path.is_dir():
-                continue
+            extension = path.suffix
 
-            # Ignore hidden files.
-            if path.name.startswith("."):
-                continue
-
-            # Ignore page yaml file.
-            if path.name == config.FILENAME_PAGE_YAML:
-                continue
-
-            # Ignore page description markdown file.
-            if path.name == config.FILENAME_PAGE_DESCRIPTION:
-                continue
-
-            if path.suffix in config.VALID_IMAGE_TYPES:
+            if extension in config.VALID_IMAGE_EXTENSIONS:
                 item = contents.Image(
-                    page=self, path=path, caption={Keys.TITLE: path.stem}
+                    page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in config.VALID_VIDEO_TYPES:
+            elif extension in config.VALID_VIDEO_EXTENSIONS:
                 item = contents.Video(
-                    page=self, path=path, caption={Keys.TITLE: path.stem}
+                    page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in config.VALID_AUDIO_TYPES:
+            elif extension in config.VALID_AUDIO_EXTENSIONS:
                 item = contents.Audio(
-                    page=self, path=path, caption={Keys.TITLE: path.stem}
+                    page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in config.VALID_TEXT_TYPES:
+            elif extension in config.VALID_TEXT_EXTENSIONS:
                 item = contents.TextBlock(page=self, path=path)
 
-            elif path.suffix in config.VALID_YAML_TYPES:
-                logger.warning(f"Unused layout file '{path.name}' found in {self}.")
+            elif extension in config.VALID_YAML_EXTENSIONS:
+                logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
                 continue
 
             else:
@@ -318,16 +326,16 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
     def validate__config(self) -> None:
 
         try:
-            contents = self.config[Keys.CONTENTS]
+            contents = self.config[Key.CONTENTS]
         except KeyError as error:
             raise errors.PageConfigError(
-                f"Missing required key '{Keys.CONTENTS}' in for "
+                f"Missing required key '{Key.CONTENTS}' in for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
         else:
             if type(contents) is not list:
                 raise errors.PageConfigError(
-                    f"{self}: Expected type 'list' for '{Keys.CONTENTS}' got "
+                    f"{self}: Expected type 'list' for '{Key.CONTENTS}' got "
                     f"'{type(contents).__name__}'."
                 )
             if not len(contents):
@@ -340,7 +348,7 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
 
         items: List["ContentObj"] = []
 
-        for content_data in self.config[Keys.CONTENTS]:
+        for content_data in self.config[Key.CONTENTS]:
 
             item: "ContentObj" = contents.content_factory.build(
                 page=self, content_data=content_data
@@ -362,10 +370,10 @@ class Markdown(PageInterface, GalleryMixin):
 
     def validate__config(self) -> None:
 
-        if Keys.SHOW_CAPTIONS in self.options.keys():
+        if Key.SHOW_CAPTIONS in self.options.keys():
             logger.warning(
                 f"{self}: Markdown pages do not support captions. "
-                f"Ignoring '{Keys.OPTIONS}.{Keys.SHOW_CAPTIONS}'."
+                f"Ignoring '{Key.OPTIONS}.{Key.SHOW_CAPTIONS}'."
             )
 
         self.validate__gallery_config()
@@ -375,24 +383,9 @@ class Markdown(PageInterface, GalleryMixin):
 
         items: List["ContentObj"] = []
 
-        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
-        # objects. Contains absolute paths of all items and sub-items in the
-        # page's folder.
-        for path in self.path_absolute.glob("**/*"):
+        for path in self._contents:
 
-            # Ignore directories.
-            if path.is_dir():
-                continue
-
-            # Ignore hidden files.
-            if path.name.startswith("."):
-                continue
-
-            # Ignore page description markdown file.
-            if path.name == config.FILENAME_PAGE_DESCRIPTION:
-                continue
-
-            if path.suffix not in config.VALID_TEXT_TYPES:
+            if path.suffix not in config.VALID_TEXT_EXTENSIONS:
                 continue
 
             item = contents.TextBlock(page=self, path=path)

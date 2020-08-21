@@ -87,7 +87,7 @@ Note that under `menu` we have a single item with the attribute `links-to` set t
 
 !!! info
 
-    Each page directory requires a `page.yaml` file. In the way that `site.yaml` configures the site, `page.yaml` configures the page.
+    Each page directory requires a `page.yaml` file. In the way that `site.yaml` configures the site, `page.yaml` configures the page. If no `page.yaml` file is detected, the directory will be ignored.
 
 For this page we will do the laziest thing possible, create a `Lazy` page. This particular type of page auto-populates its contents from the contents of its respective directory sorted alphabetically by the absolute path of each item.
 
@@ -96,7 +96,7 @@ Add the following to the `page.yaml` file:
 ``` yaml
 # my-easel/my-site/pages/my-page/page.yaml
 
-is-landing: true
+is-index: true
 
 type: lazy
 description: description.md
@@ -105,12 +105,12 @@ options:
   show-captions: true
 ```
 
-`is-landing`
-:   Defines which page will be the landing page for the site i.e. `www.site.com` as opposed to `www.site.com/page`. Seeing as we only have one page in our site, it must be the landing page.
+`is-index`
+:   Defines which page will be the index page for the site i.e. `www.site.com` as opposed to `www.site.com/page`. Seeing as we only have one page in our site, it must be the index page.
 
 !!! warning
 
-    Every site must have one and only one page defined as the landing page. A `SiteConfigError` will be thrown if no page or more than one page has `is-landing` set to `true`.
+    Every site must have one and only one page defined as the index page. A `SiteConfigError` will be thrown if no page or more than one page has `is-index` set to `true`.
 
 `type`
 :   Defines the type of page. In this case, `lazy`.

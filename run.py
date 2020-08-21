@@ -1,10 +1,9 @@
-from logging import log
 from src.easel import Easel
 
 
-easel = Easel("examples/template")
+easel = Easel("examples/template", loglevel="DEBUG")
 
 
 if __name__ == "__main__":
 
-    easel.run(loglevel="DEBUG")
+    easel.run()

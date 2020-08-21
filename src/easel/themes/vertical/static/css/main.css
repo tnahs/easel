@@ -33,11 +33,11 @@
     --menu__text-color-current: var(--color-accent__base);
 
     /* menu header */
-    --menu-header-label__font-family: var(--menu__font-family);
-    --menu-header-label__font-size: 26pt;
-    --menu-header-label__text-color: hsla(0, 0%, 20%, 1.00);
-    --menu-header-image__width: var(--menu__width); /* customizable */
-    --menu-header-image__height: auto; /* customizable */
+    --header-label__font-family: var(--menu__font-family);
+    --header-label__font-size: 26pt;
+    --header-label__text-color: hsla(0, 0%, 20%, 1.00);
+    --header-image__width: var(--menu__width); /* customizable */
+    --header-image__height: auto; /* customizable */
 
     /* menu items */
     --menu-link-page__text-color: hsla(0, 0%, 30%, 1.00);
@@ -203,7 +203,7 @@ menu .menu-desktop {
     left: var(--menu__padding-left);
 }
 
-menu .menu-desktop .menu-header {
+menu .menu-desktop .header {
 
     padding-top: 0;
     padding-left: 0;
@@ -221,7 +221,7 @@ menu .menu-mobile {
     display: none;
 }
 
-menu .menu-mobile .menu-header {
+menu .menu-mobile .header {
 
     padding-top: 30px;
     padding-left: 30px;
@@ -232,7 +232,7 @@ menu .menu-mobile .menu-header {
     grid-template-columns: max-content 1fr max-content;
 }
 
-menu .menu-mobile .menu-header #menu-mobile__open-button {
+menu .menu-mobile .header #menu-mobile__open-button {
 
     width: var(--menu-mobile__toggle-button-size);
     height: auto;
@@ -291,17 +291,17 @@ menu .menu-mobile .menu-mobile__buttons .menu-mobile__controls #menu-mobile__clo
  * menu desktop & mobile
  * ------------------------------------------------------------------------- */
 
-menu * .menu-header .menu-header-label {
+menu * .header .header-label {
 
-    font-family: var(--menu-header-label__font-family);
-    font-size: var(--menu-header-label__font-size);
-    color: var(--menu-header-label__text-color);
+    font-family: var(--header-label__font-family);
+    font-size: var(--header-label__font-size);
+    color: var(--header-label__text-color);
 }
 
-menu * .menu-header .menu-header-image {
+menu * .header .header-image {
 
-    max-width: var(--menu-header-image__width);
-    height: var(--menu-header-image__height);
+    max-width: var(--header-image__width);
+    height: var(--header-image__height);
 }
 
 /*

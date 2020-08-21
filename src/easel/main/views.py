@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 blueprint_main = Blueprint(
     name="main",
     import_name=__name__,
-    template_folder=str(config.path_templates),
+    template_folder=str(config.path_theme_templates),
     # Explicitly setting 'url_prefix' to an emptry string to set this
     # blueprint to be served when accesting the base url i.e. 'www.site.com'.
     url_prefix="",
@@ -30,15 +30,18 @@ blueprint_main = Blueprint(
     # searched if the file does not exist in the application static folder.
     #
     # via https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
-    static_url_path=str(config.path_static),
-    static_folder=str(config.path_static),
+    static_url_path=str(config.path_theme_static),
+    static_folder=str(config.path_theme_static),
 )
 
 
 @blueprint_main.route("/")
-def page_landing() -> str:
+def index() -> str:
 
-    page: Optional["PageObj"] = current_app.site.page_landing
+    page: Optional["PageObj"] = current_app.site.index
+
+    if page is None:
+        abort(404)
 
     return render_template("page.jinja2", page=page)
 
@@ -60,7 +63,7 @@ def error_404(error):
     page: Optional["PageObj"] = current_app.site.page_error_404
 
     if page is None:
-        return redirect(url_for("main.page_landing"))
+        return redirect(url_for("main.index"))
 
     return render_template("page.jinja2", page=page)
 
@@ -71,6 +74,6 @@ def error_500(error):
     page: Optional["PageObj"] = current_app.site.page_error_500
 
     if page is None:
-        return redirect(url_for("main.page_landing"))
+        return redirect(url_for("main.index"))
 
     return render_template("page.jinja2", page=page)

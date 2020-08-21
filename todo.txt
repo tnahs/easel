@@ -1,22 +1,34 @@
 HIGH:
   - CLI Tools: https://click.palletsprojects.com/en/7.x/
+  - Revisit how themes are set. Interactions between 'Site' and 'GlobalConfig'.
+    Might want to decouple the Site config from the Site. After adding themes
+    and theme toggling, it feels wrong to have the site reach into the global
+    config and modify it.
+      GlobalConfig
+      SiteConfig
+      Site
+        PageConfig
+        Page
+          ContentConfig
+          Content
+  - Print method to print whole site structure.
+  - Formal default theme names.
 
 MEDIUM:
   - Design logo/icon.
   - Documentation: https://docs.readthedocs.io/en/stable/index.html
 
 LOW:
+  - Light/dark and vertical/horizontal theme.
 
 HOUSEKEEPING:
   - Sift through paths and URLs.
-  - Light/dark and vertical horizontal theme.
   - Cleanup CSS.
 
 FEATURES:
   - Gallery enhancements:
     - Lightbox view
     - Generate thumbnails
-  - Add 'append-css' and 'append-javascript' syntax to 'site.yaml'.
   - Lazy-loading images.
     - https://spikelantern.com/articles/simple-infinite-scroll-in-django/
     - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API

@@ -1,6 +1,6 @@
 import logging
 import pathlib
-from typing import Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
 from . import errors
 
@@ -20,7 +20,12 @@ class Config:
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
     FILENAME_PAGE_DESCRIPTION: str = "page-description.md"
-    FILENAME_PAGE_BODY: str = "page-body.md"
+
+    DEFAULT_THEME: str = "vertical"
+    VALID_THEMES: List[str] = [
+        DEFAULT_THEME,
+        "horizontal",
+    ]
 
     DEFAULT_SIZE = "medium"
     VALID_SIZES: Tuple[str, ...] = (
@@ -45,26 +50,26 @@ class Config:
         6,
     )
 
-    VALID_IMAGE_TYPES: Tuple[str, ...] = (
+    VALID_IMAGE_EXTENSIONS: Tuple[str, ...] = (
         ".jpg",
         ".jpeg",
         ".png",
         ".gif",
     )
-    VALID_VIDEO_TYPES: Tuple[str, ...] = (
+    VALID_VIDEO_EXTENSIONS: Tuple[str, ...] = (
         ".mp4",
         ".webm",
         ".mov",
     )
-    VALID_AUDIO_TYPES: Tuple[str, ...] = (
+    VALID_AUDIO_EXTENSIONS: Tuple[str, ...] = (
         ".mp3",
         ".wav",
     )
-    VALID_YAML_TYPES: Tuple[str, ...] = (
+    VALID_YAML_EXTENSIONS: Tuple[str, ...] = (
         ".yaml",
         ".yml",
     )
-    VALID_TEXT_TYPES: Tuple[str, ...] = (
+    VALID_TEXT_EXTENSIONS: Tuple[str, ...] = (
         ".md",
         ".txt",
     )
@@ -79,22 +84,21 @@ class Config:
         ".wav": "audio/wav",
     }
 
-    def __init__(self):
-
-        self._path_site: Optional[pathlib.Path] = None
-        self._path_assets: pathlib.Path = self.PATH_ROOT / "main" / "assets"
+    _path_site: Optional[pathlib.Path] = None
+    _theme_name: str = DEFAULT_THEME
 
     @property
     def path_site(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/[site] """
 
         if self._path_site is None:
-            raise errors.SiteConfigError("Site path must be set before running.")
+            raise errors.SiteConfigError("Site directory must be set before running.")
 
         return self._path_site
 
     @path_site.setter
     def path_site(self, value: str) -> None:
-        # /absolute/path/to/[site]
+        """ Sets /absolute/path/to/[site] """
 
         path_site = pathlib.Path(value)
 
@@ -102,85 +106,123 @@ class Config:
             path_site = path_site.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.SiteConfigError(
-                f"Site path '{path_site}' does not exist."
+                f"Site directory {path_site} does not exist."
             ) from error
 
         self._path_site = path_site
 
     @property
     def path_site_pages(self) -> pathlib.Path:
-        # /absolute/path/to/[site]/pages
+        """ Returns /absolute/path/to/[site]/pages """
 
         path_site_pages = self.path_site / self.DIRECTORY_NAME_PAGES
 
         try:
-            path_site_pages = path_site_pages.resolve(strict=True)
+            return path_site_pages.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.SiteConfigError("Site missing 'pages' directory.") from error
 
-        return path_site_pages
-
     @property
     def path_site_errors(self) -> Optional[pathlib.Path]:
-        # /absolute/path/to/[site]/errors
+        """ Returns /absolute/path/to/[site]/errors """
 
         path_site_errors = self.path_site / self.DIRECTORY_NAME_ERRORS
 
         try:
-            path_site_errors = path_site_errors.resolve(strict=True)
+            return path_site_errors.resolve(strict=True)
         except FileNotFoundError:
             return None
 
-        return path_site_errors
-
     @property
     def file_site_yaml(self) -> pathlib.Path:
-        # /absolute/path/to/[site]/site.yaml
+        """ Returns /absolute/path/to/[site]/site.yaml """
         return self.path_site / self.FILENAME_SITE_YAML
 
     @property
-    def path_assets(self) -> pathlib.Path:
-        return self._path_assets
+    def theme_name(self) -> str:
+        """ Returns current theme name. """
+        return self._theme_name
 
-    @path_assets.setter
-    def path_assets(self, value: Optional[str]):
+    @theme_name.setter
+    def theme_name(self, value: Optional[str]) -> None:
+        """ Sets theme name. """
 
-        if value is None:
+        if not value:
             return
 
-        path_assets = pathlib.Path(value)
+        if value not in self.VALID_THEMES:
+            raise errors.SiteConfigError(
+                f"Invalid theme '{value}'. Valid themes are: {self.VALID_THEMES}."
+            )
+
+        self._theme_name = value
+
+    @property
+    def path_themes(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/[application]/themes. """
+        return self.PATH_ROOT / "themes"
+
+    @property
+    def path_theme(self) -> pathlib.Path:
+        """ Returns the path to the current theme. """
+        return self.path_themes / self.theme_name
+
+    @property
+    def path_theme_static(self) -> pathlib.Path:
+        """ Returns the path to the current theme's static directory. """
+        return self.path_theme / "static"
+
+    @property
+    def path_theme_templates(self) -> pathlib.Path:
+        """ Returns the path to the current theme's templates directory. """
+        return self.path_theme / "templates"
+
+    '''
+    @property
+    def path_custom_theme(self) -> Optional[pathlib.Path]:
+        """ Returns the path to a custom theme. """
+        return self._path_custom_theme
+
+    @path_custom_theme.setter
+    def path_custom_theme(self, value: Optional[str]) -> None:
+        """ Sets the path to a custom theme. """
+
+        if not value:
+            return
+
+        path_custom_theme = pathlib.Path(value)
 
         try:
-            path_assets = path_assets.resolve(strict=True)
+            path_custom_theme = path_custom_theme.resolve(strict=True)
         except FileNotFoundError as error:
             raise errors.SiteConfigError(
-                f"Site 'path' directory {path_assets} does not exist."
+                f"Custom theme directory '{path_custom_theme}' does not exist."
             ) from error
 
-        logger.info(f"Using custom assets directory: {path_assets}.")
+        logger.info(f"Using custom theme from {path_custom_theme}.")
 
-        self._path_assets = path_assets
-
-    @property
-    def path_templates(self) -> pathlib.Path:
-        return self._path_assets / "templates"
+        self._path_custom_theme = path_custom_theme
+    '''
 
     @property
-    def path_static(self) -> pathlib.Path:
-        return self._path_assets / "static"
+    def _assets_theme(self) -> List[pathlib.Path]:
+        """ See Config.assets below. """
+        return list(self.path_theme.glob("**/*"))
 
-    def get_mimetype(self, filetype: str) -> str:
+    @property
+    def _assets_site(self) -> List[pathlib.Path]:
+        """ See Config.assets below. """
+        return list(self.path_site.glob("**/*"))
 
-        if not filetype.startswith("."):
-            filetype = f".{filetype}"
+    @property
+    def assets(self) -> List[pathlib.Path]:
+        """ Returns a list of paths pointing to all the sub-directories and
+        files inside the main site directory. When starting up a development
+        server, this list is passed to the 'extra_files' argument, allowing it
+        to reload when any of the site files are modifed.
 
-        mimetype = self.MIMETYPES.get(filetype, None)
-
-        if mimetype is None:
-            logger.warning(f"Unsupported MIME Type '{filetype}' detected.")
-            return ""
-
-        return mimetype
+        via. https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
+        return [*self._assets_theme, *self._assets_site]
 
 
 config = Config()

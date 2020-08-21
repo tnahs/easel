@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Keys:
+class Key:
     ALIGN: str = "align"
     AUTHOR: str = "author"
     CAPTION: str = "caption"
@@ -30,12 +30,14 @@ class Keys:
     GALLERY_COLUMN_COUNT: str = "gallery-column-count"
     GALLERY_COLUMN_GAP: str = "gallery-column-gap"
     GALLERY_COLUMN_WIDTH: str = "gallery-column-width"
+    HEADER: str = "header"
     HTML: str = "html"
     IS_GALLERY: str = "is-gallery"
-    IS_LANDING: str = "is-landing"
+    IS_INDEX: str = "is-index"
     LABEL: str = "label"
     LINKS_TO: str = "links-to"
     MENU: str = "menu"
+    NAME: str = "name"
     OPTIONS: str = "options"
     PATH: str = "path"
     SHOW_CAPTIONS: str = "show-captions"
@@ -62,7 +64,7 @@ class Utils:
     @staticmethod
     def load_config(path: pathlib.Path) -> dict:
 
-        logger.debug(f"Loading config file from {path}.")
+        logger.debug(f"Loading '{path.name}' from {path}.")
 
         try:
             with open(path, "r") as f:
@@ -84,6 +86,21 @@ class Utils:
             return {}
 
         return data
+
+    @staticmethod
+    def get_mimetype(extension: str) -> str:
+        """ Returns appropriate MIME Type for a file extension. """
+
+        if not extension.startswith("."):
+            extension = f".{extension}"
+
+        mimetype = config.MIMETYPES.get(extension, None)
+
+        if mimetype is None:
+            logger.warning(f"Unsupported MIME Type '{extension}' detected.")
+            return ""
+
+        return mimetype
 
     @staticmethod
     def slugify(string: str, delimiter: str = "-", allow_unicode: bool = False) -> str:

@@ -2,11 +2,11 @@
 
 ## Shared Attributes
 
-`is-landing`
-:   Default: `false` -- One page *must* have the `is-landing` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
+`is-index`
+:   Default: `false` -- One page *must* have the `is-index` attribute set to true. This defines which page is shown when a visitor accesses the site i.e. `www.site.com` as opposed to `www.site.com/page`
 
     ``` yaml
-    is-landing: false
+    is-index: false
     ```
 
 `type`

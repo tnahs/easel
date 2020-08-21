@@ -1,11 +1,11 @@
 import abc
-import pathlib
 import logging
+import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
 from .config import config
-from .helpers import Utils, Keys
+from .helpers import Key, Utils
 
 
 if TYPE_CHECKING:
@@ -39,10 +39,10 @@ class _MenuFactory:
         for documentation on accepted keys and structure. """
 
         try:
-            menu_type: str = menu_data[Keys.TYPE]
+            menu_type: str = menu_data[Key.TYPE]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.TYPE}' for Menu-like item in "
+                f"Missing required key '{Key.TYPE}' for Menu-like item in "
                 f"{config.FILENAME_SITE_YAML}."
             ) from error
 
@@ -51,7 +51,7 @@ class _MenuFactory:
 
         if Menu is None:
             raise errors.MenuConfigError(
-                f"Unsupported value '{menu_type}' for '{Keys.TYPE}' for "
+                f"Unsupported value '{menu_type}' for '{Key.TYPE}' for "
                 f"Menu-like item in {config.FILENAME_SITE_YAML}."
             )
 
@@ -106,18 +106,18 @@ class LinkPage(MenuInterface):
     def validate__config(self) -> None:
 
         try:
-            self.menu_data[Keys.LABEL]
+            self.menu_data[Key.LABEL]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.LABEL}' "
+                f"Missing required key '{Key.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
         try:
-            self.menu_data[Keys.LINKS_TO]
+            self.menu_data[Key.LINKS_TO]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.LINKS_TO}' "
+                f"Missing required key '{Key.LINKS_TO}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
@@ -134,7 +134,7 @@ class LinkPage(MenuInterface):
         This allows users to use paths relative to the [site] or or 'pages'
         directory. """
 
-        links_to = self.menu_data[Keys.LINKS_TO]
+        links_to = self.menu_data[Key.LINKS_TO]
 
         try:
             links_to = pathlib.Path(links_to).relative_to(config.DIRECTORY_NAME_PAGES)
@@ -145,7 +145,7 @@ class LinkPage(MenuInterface):
         else:
             links_to = str(links_to)
 
-        self.menu_data[Keys.LINKS_TO] = links_to
+        self.menu_data[Key.LINKS_TO] = links_to
 
     def _validate__links_to(self) -> None:
 
@@ -160,11 +160,11 @@ class LinkPage(MenuInterface):
 
     @property
     def label(self) -> str:
-        return self.menu_data[Keys.LABEL]
+        return self.menu_data[Key.LABEL]
 
     @property
     def links_to(self) -> str:
-        return self.menu_data[Keys.LINKS_TO]
+        return self.menu_data[Key.LINKS_TO]
 
     @property
     def href(self) -> str:
@@ -190,28 +190,28 @@ class LinkURL(MenuInterface):
     def validate__config(self) -> None:
 
         try:
-            self.menu_data[Keys.LABEL]
+            self.menu_data[Key.LABEL]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.LABEL}' "
+                f"Missing required key '{Key.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
         try:
-            self.menu_data[Keys.URL]
+            self.menu_data[Key.URL]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.URL}' "
+                f"Missing required key '{Key.URL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
     @property
     def label(self) -> str:
-        return self.menu_data[Keys.LABEL]
+        return self.menu_data[Key.LABEL]
 
     @property
     def url(self) -> str:
-        return self.menu_data[Keys.URL]
+        return self.menu_data[Key.URL]
 
 
 class Section(MenuInterface):
@@ -232,16 +232,16 @@ class Section(MenuInterface):
     def validate__config(self) -> None:
 
         try:
-            self.menu_data[Keys.LABEL]
+            self.menu_data[Key.LABEL]
         except KeyError as error:
             raise errors.MenuConfigError(
-                f"Missing required key '{Keys.LABEL}' "
+                f"Missing required key '{Key.LABEL}' "
                 f"for {self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             ) from error
 
     @property
     def label(self) -> str:
-        return self.menu_data[Keys.LABEL]
+        return self.menu_data[Key.LABEL]
 
 
 class Spacer(MenuInterface):
@@ -263,13 +263,13 @@ class Spacer(MenuInterface):
 
         if self.size is not None and self.size not in config.VALID_SIZES:
             raise errors.MenuConfigError(
-                f"Unsupported value '{self.size}' for {Keys.SIZE} for "
+                f"Unsupported value '{self.size}' for {Key.SIZE} for "
                 f"{self.__class__.__name__} in {config.FILENAME_SITE_YAML}."
             )
 
     @property
     def size(self) -> str:
-        return self.menu_data.get(Keys.SIZE, None)
+        return self.menu_data.get(Key.SIZE, None)
 
 
 menu_factory = _MenuFactory()

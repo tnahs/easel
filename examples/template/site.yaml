@@ -39,21 +39,15 @@ menu:
   label: link
   url: http://www.link.com
 
-theme:
-  menu:
+header:
+  title: easel
+  image:
+    path:
     width:
-    align:
-    header:
-      label: easel
-      image:
-        path:
-        width:
-        height:
-  page:
-    width:
-    align:
-  colors:
-    accent-base:
-    accent-light:
+    height:
 
-extras: {}
+theme:
+  name: "horizontal"
+  # colors:
+  #   accent:
+  #   highlight:

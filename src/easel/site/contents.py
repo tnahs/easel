@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors, pages
 from .config import config
-from .helpers import markdown, Keys
+from .helpers import Key, markdown, Utils
 
 
 if TYPE_CHECKING:
@@ -53,10 +53,10 @@ class _ContentFactory:
         classes for documentation on accepted keys and structure. """
 
         try:
-            content_type: str = content_data[Keys.TYPE]
+            content_type: str = content_data[Key.TYPE]
         except KeyError as error:
             raise errors.ContentConfigError(
-                f"{page}: Missing required key '{Keys.TYPE}' for Content-like "
+                f"{page}: Missing required key '{Key.TYPE}' for Content-like "
                 f"item in {config.FILENAME_PAGE_YAML}."
             ) from error
 
@@ -66,7 +66,7 @@ class _ContentFactory:
         if Content is None:
             raise errors.ContentConfigError(
                 f"{page}: Unsupported value '{content_type}' for "
-                f"'{Keys.TYPE}' for Content-like item in {config.FILENAME_PAGE_YAML}."
+                f"'{Key.TYPE}' for Content-like item in {config.FILENAME_PAGE_YAML}."
             )
 
         return Content(page=page, **content_data)
@@ -103,26 +103,26 @@ class CaptionMixin(abc.ABC):
 
     @property
     def caption(self) -> dict:
-        return self.content_data.get(Keys.CAPTION, {})
+        return self.content_data.get(Key.CAPTION, {})
 
     @property
     def caption_title(self) -> str:
-        return markdown.from_string(self.caption.get(Keys.TITLE, ""))
+        return markdown.from_string(self.caption.get(Key.TITLE, ""))
 
     @property
     def caption_description(self) -> str:
-        return markdown.from_string(self.caption.get(Keys.DESCRIPTION, ""))
+        return markdown.from_string(self.caption.get(Key.DESCRIPTION, ""))
 
     @property
     def caption_align(self) -> dict:
-        return self.caption.get(Keys.ALIGN, None)
+        return self.caption.get(Key.ALIGN, None)
 
     def validate__caption_config(self) -> None:
 
         if type(self.caption) is not dict:
             raise errors.ContentConfigError(
                 f"{self.page}: Expected type 'dict' for "
-                f"'{Keys.CAPTION}' got '{type(self.caption).__name__}'."
+                f"'{Key.CAPTION}' got '{type(self.caption).__name__}'."
             )
 
         if (
@@ -130,7 +130,7 @@ class CaptionMixin(abc.ABC):
             and self.caption_align not in config.VALID_ALIGNMENTS
         ):
             raise errors.ContentConfigError(
-                f"{self.page}: Unsupported value '{self.caption_align}' for '{Keys.ALIGN}'."
+                f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
             )
 
 
@@ -162,10 +162,10 @@ class FileContent(ContentInterface):
     def validate__config(self) -> None:
 
         try:
-            self.content_data[Keys.PATH]
+            self.content_data[Key.PATH]
         except KeyError as error:
             raise errors.ContentConfigError(
-                f"{self.page}: Missing required key '{Keys.PATH}' for "
+                f"{self.page}: Missing required key '{Key.PATH}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
 
@@ -179,13 +179,13 @@ class FileContent(ContentInterface):
         return self.path_absolute.name
 
     @property
-    def filetype(self) -> str:
+    def extension(self) -> str:
         return self.path_absolute.suffix
 
     @property
     def path_absolute(self) -> pathlib.Path:
 
-        path = self.content_data[Keys.PATH]
+        path = self.content_data[Key.PATH]
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
@@ -201,7 +201,7 @@ class FileContent(ContentInterface):
 
     @property
     def mimetype(self) -> str:
-        return config.get_mimetype(filetype=self.filetype)
+        return Utils.get_mimetype(extension=self.extension)
 
 
 class Image(FileContent, CaptionMixin):
@@ -219,7 +219,7 @@ class Image(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.filetype not in config.VALID_IMAGE_TYPES:
+        if self.extension not in config.VALID_IMAGE_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -243,7 +243,7 @@ class Video(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.filetype not in config.VALID_VIDEO_TYPES:
+        if self.extension not in config.VALID_VIDEO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -267,7 +267,7 @@ class Audio(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.filetype not in config.VALID_AUDIO_TYPES:
+        if self.extension not in config.VALID_AUDIO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -291,7 +291,7 @@ class TextBlock(FileContent):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.filetype not in config.VALID_TEXT_TYPES:
+        if self.extension not in config.VALID_TEXT_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -299,7 +299,7 @@ class TextBlock(FileContent):
 
         if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
-                f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
+                f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
 
     @property
@@ -308,7 +308,7 @@ class TextBlock(FileContent):
 
     @property
     def align(self) -> dict:
-        return self.content_data.get(Keys.ALIGN, None)
+        return self.content_data.get(Key.ALIGN, None)
 
 
 class Embedded(ContentInterface, CaptionMixin):
@@ -330,10 +330,10 @@ class Embedded(ContentInterface, CaptionMixin):
         super().validate__config()
 
         try:
-            self.content_data[Keys.HTML]
+            self.content_data[Key.HTML]
         except KeyError as error:
             raise errors.ContentConfigError(
-                f"{self.page}: Missing required key '{Keys.HTML}' for "
+                f"{self.page}: Missing required key '{Key.HTML}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
 
@@ -341,7 +341,7 @@ class Embedded(ContentInterface, CaptionMixin):
 
     @property
     def html(self) -> str:
-        return self.content_data[Keys.HTML]
+        return self.content_data[Key.HTML]
 
 
 class Header(ContentInterface):
@@ -363,34 +363,34 @@ class Header(ContentInterface):
     def validate__config(self) -> None:
 
         try:
-            self.content_data[Keys.TEXT]
+            self.content_data[Key.TEXT]
         except KeyError as error:
             raise errors.ContentConfigError(
-                f"{self.page}: Missing required key '{Keys.TEXT}' for "
+                f"{self.page}: Missing required key '{Key.TEXT}' for "
                 f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
             ) from error
 
         if self.size is not None and self.size not in config.VALID_SIZES:
             raise errors.ContentConfigError(
-                f"{self.page}: Unsupported value '{self.size}' for '{Keys.SIZE}'."
+                f"{self.page}: Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
         if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
-                f"{self.page}: Unsupported value '{self.align}' for '{Keys.ALIGN}'."
+                f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
 
     @property
     def text(self) -> str:
-        return self.content_data[Keys.TEXT]
+        return self.content_data[Key.TEXT]
 
     @property
     def size(self) -> str:
-        return self.content_data.get(Keys.SIZE, None)
+        return self.content_data.get(Key.SIZE, None)
 
     @property
     def align(self) -> dict:
-        return self.content_data.get(Keys.ALIGN, None)
+        return self.content_data.get(Key.ALIGN, None)
 
 
 class Break(ContentInterface):
@@ -412,12 +412,12 @@ class Break(ContentInterface):
 
         if self.size is not None and self.size not in config.VALID_SIZES:
             raise errors.ContentConfigError(
-                f"{self.page} Unsupported value '{self.size}' for '{Keys.SIZE}'."
+                f"{self.page} Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
     @property
     def size(self) -> str:
-        return self.content_data.get(Keys.SIZE, None)
+        return self.content_data.get(Key.SIZE, None)
 
 
 content_factory = _ContentFactory()
