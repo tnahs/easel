@@ -6,12 +6,6 @@ copyright: © 2020 Full Name
 favicon:
 
 menu:
-- type: section
-  label: page types
-
-- type: spacer
-  size: small
-
 - type: link-page
   label: lazy
   links-to: pages/page-lazy
@@ -33,6 +27,7 @@ menu:
   links-to: pages/page-markdown
 
 - type: spacer
+  label:
   size: medium
 
 - type: link-url
@@ -47,7 +42,4 @@ header:
     height:
 
 theme:
-  name: "horizontal"
-  # colors:
-  #   accent:
-  #   highlight:
+  name: sargent

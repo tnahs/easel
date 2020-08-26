@@ -12,7 +12,6 @@ When inserting images into a Markdown page or a Markdown content type item all p
     ├── ...
     └── [markdown-page]
         ├── page.yaml
-        ├── page-description.md
         ├── 000-note.md
         ├── 001-entry
         │   ├── body.md
@@ -31,5 +30,4 @@ The image `800x400.png` in `001-entry/images` would require the path `001-entry/
 
 + <https://python-markdown.github.io/>
 + <https://python-markdown.github.io/extensions/>
-+ <https://squidfunk.github.io/mkdocs-material/>
 + <https://facelessuser.github.io/pymdown-extensions/extensions/arithmatex/>

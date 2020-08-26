@@ -1,0 +1,15 @@
+# snapshots/pages/nature
+
+is-index: true
+
+type: lazy
+# cover: cover.jpg
+# title: nature
+
+options:
+  is-gallery: true
+  # gallery-column-count:
+  # gallery-column-width:
+  # gallery-gap:
+  generate-placeholders: true
+  # show-captions:

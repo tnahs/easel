@@ -46,7 +46,7 @@ Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulput
 ### Page
 
 `theme.page.width`
-:   Default: `800px` -- Width of the site not including the menu.
+:   Default: `1024px` -- Width of the site not including the menu.
 
 `theme.page.align`
 :   Default: `left` -- Width of the site not including the menu.
@@ -66,7 +66,7 @@ Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulput
 `type`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat. Aenean interdum bibendum nisi, at vulputate tellus euismod sed. Sed iaculis dui at vehicula mollis. Ut fringilla consequat nibh id tincidunt.
 
-:   Valid options are: `link-page` `link-url` `section` `spacer`
+:   Valid options are: `link-page` `link-url` `spacer`
 
 ### Link Page
 
@@ -133,18 +133,6 @@ menu:
       url: www.external-url.com
 ```
 
-### Section
-
-`label`
-:   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
-
-``` yaml
-menu:
-  items:
-    - type: section
-      label: other-projects
-```
-
 ### Spacer
 
 `size`
@@ -172,9 +160,8 @@ menu:
 - type: link-url
   label:
   url:
-- type: section
-  label:
 - type: spacer
+  label:
   size:
 
 theme:

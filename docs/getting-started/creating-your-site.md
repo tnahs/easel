@@ -19,14 +19,14 @@ my-easel
 └── venv
 ```
 
-Create a page directory and its `page.yaml` and description file:
+Create a page directory and its `page.yaml` file:
 
 ``` console
 $ mkdir pages
 $ cd pages
 $ mkdir my-page
 $ cd my-page
-$ touch page.yaml description.md
+$ touch page.yaml
 ```
 
 Our project directory should now look like this:
@@ -37,8 +37,7 @@ my-easel
 │   ├── site.yaml
 │   └── pages
 │       └── my-page
-│           ├── page.yaml
-│           └── description.md
+│           └── page.yaml
 └── venv
 ```
 
@@ -99,7 +98,6 @@ Add the following to the `page.yaml` file:
 is-index: true
 
 type: lazy
-description: description.md
 
 options:
   show-captions: true
@@ -115,9 +113,6 @@ options:
 `type`
 :   Defines the type of page. In this case, `lazy`.
 
-`description`
-:   Defines a relative path to a markdown file that serves as the page's description. In the default template this renders as a full page-width text block.
-
 `options.show-caption`
 :   Enables (lazy) captions. On a `Lazy` page, captions are generated from the filename (minus the file extension) of each item that supports captions.
 
@@ -132,7 +127,6 @@ my-easel
 │   └── pages
 │       └── my-page
 │           ├── page.yaml
-│           ├── description.md
 │           ├── image-01.jpg
 │           ├── image-02.jpg
 │           ├── video.mp4

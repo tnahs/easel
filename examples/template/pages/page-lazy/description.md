@@ -1,1 +1,0 @@
-This is a ==lazy== page and this is its `page-description.md` file. Every page type takes this optional `page-description.md` that's always rendered as a full page-width block.

@@ -12,11 +12,12 @@
 `type`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
-`description`
-:   Default: `null` -- Relative path to a markdown file that serves as the page's description. In the default template this renders as a full-page-width text block.
+`options.generate-placeholders`
+:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
 
     ``` yaml
-      description: description.md
+    options:
+      generate-placeholders: false
     ```
 
 `options.show-captions`
@@ -51,12 +52,12 @@
       gallery-column-width: 250px
     ```
 
-`options.gallery-column-gap`
+`options.gallery-gap`
 :   Default: `25px` -- Sed sagittis ipsum non tempus volutpat.
 
     ``` yaml
     options:
-      gallery-column-gap: 25px
+      gallery-gap: 25px
     ```
 
 ## Lazy Page
@@ -213,7 +214,7 @@ options:
   is-gallery: true
   gallery-column-count: auto
   gallery-column-width: 300px
-  gallery-column-gap: 15px
+  gallery-gap: 15px
 ```
 
 Layout Page Configuration
@@ -240,7 +241,7 @@ options:
   is-gallery: true
   gallery-column-count: auto
   gallery-column-width: 300px
-  gallery-column-gap: 15px
+  gallery-gap: 15px
 ```
 
 Markdown Page Configuration

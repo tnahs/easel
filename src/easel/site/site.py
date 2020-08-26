@@ -1,11 +1,8 @@
 import logging
-import pathlib
 from typing import TYPE_CHECKING, List, Optional
 
-from flask.globals import current_app
-
 from . import errors, menus, pages
-from .config import config
+from . import global_config
 from .helpers import Key, SafeDict, Utils
 
 
@@ -28,73 +25,24 @@ class Site:
 
     def __init__(self):
 
-        logger.info(f"Building Site from {config.path_site}.")
+        logger.info(f"Building Site from {global_config.path_site}.")
 
-        self._config_data = Utils.load_config(path=config.file_site_yaml)
-        self._config = self._parse_config()
-
-        self._validate_config()
+        self._config = SiteConfig()
 
         self._build_pages()
         self._build_error_pages()
         self._build_menu()
-
         self._validate_build()
 
-        self._set_theme()
-
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}:{config.path_site}>"
+        return f"<{self.__class__.__name__}: {global_config.path_site}>"
 
-    def _parse_config(self) -> dict:
-
-        title = self._config_data.get(Key.TITLE, "")
-        author = self._config_data.get(Key.AUTHOR, "")
-        copyright_ = self._config_data.get(Key.COPYRIGHT, "")
-        favicon = self._config_data.get(Key.FAVICON, "")
-
-        menu = self._config_data.get(Key.MENU, [])
-
-        header = SafeDict(**self._config_data.get(Key.HEADER, {}))
-
-        theme = SafeDict(**self._config_data.get(Key.THEME, {}))
-
-        return {
-            Key.TITLE: title,
-            Key.AUTHOR: author,
-            Key.COPYRIGHT: copyright_,
-            Key.FAVICON: favicon,
-            Key.MENU: menu,
-            Key.HEADER: header,
-            Key.THEME: theme,
-        }
-
-    def _validate_config(self) -> None:
-
-        menu: dict = self._config_data.get(Key.MENU, [])
-
-        if type(menu) is not list:
-            raise errors.SiteConfigError(
-                f"Expected type 'list' for '{Key.MENU}' got '{type(menu).__name__}'."
-            )
-
-        theme: dict = self._config_data.get(Key.THEME, {})
-
-        if type(theme) is not dict:
-            raise errors.SiteConfigError(
-                f"Expected type 'dict' for '{Key.THEME}' got '{type(theme).__name__}'."
-            )
-
-        header: dict = self._config_data.get(Key.HEADER, {})
-
-        if type(header) is not dict:
-            raise errors.SiteConfigError(
-                f"Expected type 'dict' for '{Key.HEADER}' got '{type(header).__name__}'."
-            )
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}: {self.config.title}"
 
     def _build_pages(self) -> None:
 
-        for path in config.path_site_pages.iterdir():
+        for path in global_config.path_site_pages.iterdir():
 
             if not path.is_dir():
                 continue
@@ -102,9 +50,9 @@ class Site:
             if path.name.startswith("."):
                 continue
 
-            if not list(path.glob(config.FILENAME_PAGE_YAML)):
+            if not list(path.glob(global_config.FILENAME_PAGE_YAML)):
                 logger.warning(
-                    f"Ignoring path {path}. Path contains no '{config.FILENAME_PAGE_YAML}' file."
+                    f"Ignoring path {path}. Path contains no '{global_config.FILENAME_PAGE_YAML}' file."
                 )
                 continue
 
@@ -114,34 +62,29 @@ class Site:
 
     def _build_error_pages(self) -> None:
 
-        if not config.path_site_errors:
-            return
+        if global_config.path_site_error_404.exists():
 
-        path_error_404 = config.path_site_errors / config.DIRECTORY_NAME_ERROR_404
-
-        if path_error_404.exists():
             self._page_error_404 = pages.page_factory.build(
-                site=self, path_absolute=path_error_404
+                site=self, path_absolute=global_config.path_site_error_404
             )
 
-        path_error_500 = config.path_site_errors / config.DIRECTORY_NAME_ERROR_500
+        if global_config.path_site_error_500.exists():
 
-        if path_error_500.exists():
             self._page_error_500 = pages.page_factory.build(
-                site=self, path_absolute=path_error_500
+                site=self, path_absolute=global_config.path_site_error_500
             )
 
     def _build_menu(self) -> None:
 
-        if not self.config[Key.MENU]:
+        if not self.config.menu:
             logger.warn(
-                f"No menu will be generated. Key 'menu' in {config.FILENAME_SITE_YAML} is empty."
+                f"No menu will be generated. Key 'menu' in {global_config.FILENAME_SITE_YAML} is empty."
             )
             return
 
-        for menu_data in self.config[Key.MENU]:
+        for menu_config in self.config.menu:
 
-            menu = menus.menu_factory.build(site=self, menu_data=menu_data)
+            menu = menus.menu_factory.build(site=self, config=menu_config)
 
             self._menu.append(menu)
 
@@ -155,17 +98,8 @@ class Site:
                 "Site must have one and only one 'index' page."
             )
 
-    def _set_theme(self) -> None:
-
-        theme_name = self.config[Key.THEME].get(Key.NAME, None)
-
-        if theme_name is None:
-            return
-
-        config.theme_name = theme_name
-
     @property
-    def config(self) -> dict:
+    def config(self) -> "SiteConfig":
         return self._config
 
     @property
@@ -214,3 +148,70 @@ class Site:
     @property
     def page_error_500(self) -> Optional["PageObj"]:
         return self._page_error_500
+
+
+class SiteConfig:
+    def __init__(self):
+
+        self._data = Utils.load_config(path=global_config.file_site_yaml)
+
+        self._validate()
+
+        global_config.theme_name = self.theme_name
+
+    def _validate(self) -> None:
+
+        menu: dict = self._data.get(Key.MENU, [])
+
+        if type(menu) is not list:
+            raise errors.SiteConfigError(
+                f"Expected type 'list' for '{Key.MENU}' got '{type(menu).__name__}'."
+            )
+
+        theme: dict = self._data.get(Key.THEME, {})
+
+        if type(theme) is not dict:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Key.THEME}' got '{type(theme).__name__}'."
+            )
+
+        header: dict = self._data.get(Key.HEADER, {})
+
+        if type(header) is not dict:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Key.HEADER}' got '{type(header).__name__}'."
+            )
+
+    @property
+    def title(self) -> str:
+        return self._data.get(Key.TITLE, "")
+
+    @property
+    def author(self) -> str:
+        return self._data.get(Key.AUTHOR, "")
+
+    @property
+    def copyright(self) -> str:
+        return self._data.get(Key.COPYRIGHT, "")
+
+    @property
+    def favicon(self) -> str:
+        return self._data.get(Key.FAVICON, "")
+
+    @property
+    def menu(self) -> list:
+        return self._data.get(Key.MENU, [])
+
+    @property
+    def header(self) -> SafeDict:
+        # TODO: Test this out...It's acting strange in 'style.jinja2'.
+        return SafeDict(**self._data.get(Key.HEADER, {}))
+
+    @property
+    def theme(self) -> SafeDict:
+        # TODO: Test this out...It's acting strange in 'style.jinja2'.
+        return SafeDict(**self._data.get(Key.THEME, {}))
+
+    @property
+    def theme_name(self) -> str:
+        return self.theme.get(Key.NAME, "")

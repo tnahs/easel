@@ -8,7 +8,7 @@ import markdown as _markdown
 import yaml
 
 from . import errors
-from .config import config
+from . import global_config
 
 
 if TYPE_CHECKING:
@@ -28,8 +28,9 @@ class Key:
     EXTRAS: str = "extras"
     FAVICON: str = "favicon"
     GALLERY_COLUMN_COUNT: str = "gallery-column-count"
-    GALLERY_COLUMN_GAP: str = "gallery-column-gap"
     GALLERY_COLUMN_WIDTH: str = "gallery-column-width"
+    GALLERY_GAP: str = "gallery-gap"
+    GENERATE_PLACEHOLDERS: str = "generate-placeholders"
     HEADER: str = "header"
     HTML: str = "html"
     IS_GALLERY: str = "is-gallery"
@@ -50,7 +51,12 @@ class Key:
 
 
 class SafeDict(dict):
-    """ https://stackoverflow.com/a/25840834 """
+    """ Creates a dictionary that never raises a KeyError but rather returns a
+    new dictionary of its own kind (i.e. a SafeDict) as the value of the
+    missing key. This is primarily used for optional nested configurations
+    where a missing key is okay.
+
+    https://stackoverflow.com/a/25840834 """
 
     def __getitem__(self, key):
 
@@ -94,7 +100,7 @@ class Utils:
         if not extension.startswith("."):
             extension = f".{extension}"
 
-        mimetype = config.MIMETYPES.get(extension, None)
+        mimetype = global_config.MIMETYPES.get(extension, None)
 
         if mimetype is None:
             logger.warning(f"Unsupported MIME Type '{extension}' detected.")
@@ -161,7 +167,7 @@ class Markdown:
         # markdown files.
         #
         # via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
-        base_path = pathlib.Path(f"{config.path_site.name}/{page.path_relative}")
+        base_path = pathlib.Path(f"{global_config.path_site.name}/{page.path_relative}")
 
         with open(filepath, encoding="utf-8") as f:
             string = f.read()

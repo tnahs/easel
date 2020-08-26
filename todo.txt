@@ -1,39 +1,46 @@
+QUESTIONS:
+  - How are we doing theme customization?
+
 HIGH:
-  - CLI Tools: https://click.palletsprojects.com/en/7.x/
-  - Revisit how themes are set. Interactions between 'Site' and 'GlobalConfig'.
-    Might want to decouple the Site config from the Site. After adding themes
-    and theme toggling, it feels wrong to have the site reach into the global
-    config and modify it.
-      GlobalConfig
-      SiteConfig
-      Site
-        PageConfig
-        Page
-          ContentConfig
-          Content
-  - Print method to print whole site structure.
-  - Formal default theme names.
+  - Placeholder generation.
+    - Need to cache the placeholder color data somehow.
+    - Friendlier way to trigger generation.
+    - Ignore certain types. Check compatibility.
+    - Use concurrent.futures for parallelization.
+    - Move placeholders methods/attrs into separate class.
+    - Check for possible exceptions PIL might throw.
+    - Support for GIFs.
 
 MEDIUM:
   - Design logo/icon.
-  - Documentation: https://docs.readthedocs.io/en/stable/index.html
 
 LOW:
-  - Light/dark and vertical/horizontal theme.
+  - New Page attributes:
+    - cover
+    - title
+  - New Menu attributes:
+    - icon
+  - Better naming for Gallery options e.g. 'gallery-gap'
 
 HOUSEKEEPING:
+  - Documentation
+  - Print site map method.
+  - Unified validation setup.
   - Sift through paths and URLs.
-  - Cleanup CSS.
 
 FEATURES:
-  - Gallery enhancements:
-    - Lightbox view
-    - Generate thumbnails
-  - Lazy-loading images.
-    - https://spikelantern.com/articles/simple-infinite-scroll-in-django/
-    - https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-    - https://css-tricks.com/the-complete-guide-to-lazy-loading-images/
-    - https://www.smashingmagazine.com/2018/01/deferring-lazy-loading-intersection-observer-api/
+  - Theme names.
+  - Light-box gallery view
+  - CLI Tools: https://click.palletsprojects.com/en/7.x/
   - Better starting template with images.
     - https://unsplash.com/
-    - https://unsplash.com/t/textures-patterns
+  - Page collections.
+  - Grid element that holds Content types.
+  - Better way to find dominant/average color of an image.
+
+MISC:
+  - Themes Inspiration
+    - https://gates-demo.squarespace.com/
+    - https://beaumont-demo.squarespace.com/
+    - https://zion-demo.squarespace.com/
+    - https://talva-demo.squarespace.com/?nochrome=true

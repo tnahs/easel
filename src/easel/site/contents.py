@@ -1,10 +1,14 @@
 import abc
 import logging
+import json
 import pathlib
-from typing import TYPE_CHECKING, Any, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Optional, Type, Tuple, Union
+from PIL import Image as PILImage
+
+from easel.main.views import index
 
 from . import errors, pages
-from .config import config
+from . import global_config
 from .helpers import Key, markdown, Utils
 
 
@@ -48,16 +52,16 @@ class _ContentFactory:
             "break": Break,
         }
 
-    def build(self, page: "PageObj", content_data: dict) -> ContentObj:
+    def build(self, page: "PageObj", config: dict) -> ContentObj:
         """ Builds Content-like object from a dictionary. See respective
         classes for documentation on accepted keys and structure. """
 
         try:
-            content_type: str = content_data[Key.TYPE]
+            content_type: str = config[Key.TYPE]
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{page}: Missing required key '{Key.TYPE}' for Content-like "
-                f"item in {config.FILENAME_PAGE_YAML}."
+                f"item in {global_config.FILENAME_PAGE_YAML}."
             ) from error
 
         # Get Content class based on 'content_type'.
@@ -66,10 +70,10 @@ class _ContentFactory:
         if Content is None:
             raise errors.ContentConfigError(
                 f"{page}: Unsupported value '{content_type}' for "
-                f"'{Key.TYPE}' for Content-like item in {config.FILENAME_PAGE_YAML}."
+                f"'{Key.TYPE}' for Content-like item in {global_config.FILENAME_PAGE_YAML}."
             )
 
-        return Content(page=page, **content_data)
+        return Content(page=page, **config)
 
     def content_types(self, content_type: str) -> Optional[ContentClass]:
         return self._content_types.get(content_type, None)
@@ -93,7 +97,7 @@ class CaptionMixin(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def content_data(self) -> dict:
+    def config(self) -> dict:
         pass
 
     @property
@@ -102,43 +106,135 @@ class CaptionMixin(abc.ABC):
         pass
 
     @property
-    def caption(self) -> dict:
-        return self.content_data.get(Key.CAPTION, {})
+    def _caption_config(self) -> dict:
+        return self.config.get(Key.CAPTION, {})
 
     @property
     def caption_title(self) -> str:
-        return markdown.from_string(self.caption.get(Key.TITLE, ""))
+        return markdown.from_string(self._caption_config.get(Key.TITLE, ""))
 
     @property
     def caption_description(self) -> str:
-        return markdown.from_string(self.caption.get(Key.DESCRIPTION, ""))
+        return markdown.from_string(self._caption_config.get(Key.DESCRIPTION, ""))
 
     @property
-    def caption_align(self) -> dict:
-        return self.caption.get(Key.ALIGN, None)
+    def caption_align(self) -> Optional[str]:
+        return self._caption_config.get(Key.ALIGN, None)
 
     def validate__caption_config(self) -> None:
 
-        if type(self.caption) is not dict:
+        if type(self._caption_config) is not dict:
             raise errors.ContentConfigError(
                 f"{self.page}: Expected type 'dict' for "
-                f"'{Key.CAPTION}' got '{type(self.caption).__name__}'."
+                f"'{Key.CAPTION}' got '{type(self._caption_config).__name__}'."
             )
 
         if (
             self.caption_align is not None
-            and self.caption_align not in config.VALID_ALIGNMENTS
+            and self.caption_align not in global_config.VALID_ALIGNMENTS
         ):
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
             )
 
 
+class ImagePlaceholder:
+    def __init__(self, image: "Image"):
+
+        self._original_image = image
+
+        self._color: Optional[Tuple[int, int, int]] = None
+
+        # FIXME: For some reason, ImagePlaceholder does not retain it's value
+        # for self._color unless this functions is run in the __init__.
+        self._load_cached_color()
+
+    # WIP: ImagePlaceholder-images/site-caching
+    def cache_image(self, force: bool = False) -> None:
+
+        if self.has_image and force is False:
+            return
+
+        # TODO: Skip unsupported filetypes.
+
+        logger.debug(f"Generating placeholder image for {self._original_image}...")
+
+        self.path_absolute_image.parent.mkdir(parents=True, exist_ok=True)
+
+        with PILImage.open(self._original_image.path_absolute) as image:
+            image.thumbnail(global_config.DEFAULT_PLACEHOLDER_SIZE)
+            image.save(self.path_absolute_image)
+
+    # WIP: ImagePlaceholder-images/site-caching
+    def cache_color(self, force: bool = False) -> None:
+
+        if self.has_image and force is False:
+            return
+
+        logger.debug(f"Generating placeholder color for {self._original_image}...")
+
+        self.path_absolute_color.parent.mkdir(parents=True, exist_ok=True)
+
+        with PILImage.open(self._original_image.path_absolute) as image:
+            image = image.resize((1, 1))
+            color = image.getpixel((0, 0))
+
+        with open(self.path_absolute_color, "w") as f:
+            json.dump(color, f)
+
+        self._color = color  # type: ignore
+
+    def _load_cached_color(self) -> None:
+
+        logger.debug(f"Reading placeholder color from {self.path_absolute_color}...")
+
+        try:
+            with open(self.path_absolute_color, "r") as f:
+                color = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            self.cache_color(force=True)
+        else:
+            self._color = color
+
+    @property
+    def has_image(self) -> bool:
+        return self.path_absolute_image.exists()
+
+    @property
+    def path_absolute_image(self) -> pathlib.Path:
+        return global_config.path_site_cache / self._original_image.path_relative
+
+    @property
+    def path_relative_image(self) -> pathlib.Path:
+        return self.path_absolute_image.relative_to(global_config.path_site)
+
+    @property
+    def has_color(self) -> bool:
+        return self.path_absolute_color.exists()
+
+    @property
+    def path_absolute_color(self) -> pathlib.Path:
+        # TODO: This is far too complicated.
+        return (
+            global_config.path_site_cache
+            / self._original_image.path_relative.parent
+            / f"{self._original_image.stem}.json"
+        )
+
+    @property
+    def color(self) -> list:
+
+        if self._color is None:
+            return []
+
+        return list(self._color)
+
+
 class ContentInterface(abc.ABC):
-    def __init__(self, page: "PageObj", **content_data):
+    def __init__(self, page: "PageObj", **config):
 
         self._page: "PageObj" = page
-        self._content_data = content_data
+        self._config = config
 
         self.validate__config()
 
@@ -147,8 +243,8 @@ class ContentInterface(abc.ABC):
         pass
 
     @property
-    def content_data(self) -> dict:
-        return self._content_data
+    def config(self) -> dict:
+        return self._config
 
     @property
     def page(self) -> "PageObj":
@@ -159,20 +255,29 @@ class FileContent(ContentInterface):
     def __repr__(self):
         return f"<{self.__class__.__name__}: page:{self.page.name} filename:{self.filename}>"
 
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.filename}"
+
     def validate__config(self) -> None:
 
         try:
-            self.content_data[Key.PATH]
+            self.config[Key.PATH]
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.PATH}' for "
-                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {global_config.FILENAME_PAGE_YAML}."
             ) from error
+
+        # TODO: Check type of self.config[Key.PATH]
 
         if not self.path_absolute.exists():
             raise errors.MissingContent(
                 f"Missing '{self.filename}' in {self.path_absolute}."
             )
+
+    @property
+    def stem(self) -> str:
+        return self.path_absolute.stem
 
     @property
     def filename(self) -> str:
@@ -185,7 +290,11 @@ class FileContent(ContentInterface):
     @property
     def path_absolute(self) -> pathlib.Path:
 
-        path = self.content_data[Key.PATH]
+        path = self.config[Key.PATH]
+
+        # TODO: The following block might be unnecessary. Layout pages pass
+        # 'path' as a string and Lazy pages pass it as a pathlib.Path... Need
+        # mode clarity in how this all works.
 
         # For Layout pages, 'path' is passed as a path relative to the page
         # directory. In this case, concatenate both paths.
@@ -197,7 +306,7 @@ class FileContent(ContentInterface):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns a path relative to to /[site]. """
-        return self.path_absolute.relative_to(config.path_site)
+        return self.path_absolute.relative_to(global_config.path_site)
 
     @property
     def mimetype(self) -> str:
@@ -210,16 +319,21 @@ class Image(FileContent, CaptionMixin):
 
         {
             "type": "image",
-            "path": [str: path/to/image],
+            "path": [str|pathlib.Path: path/to/image],
         }
     """
 
     is_image: bool = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.placeholder = ImagePlaceholder(image=self)
+
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in config.VALID_IMAGE_EXTENSIONS:
+        if self.extension not in global_config.VALID_IMAGE_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -234,7 +348,7 @@ class Video(FileContent, CaptionMixin):
 
         {
             "type": "video",
-            "path": [str: path/to/video],
+            "path": [str|pathlib.Path: path/to/video],
         }
     """
 
@@ -243,7 +357,7 @@ class Video(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in config.VALID_VIDEO_EXTENSIONS:
+        if self.extension not in global_config.VALID_VIDEO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -258,7 +372,7 @@ class Audio(FileContent, CaptionMixin):
 
         {
             "type": "audio",
-            "path": [str: path/to/audio],
+            "path": [str|pathlib.Path: path/to/audio],
         }
     """
 
@@ -267,7 +381,7 @@ class Audio(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in config.VALID_AUDIO_EXTENSIONS:
+        if self.extension not in global_config.VALID_AUDIO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -282,7 +396,8 @@ class TextBlock(FileContent):
 
         {
             "type": "text-block",
-            "path": [str: path/to/text-block],
+            "path": [str|pathlib.Path: path/to/text-block],
+            "align": [str: align], // See easel.site.config.GlobalConfig.VALID_ALIGNMENTS
         }
     """
 
@@ -291,13 +406,13 @@ class TextBlock(FileContent):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in config.VALID_TEXT_EXTENSIONS:
+        if self.extension not in global_config.VALID_TEXT_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
             )
 
-        if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
+        if self.align is not None and self.align not in global_config.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
@@ -308,7 +423,7 @@ class TextBlock(FileContent):
 
     @property
     def align(self) -> dict:
-        return self.content_data.get(Key.ALIGN, None)
+        return self.config.get(Key.ALIGN, None)
 
 
 class Embedded(ContentInterface, CaptionMixin):
@@ -324,24 +439,27 @@ class Embedded(ContentInterface, CaptionMixin):
     is_embedded: bool = True
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} html:{self.html[:32].strip()}>"
+        return f"<{self.__class__.__name__}: page:{self.page.name} html:{self.html[:32].strip()}...>"
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.html[:32].strip()}..."
 
     def validate__config(self) -> None:
         super().validate__config()
 
         try:
-            self.content_data[Key.HTML]
+            self.config[Key.HTML]
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.HTML}' for "
-                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {global_config.FILENAME_PAGE_YAML}."
             ) from error
 
         self.validate__caption_config()
 
     @property
     def html(self) -> str:
-        return self.content_data[Key.HTML]
+        return self.config[Key.HTML]
 
 
 class Header(ContentInterface):
@@ -351,46 +469,50 @@ class Header(ContentInterface):
         {
             "type": "header",
             "text": [str: text],
-            "size": [str: size], // See easel.site.config.VALID_SIZES
+            "size": [str: size], // See easel.site.config.GlobalConfig.VALID_SIZES
+            "align": [str: align], // See easel.site.config.GlobalConfig.VALID_ALIGNMENTS
         }
     """
 
     is_header: bool = True
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} text:{self.text[:32].strip()}>"
+        return f"<{self.__class__.__name__}: page:{self.page.name} text:{self.text[:32].strip()}...>"
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.text[:32].strip()}..."
 
     def validate__config(self) -> None:
 
         try:
-            self.content_data[Key.TEXT]
+            self.config[Key.TEXT]
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.TEXT}' for "
-                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {global_config.FILENAME_PAGE_YAML}."
             ) from error
 
-        if self.size is not None and self.size not in config.VALID_SIZES:
+        if self.size is not None and self.size not in global_config.VALID_SIZES:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
-        if self.align is not None and self.align not in config.VALID_ALIGNMENTS:
+        if self.align is not None and self.align not in global_config.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
 
     @property
     def text(self) -> str:
-        return self.content_data[Key.TEXT]
+        return self.config[Key.TEXT]
 
     @property
     def size(self) -> str:
-        return self.content_data.get(Key.SIZE, None)
+        return self.config.get(Key.SIZE, None)
 
     @property
     def align(self) -> dict:
-        return self.content_data.get(Key.ALIGN, None)
+        return self.config.get(Key.ALIGN, None)
 
 
 class Break(ContentInterface):
@@ -399,7 +521,7 @@ class Break(ContentInterface):
 
         {
             "type": "break",
-            "size": [str: size], // See easel.site.config.VALID_SIZES
+            "size": [str: size], // See easel.site.config.GlobalConfig.VALID_SIZES
         }
     """
 
@@ -410,14 +532,14 @@ class Break(ContentInterface):
 
     def validate__config(self) -> None:
 
-        if self.size is not None and self.size not in config.VALID_SIZES:
+        if self.size is not None and self.size not in global_config.VALID_SIZES:
             raise errors.ContentConfigError(
                 f"{self.page} Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
     @property
     def size(self) -> str:
-        return self.content_data.get(Key.SIZE, None)
+        return self.config.get(Key.SIZE, None)
 
 
 content_factory = _ContentFactory()

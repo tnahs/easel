@@ -7,7 +7,7 @@ from typing import Optional, Union
 
 from flask import Flask
 
-from .site.config import config
+from .site import global_config
 from .site.site import Site
 
 
@@ -29,7 +29,7 @@ class Easel(Flask):
         if loglevel is not None:
             logging.getLogger().setLevel(loglevel)
 
-        config.path_site = site
+        global_config.path_site = site
 
         # Create and bind Site.
         self._site = Site()
@@ -47,7 +47,7 @@ class Easel(Flask):
             return {"site": self._site}
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}:{config.path_site}>"
+        return f"<{self.__class__.__name__}:{global_config.path_site}>"
 
     @property
     def site(self) -> Site:
@@ -58,6 +58,4 @@ class Easel(Flask):
         if debug:
             os.environ["FLASK_ENV"] = "development"
 
-        super().run(
-            debug=debug, extra_files=config.assets, **kwargs,
-        )
+        super().run(debug=debug, extra_files=global_config.assets, **kwargs)

@@ -2,10 +2,11 @@ import abc
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
+from PIL import Image
 
 from . import contents, errors
-from .config import config
-from .helpers import Key, Utils, markdown
+from . import global_config
+from .helpers import Key, Utils
 
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class _PageFactory:
     def build(self, site: "Site", path_absolute: pathlib.Path) -> PageObj:
         """ Builds Page-like object from a path. """
 
-        path_page_config: pathlib.Path = path_absolute / config.FILENAME_PAGE_YAML
+        path_page_config: pathlib.Path = path_absolute / global_config.FILENAME_PAGE_YAML
 
         page_config: dict = Utils.load_config(path=path_page_config)
 
@@ -95,7 +96,11 @@ class GalleryMixin(abc.ABC):
                 f"'{Key.GALLERY_COLUMN_WIDTH}' to 'auto'."
             )
 
-        if self.gallery_column_count not in config.VALID_GALLERY_COLUMN_COUNT:
+        if (
+            self.gallery_column_count is not None
+            and self.gallery_column_count
+            not in global_config.VALID_GALLERY_COLUMN_COUNT
+        ):
             raise errors.PageConfigError(
                 f"{self}: Unsupported value '{self.gallery_column_count}' for "
                 f"'{Key.GALLERY_COLUMN_COUNT}'."
@@ -114,8 +119,8 @@ class GalleryMixin(abc.ABC):
         return self.options.get(Key.GALLERY_COLUMN_WIDTH, None)
 
     @property
-    def gallery_column_gap(self) -> bool:
-        return self.options.get(Key.GALLERY_COLUMN_GAP, None)
+    def gallery_gap(self) -> bool:
+        return self.options.get(Key.GALLERY_GAP, None)
 
 
 class PageInterface(abc.ABC):
@@ -124,15 +129,15 @@ class PageInterface(abc.ABC):
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
         self._config: dict = config
-        self._description: Optional[str] = None
 
         self._validate__options()
         self.validate__config()
 
-        self._load_description()
-
     def __repr__(self):
-        return f"<{self.__class__.__name__}:{self.path_relative}>"
+        return f"<{self.__class__.__name__}: {self.path_relative}>"
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.path_relative}"
 
     @property
     @abc.abstractmethod
@@ -142,28 +147,6 @@ class PageInterface(abc.ABC):
     @abc.abstractmethod
     def validate__config(self) -> None:
         pass
-
-    def _load_description(self) -> None:
-
-        try:
-            self.config[Key.DESCRIPTION]
-        except KeyError:
-            return
-
-        try:
-            # TODO: Figure out how to properly type this.
-            self._description = markdown.from_file(
-                filepath=self.file_description, page=self
-            )
-        except FileNotFoundError:
-            raise errors.MissingContent(
-                f"{self}: Missing '{self.file_description.name}' in {self.path_absolute}."
-            )
-        except Exception as error:
-            raise errors.PageConfigError(
-                f"Unexpected Error while loading "
-                f"'{self.file_description.name}' in {self.path_absolute}."
-            ) from error
 
     def _validate__options(self) -> None:
 
@@ -193,12 +176,8 @@ class PageInterface(abc.ABC):
             if path.name.startswith("."):
                 continue
 
-            # Ignore page yaml file.
-            if path.name == config.FILENAME_PAGE_YAML:
-                continue
-
-            # Ignore page description markdown file.
-            if path.name == self.file_description.name:
+            # Ignore page.yaml file.
+            if path.name == global_config.FILENAME_PAGE_YAML:
                 continue
 
             yield path
@@ -214,10 +193,11 @@ class PageInterface(abc.ABC):
 
             {
                 "show-captions": [bool: false],
+                "generate-placeholders": [bool: false],
                 "is-gallery": [bool: false],
                 "gallery-column-count": [str|int: auto],
                 "gallery-column-width": [str: 250px],
-                "gallery-column-gap": [str: 25px],
+                "gallery-gap": [str: 25px],
             }
         """
         return self.config.get(Key.OPTIONS, {})
@@ -233,15 +213,11 @@ class PageInterface(abc.ABC):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(config.path_site)
+        return self._path_absolute.relative_to(global_config.path_site)
 
     @property
     def file_page_yaml(self) -> pathlib.Path:
-        return self._path_absolute / config.FILENAME_PAGE_YAML
-
-    @property
-    def file_description(self) -> pathlib.Path:
-        return self._path_absolute / self.config.get(Key.DESCRIPTION, "")
+        return self._path_absolute / global_config.FILENAME_PAGE_YAML
 
     @property
     def url(self) -> str:
@@ -252,8 +228,8 @@ class PageInterface(abc.ABC):
         return self.config.get(Key.IS_INDEX, False)
 
     @property
-    def description(self) -> Optional[str]:
-        return self._description
+    def generate_placeholders(self) -> bool:
+        return self.options.get(Key.GENERATE_PLACEHOLDERS, False)
 
 
 class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
@@ -277,25 +253,25 @@ class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
 
             extension = path.suffix
 
-            if extension in config.VALID_IMAGE_EXTENSIONS:
+            if extension in global_config.VALID_IMAGE_EXTENSIONS:
                 item = contents.Image(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif extension in config.VALID_VIDEO_EXTENSIONS:
+            elif extension in global_config.VALID_VIDEO_EXTENSIONS:
                 item = contents.Video(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif extension in config.VALID_AUDIO_EXTENSIONS:
+            elif extension in global_config.VALID_AUDIO_EXTENSIONS:
                 item = contents.Audio(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif extension in config.VALID_TEXT_EXTENSIONS:
+            elif extension in global_config.VALID_TEXT_EXTENSIONS:
                 item = contents.TextBlock(page=self, path=path)
 
-            elif extension in config.VALID_YAML_EXTENSIONS:
+            elif extension in global_config.VALID_YAML_EXTENSIONS:
                 logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
                 continue
 
@@ -330,7 +306,7 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
         except KeyError as error:
             raise errors.PageConfigError(
                 f"Missing required key '{Key.CONTENTS}' in for "
-                f"{self.__class__.__name__} in {config.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {global_config.FILENAME_PAGE_YAML}."
             ) from error
         else:
             if type(contents) is not list:
@@ -348,10 +324,10 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
 
         items: List["ContentObj"] = []
 
-        for content_data in self.config[Key.CONTENTS]:
+        for content_config in self.config[Key.CONTENTS]:
 
             item: "ContentObj" = contents.content_factory.build(
-                page=self, content_data=content_data
+                page=self, config=content_config
             )
 
             items.append(item)
@@ -385,7 +361,7 @@ class Markdown(PageInterface, GalleryMixin):
 
         for path in self._contents:
 
-            if path.suffix not in config.VALID_TEXT_EXTENSIONS:
+            if path.suffix not in global_config.VALID_TEXT_EXTENSIONS:
                 continue
 
             item = contents.TextBlock(page=self, path=path)

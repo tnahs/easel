@@ -7,7 +7,7 @@ options:
   is-gallery: true
   gallery-column-count: 2
   gallery-column-width: 250px
-  gallery-column-gap: 25px
+  gallery-gap: 25px
   show-captions: true
 
 contents:

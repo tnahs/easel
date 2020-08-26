@@ -1,0 +1,11 @@
+# snapshots/pages/nature
+
+type: lazy
+
+options:
+  is-gallery: true
+  # gallery-column-count:
+  # gallery-column-width:
+  # gallery-gap:
+  generate-placeholders: true
+  # show-captions:

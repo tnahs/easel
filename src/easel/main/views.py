@@ -9,7 +9,7 @@ from flask import (
     url_for,
 )
 
-from ..site.config import config
+from ..site import global_config
 
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 blueprint_main = Blueprint(
     name="main",
     import_name=__name__,
-    template_folder=str(config.path_theme_templates),
+    template_folder=str(global_config.path_theme_templates),
     # Explicitly setting 'url_prefix' to an emptry string to set this
     # blueprint to be served when accesting the base url i.e. 'www.site.com'.
     url_prefix="",
@@ -30,8 +30,8 @@ blueprint_main = Blueprint(
     # searched if the file does not exist in the application static folder.
     #
     # via https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
-    static_url_path=str(config.path_theme_static),
-    static_folder=str(config.path_theme_static),
+    static_url_path=str(global_config.path_theme_static),
+    static_folder=str(global_config.path_theme_static),
 )
 
 
