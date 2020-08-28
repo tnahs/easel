@@ -1,0 +1,33 @@
+# sargent/site.yaml
+
+title: J. S. Sargent
+author: Full Name
+copyright: © 2020 Full Name
+favicon:
+
+menu:
+- type: link-page
+  label: Nature
+  links-to: pages/nature
+- type: link-page
+  label: Patterns
+  links-to: pages/patterns
+- type: link-page
+  label: Places
+  links-to: pages/places
+- type: spacer
+  size: small
+- type: link-page
+  label: About
+  links-to: pages/about
+
+
+header:
+  title: J. S. Sargent
+  image:
+    path:
+    width:
+    height:
+
+theme:
+  name: sargent

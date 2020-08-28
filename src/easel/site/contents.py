@@ -145,11 +145,12 @@ class ImagePlaceholder:
 
         self._color: Optional[Tuple[int, int, int]] = None
 
-        # FIXME: For some reason, ImagePlaceholder does not retain it's value
-        # for self._color unless this functions is run in the __init__.
+        # WIP: Placeholder-images/site-caching. For some reason,
+        # ImagePlaceholder does not retain it's value for self._color unless
+        # this functions is run in the __init__.
         self._load_cached_color()
 
-    # WIP: ImagePlaceholder-images/site-caching
+    # WIP: Placeholder-images/site-caching
     def cache_image(self, force: bool = False) -> None:
 
         if self.has_image and force is False:
@@ -165,7 +166,7 @@ class ImagePlaceholder:
             image.thumbnail(global_config.DEFAULT_PLACEHOLDER_SIZE)
             image.save(self.path_absolute_image)
 
-    # WIP: ImagePlaceholder-images/site-caching
+    # WIP: Placeholder-images/site-caching
     def cache_color(self, force: bool = False) -> None:
 
         if self.has_image and force is False:

@@ -33,6 +33,7 @@ class Easel(Flask):
 
         # Create and bind Site.
         self._site = Site()
+        self._site.build_cache()
 
         # Load blueprints.
         from .site.views import blueprint_site

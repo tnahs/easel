@@ -1,0 +1,13 @@
+# sargent/pages/places
+
+type: lazy
+# cover: cover.jpg
+# title: places
+
+options:
+  generate-placeholders: false
+  is-gallery: true
+  # gallery-column-count:
+  # gallery-column-width:
+  # gallery-gap:
+  # show-captions:

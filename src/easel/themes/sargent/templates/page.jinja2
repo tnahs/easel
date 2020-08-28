@@ -1,4 +1,4 @@
-{% from "macros.jinja2" import render_content with context %}
+{% from "_macros.jinja2" import render_content with context %}
 
 
 {% extends "base.jinja2" %}
@@ -6,24 +6,21 @@
 
 {% block page %}
 
-    <div id="page">
+    <div id="{{ 'page-gallery' if page.is_gallery else 'page'}}">
 
-        {% if page.is_gallery %}
+        <div class="page-contents">
 
-            <div class="gallery contents">
-        {% else %}
+            {% for content in page.contents %}
 
-            <div class="contents">
+                <div class="content-item">
 
-        {% endif %}
+                    {{ render_content(page, content) }}
 
-                {% for content in page.contents %}
+                </div>
 
-                    {{ render_content(page, content, loop.index0) }}
+            {% endfor %}
 
-                {% endfor %}
-
-            </div>
+        </div>
 
     </div>
 

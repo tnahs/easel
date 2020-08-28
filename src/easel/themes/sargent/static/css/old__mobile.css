@@ -1,0 +1,187 @@
+:root {
+    /*
+     * menu mobile
+     * --------------------------------------------------------------------- */
+
+     --menu-mobile__toggle-button-size: 32px;
+
+     --menu-mobile__background-color: hsla(0, 0%, 100%, 0.96);
+     --menu-mobile__font-size: 16pt;
+
+     --menu-mobile-spacer__height__small: 3px;
+     --menu-mobile-spacer__height__medium: 15px;
+     --menu-mobile-spacer__height__large: 50px;
+}
+
+/*
+ * media queries
+ * ------------------------------------------------------------------------- */
+
+ @media only screen and (max-width: 736px) {
+
+    /* When the screen is too small the menu-desktop here is hidden and
+     * the menu-mobile is set to block. The menu-mobile's
+     * menu-mobile__buttons visibility is toggled with javascript.
+     */
+
+    body {
+
+        display: grid;
+        grid-template-areas: "area-main";
+        grid-template-rows: 1fr;
+        grid-template-columns: unset;
+    }
+
+    menu .menu-desktop {
+
+        display: none;
+    }
+
+    menu .menu-mobile {
+
+        display: block;
+    }
+
+    footer {
+
+        top: unset;
+        left: unset;
+        right: 30px;
+        bottom: 30px;
+
+        text-align: right;
+    }
+}
+
+
+/*
+ * menu mobile
+ * ------------------------------------------------------------------------- */
+
+ menu .menu-mobile {
+
+    display: none;
+}
+
+menu .menu-mobile .header {
+
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 20px;
+
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+}
+
+menu .menu-mobile .header #menu-mobile__open-button {
+
+    width: var(--menu-mobile__toggle-button-size);
+    height: auto;
+
+    cursor: pointer;
+}
+
+menu .menu-mobile .menu-mobile__buttons {
+
+    opacity: 0;
+    visibility: hidden;
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+
+    background-color: var(--menu-mobile__background-color);
+
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 0;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s;
+}
+
+menu .menu-mobile .menu-mobile__buttons .menu-buttons {
+
+    padding-top: 50px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+
+    text-align: var(--menu__align);
+}
+
+menu .menu-mobile .menu-mobile__buttons .menu-mobile__controls {
+
+    display: grid;
+    grid-template-columns: 1fr max-content;
+}
+
+menu .menu-mobile .menu-mobile__buttons .menu-mobile__controls #menu-mobile__close-button {
+
+    width: var(--menu-mobile__toggle-button-size);
+    height: auto;
+
+    cursor: pointer;
+}
+
+
+/*
+ * menu button mobile
+ * ------------------------------------------------------------------------- */
+
+ menu .menu-mobile * .menu-buttons {
+
+    display: grid;
+    grid-row-gap: 10px;
+}
+
+menu .menu-mobile * .menu-buttons a {
+
+    transition: color .2s;
+}
+
+menu .menu-mobile * .menu-buttons a:hover {
+
+    color: var(--menu__text-color__hover);
+}
+
+menu .menu-mobile * .menu-buttons a.menu-link-page {
+
+    font-family: var(--menu__font-family);
+    font-size: var(--menu-mobile__font-size);
+    color: var(--menu-link-page__text-color);
+}
+
+menu .menu-mobile * .menu-buttons a.menu-link-url {
+
+    font-family: var(--menu__font-family);
+    font-size: var(--menu-mobile__font-size);
+    color: var(--menu-link-url__text-color);
+}
+
+menu .menu-mobile * .menu-buttons a.menu-page-current,
+menu .menu-mobile * .menu-buttons a.menu-page-current:hover {
+
+    color: var(--menu__text-color__current-page);
+}
+
+menu .menu-mobile * .menu-buttons div.menu-spacer__small {
+
+    height: var(--menu-mobile-spacer__height__small);
+}
+
+menu .menu-mobile * .menu-buttons div.menu-spacer__medium {
+
+    height: var(--menu-mobile-spacer__height__medium);
+}
+
+menu .menu-mobile * .menu-buttons div.menu-spacer__large {
+
+    height: var(--menu-mobile-spacer__height__large);
+}

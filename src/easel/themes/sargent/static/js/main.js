@@ -3,22 +3,44 @@
 
 window.addEventListener("load", () => {
 
-    const menuMobileOpenButton = document.querySelector("#menu-mobile__open-button")
-    const menuMobileCloseButton = document.querySelector("#menu-mobile__close-button")
+    const CLASS_ANIMATE = "animate__fade-in-out"
 
-    const menuMobileButtons = document.querySelector(".menu-mobile .menu-mobile__buttons")
+    function animateFadeIn(content) {
+        content.classList.add(CLASS_ANIMATE)
+    }
 
-    menuMobileOpenButton.addEventListener("click", () => {
+    function animateFadeOut(content) {
+        content.classList.remove(CLASS_ANIMATE)
+    }
 
-        menuMobileButtons.style.opacity = 1
-        menuMobileButtons.style.visibility = "visible"
+    const menuMobileToggleOpen = document.querySelector("#menu-mobile-toggle-open")
+    const menuMobileToggleClose = document.querySelector("#menu-mobile-toggle-close")
+
+    const menuMobile = document.querySelector("#menu-mobile")
+    const menuMobileButtons = menuMobile.querySelector(".menu-buttons")
+    const menuMobileFooter = menuMobile.querySelector("#menu-footer")
+
+    menuMobileToggleOpen.addEventListener("click", function () {
+
+        this.style.display = "none"
+        menuMobileToggleClose.style.display = "block"
+
+        animateFadeIn(menuMobile)
+        animateFadeIn(menuMobileButtons)
+        animateFadeIn(menuMobileFooter)
     })
 
-    menuMobileCloseButton.addEventListener("click", () => {
+    menuMobileToggleClose.addEventListener("click", function () {
 
-        menuMobileButtons.style.opacity = 0
-        menuMobileButtons.style.visibility = "hidden"
+        this.style.display = "none"
+        menuMobileToggleOpen.style.display = "block"
+
+        animateFadeOut(menuMobile)
+        animateFadeOut(menuMobileButtons)
+        animateFadeOut(menuMobileFooter)
     })
+
+
 
 })
 
@@ -86,7 +108,7 @@ window.addEventListener("load", () => {
                     ${placeholderColor[0]},
                     ${placeholderColor[1]},
                     ${placeholderColor[2]},
-                    0.5
+                    0.75
                 )
             `
         }

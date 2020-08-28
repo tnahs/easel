@@ -1,7 +1,9 @@
+import functools
+import concurrent.futures
 import logging
 from typing import TYPE_CHECKING, List, Optional
 
-from . import errors, menus, pages
+from . import errors, menus, pages, contents
 from . import global_config
 from .helpers import Key, SafeDict, Utils
 
@@ -97,6 +99,25 @@ class Site:
             raise errors.SiteConfigError(
                 "Site must have one and only one 'index' page."
             )
+
+    def build_cache(self, force=False):
+
+        logger.info("Building site cache...")
+
+        for page in self.pages:
+            for content in page.contents:
+                if isinstance(content, contents.Image) and page.generate_placeholders:
+                    content.placeholder.cache_image(force=force)
+
+        """
+        processes = []
+        for page in self.pages:
+            for content in page.contents:
+                if isinstance(content, contents.Image) and page.generate_placeholders:
+                    processes.append(content.placeholder.cache_image)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            [executor.submit(process, force) for process in processes]
+        """
 
     @property
     def config(self) -> "SiteConfig":

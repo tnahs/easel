@@ -5,11 +5,15 @@ HIGH:
   - Placeholder generation.
     - Need to cache the placeholder color data somehow.
     - Friendlier way to trigger generation.
-    - Ignore certain types. Check compatibility.
+    - Ignore certain types. Check compatibility. Fallback type. Quality.
     - Use concurrent.futures for parallelization.
     - Move placeholders methods/attrs into separate class.
     - Check for possible exceptions PIL might throw.
     - Support for GIFs.
+  - Rework
+    - "gallery_column_count"
+    - "gallery_column_width"
+    - "gallery_gap"
 
 MEDIUM:
   - Design logo/icon.

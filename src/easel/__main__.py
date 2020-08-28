@@ -21,16 +21,17 @@ def serve(directory: str) -> None:
 
 @cli.command()
 @click.argument("directory", type=click.Path(exists=True))
-def template(directory: str) -> None:
-    """ Generate an Easel template inside a DIRECTORY. """
-    pass
+def cache(directory: str) -> None:
+    """ Serve an site from an Easel DIRECTORY. """
+
+    easel = Easel(directory, loglevel="DEBUG")
+    easel.site.build_cache(force=True)
 
 
 @cli.command()
 @click.argument("directory", type=click.Path(exists=True))
-@click.option("--gallery", "is_gallery", is_flag=True, help="Generate as gallery.")
-def layout_page(directory: str, is_gallery: bool) -> None:
-    """ Auto-generate a page.yaml for a Layout page from a DIRECTORY. """
+def new(directory: str) -> None:
+    """ Generate an new Easel scaffold inside a DIRECTORY. """
     pass
 
 

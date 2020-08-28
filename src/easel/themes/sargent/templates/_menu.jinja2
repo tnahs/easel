@@ -1,0 +1,16 @@
+{% from "_macros.jinja2" import render_menu_buttons with context %}
+
+
+<div id="menu-desktop">
+    <span class="menu-buttons">{{ render_menu_buttons() }}</span>
+</div>
+
+<div id="menu-mobile-toggles">
+    <img id="menu-mobile-toggle-open" src="{{ url_for('main.static', filename='images/menu-mobile-toggle-open.png') }}">
+    <img id="menu-mobile-toggle-close" src="{{ url_for('main.static', filename='images/menu-mobile-toggle-close.png') }}">
+</div>
+
+<div id="menu-mobile">
+    <div class="menu-buttons">{{ render_menu_buttons() }}</div>
+    <div id="menu-footer">{% include "_footer.jinja2" %}</div>
+</div>

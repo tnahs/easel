@@ -1,0 +1,13 @@
+# sargent/pages/patterns
+
+type: lazy
+# cover: cover.jpg
+# title: patterns
+
+options:
+  generate-placeholders: true
+  is-gallery: true
+  # gallery-column-count:
+  # gallery-column-width:
+  # gallery-gap:
+  # show-captions:
