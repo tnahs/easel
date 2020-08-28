@@ -5,9 +5,7 @@ type: lazy
 # title: places
 
 options:
-  generate-placeholders: false
   is-gallery: true
-  # gallery-column-count:
-  # gallery-column-width:
-  # gallery-gap:
-  # show-captions:
+  generate-placeholders: true
+  # column-count:
+  # column-width:

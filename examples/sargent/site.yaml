@@ -15,6 +15,9 @@ menu:
 - type: link-page
   label: Places
   links-to: pages/places
+- type: link-page
+  label: Layout
+  links-to: pages/layout
 - type: spacer
   size: small
 - type: link-page

@@ -11,7 +11,6 @@
 
     --mobile__header__offset: calc(var(--header-and-menu__height) + var(--mobile__body__padding-top));
 
-
     --mobile__toggle-buttons__size: 32px;
     --mobile__toggle-buttons__opacity: 0.75;
 
@@ -24,7 +23,6 @@
     /*
      * menu
      * --------------------------------------------------------------------- */
-
 
     --mobile__menu-buttons__font-family: var(--primary__font-family);
     --mobile__menu-buttons__font-weight: 400;
@@ -65,6 +63,7 @@ menu #menu-mobile-toggle-close {
     display: none;
 }
 
+
 /*
  * mobile menu
  * ------------------------------------------------------------------------- */
@@ -75,7 +74,7 @@ menu #menu-mobile {
     left: 0;
     top: var(--mobile__header__offset);
     width: 100%;
-    height: 100%;
+    /* height: 100vh;*/  /* FIXME */
     z-index: 999;
 
     background-color: var(--body__background-color);
@@ -171,6 +170,7 @@ menu #menu-mobile #menu-footer .footer-copyright {
     display: grid;
     row-gap: 5px;
 }
+
 
 /*
  * media queries

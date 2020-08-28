@@ -1,6 +1,26 @@
+:root {
+
+    /* WIP! */
+
+    --markdown-link__text-color: red;
+
+    --markdown-strike-through__text-color: hsla(0, 0%, 60%, 1.00);
+
+    --markdown-highlight__text-color: pink;
+    --markdown-highlight__background-color: green;
+
+    --markdown-hr__color: orange;
+
+    --markdown-code__font-family: var(--font-family__monospace);
+    --markdown-code__font-size: 10pt;
+    --markdown-code__text-color: lightblue;
+    --markdown-code__background-color: yellow;
+
+}
 
 .markdown {
 
+    /*  */
 }
 
 /*
@@ -10,7 +30,6 @@
 .markdown p {
 
     line-height: 140%;
-    /* text-align: justify; */
     hyphens: auto;
 }
 
@@ -85,16 +104,6 @@
 /*
  * headers
  * ------------------------------------------------------------------------- */
-
-.markdown > h1,
-.markdown > h2,
-.markdown > h3,
-.markdown > h4,
-.markdown > h5,
-.markdown > h6 {
-
-    font-family: var(--markdown__font-family);
-}
 
 .markdown > h1,
 .markdown > h2,

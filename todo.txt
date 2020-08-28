@@ -2,6 +2,26 @@ QUESTIONS:
   - How are we doing theme customization?
 
 HIGH:
+  - Page overhaul
+    - Remove Markdown
+      - Markdown is essentially a Lazy page, just use lazy
+    - Composite pages
+      - Lazy
+      - Layout
+      - Gallery + Lazy
+      - Gallery + Layout
+  - New Page attributes:
+    - cover
+    - title
+  - New Menu attributes:
+    - icon
+  - Rework
+    - "gallery_column_count"
+    - "gallery_column_width"
+
+MEDIUM:
+
+LOW:
   - Placeholder generation.
     - Need to cache the placeholder color data somehow.
     - Friendlier way to trigger generation.
@@ -10,21 +30,15 @@ HIGH:
     - Move placeholders methods/attrs into separate class.
     - Check for possible exceptions PIL might throw.
     - Support for GIFs.
-  - Rework
-    - "gallery_column_count"
-    - "gallery_column_width"
-    - "gallery_gap"
-
-MEDIUM:
+    - ERROR: This error seems to be caused when a new image is added and Site.build_cache is not called.
+        File "/Users/shant/Workspace/projects/easel/src/easel/themes/sargent/templates/_macros.jinja2", line 37, in template
+          data-placeholder-color="{{ content.placeholder.color }}">
+        File "/Users/shant/Library/Caches/pypoetry/virtualenvs/easel-DYNBgCOp-py3.8/lib/python3.8/site-packages/jinja2/environment.py", line 471, in getattr
+          return getattr(obj, attribute)
+        File "/Users/shant/Workspace/projects/easel/src/easel/site/contents.py", line 231, in color
+          return list(self._color)
+        TypeError: 'int' object is not iterable
   - Design logo/icon.
-
-LOW:
-  - New Page attributes:
-    - cover
-    - title
-  - New Menu attributes:
-    - icon
-  - Better naming for Gallery options e.g. 'gallery-gap'
 
 HOUSEKEEPING:
   - Documentation

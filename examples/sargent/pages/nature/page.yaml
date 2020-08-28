@@ -7,9 +7,7 @@ type: lazy
 # title: nature
 
 options:
-  generate-placeholders: true
   is-gallery: true
-  # gallery-column-count:
-  # gallery-column-width:
-  # gallery-gap:
-  # show-captions:
+  generate-placeholders: true
+  # column-count:
+  # column-width:

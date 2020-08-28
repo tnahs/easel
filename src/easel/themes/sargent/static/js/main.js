@@ -28,6 +28,9 @@ window.addEventListener("load", () => {
         animateFadeIn(menuMobile)
         animateFadeIn(menuMobileButtons)
         animateFadeIn(menuMobileFooter)
+
+        // Prevent body scrolling.
+        document.body.style.overflow = "hidden"
     })
 
     menuMobileToggleClose.addEventListener("click", function () {
@@ -38,10 +41,9 @@ window.addEventListener("load", () => {
         animateFadeOut(menuMobile)
         animateFadeOut(menuMobileButtons)
         animateFadeOut(menuMobileFooter)
+
+        document.body.style.overflow = "auto"
     })
-
-
-
 })
 
 
@@ -79,23 +81,37 @@ window.addEventListener("load", () => {
 })
 
 
-//
-
 window.addEventListener("load", () => {
 
-    //
+    const pageGallery = document.querySelector("#page-gallery")
+
+    if (!pageGallery) {
+        return
+    }
+
     const DEFAULT_PLACEHOLDER_COLOR = "rgba(0, 0, 0, .05)"
-    const contentItems = document.querySelectorAll(".content-item")
+    const PLACEHOLDER_COLOR_ALPHA = "0.75"
 
-    contentItems.forEach(contentItem => {
+    const contentContainers = document.querySelectorAll(".content-container")
 
-        const contentImage = contentItem.querySelector(".image")
+    contentContainers.forEach(contentContainer => {
+
+        const contentImage = contentContainer.querySelector(".image")
 
         if (!contentImage) {
             return
         }
 
-        let placeholderColor = JSON.parse(contentImage.dataset.placeholderColor)
+        let placeholderColor
+
+        try {
+
+            placeholderColor = JSON.parse(contentImage.dataset.placeholderColor)
+
+        } catch {
+
+            placeholderColor = DEFAULT_PLACEHOLDER_COLOR
+        }
 
         if (!placeholderColor.length) {
 
@@ -108,25 +124,31 @@ window.addEventListener("load", () => {
                     ${placeholderColor[0]},
                     ${placeholderColor[1]},
                     ${placeholderColor[2]},
-                    0.75
-                )
-            `
+                    ${PLACEHOLDER_COLOR_ALPHA}
+                    )
+                `
         }
 
-        contentItem.style.backgroundColor = placeholderColor
+        contentContainer.style.backgroundColor = placeholderColor
     })
+})
 
-    //
 
-    function animateFadeIn(content) {
-        content.classList.add("animate__fade-in")
+window.addEventListener("load", () => {
+
+    function animateFadeIn(element) {
+        element.classList.add("animate__fade-in")
     }
 
-    function lazyLoadContent(content) {
-        content.src = content.dataset.src
+    function lazyLoadElement(element) {
+
+        if(element.dataset.src === undefined) {
+            return
+        }
+
+        element.src = element.dataset.src
     }
 
-    //
     const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
 
         entries.forEach(entry => {
@@ -134,15 +156,13 @@ window.addEventListener("load", () => {
             if (entry.isIntersecting) {
                 if (entry.intersectionRatio > 0) {
 
-                    lazyLoadContent(entry.target)
+                    lazyLoadElement(entry.target)
                     observer.unobserve(entry.target)
                 }
             }
         })
     }, {rootMargin: "0px 0px -50% 0px"})
 
-
-    //
     const stateSetObserver = new IntersectionObserver((entries, observer) => {
 
         entries.forEach(entry => {
@@ -157,9 +177,9 @@ window.addEventListener("load", () => {
         })
     }, {rootMargin: "0px 0px -20% 0px"})
 
-    const contentItemImages = document.querySelectorAll(".content-item .image")
+    const contentItems = document.querySelectorAll(".content-container > *, .content-caption")
 
-    contentItemImages.forEach(contentImage => {
+    contentItems.forEach(contentImage => {
         stateSetObserver.observe(contentImage)
         lazyLoadObserver.observe(contentImage)
     })

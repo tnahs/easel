@@ -233,7 +233,7 @@ class PageInterface(abc.ABC):
 
 
 class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an Markdown Page object from a dictionary with the following
+    """ Creates an Lazy Page object from a dictionary with the following
     attributes:
 
         {
@@ -290,7 +290,7 @@ class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
 
 
 class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an Markdown Page object from a dictionary with the following
+    """ Creates an Layout Page object from a dictionary with the following
     attributes:
 
         {

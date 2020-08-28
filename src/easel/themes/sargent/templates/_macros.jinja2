@@ -25,64 +25,65 @@
 
 {% macro render_content(page, content) %}
 
-    {% if content.is_image %}
+    <div class="content-container">
 
-        {% set image = url_for("site.static", filename=content.path_relative) %}
-        {% set placeholder_image = url_for("site.static", filename=content.placeholder.path_relative_image) %}
+        {% if content.is_image %}
 
-        <img
-            class="image"
-            src="{{ placeholder_image if content.has_placeholder_image else image }}"
-            data-src="{{ image }}"
-            data-placeholder-color="{{ content.placeholder.color }}">
+            {% set image = url_for("site.static", filename=content.path_relative) %}
+            {% set placeholder_image = url_for("site.static", filename=content.placeholder.path_relative_image) %}
 
-    {% elif content.is_video %}
+            <img class="image"
+                src="{{ placeholder_image if content.has_placeholder_image else image }}"
+                data-src="{{ image }}"
+                data-placeholder-color="{{ content.placeholder.color }}">
 
-        <video controls >
-            <source
-                class="video"
-                src="{{ url_for('site.static', filename=content.path_relative) }}"
-                type="{{ content.mimetype }}">
-        </video>
+        {% elif content.is_video %}
 
-    {% elif content.is_audio %}
+            <video class="video" controls>
+                <source
+                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    type="{{ content.mimetype }}">
+            </video>
 
-        <audio controls preload="metadata" >
-            <source
-                class="audio"
-                src="{{ url_for('site.static', filename=content.path_relative) }}"
-                type="{{ content.mimetype }}" >
-            Your browser does not support the audio element.
-        </audio>
+        {% elif content.is_audio %}
 
-    {% elif content.is_embedded %}
+            <audio class="audio" controls preload="metadata">
+                <source
+                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    type="{{ content.mimetype }}">
+                Your browser does not support the audio element.
+            </audio>
 
-        <div class="embedded">{{ content.html | safe }}</div>
+        {% elif content.is_embedded %}
 
-    {% elif content.is_text_block %}
+            <div class="embedded">{{ content.html | safe }}</div>
 
-        {% set align = content.align if content.align else "justify" %}
+        {% elif content.is_text_block %}
 
-        <div class="text-block align__{{ align }} markdown">{{ content.body | safe }}</div>
+            {% set align = content.align if content.align else "justify" %}
 
-    {% elif content.is_header %}
+            <div class="text-block align__{{ align }} markdown">{{ content.body | safe }}</div>
 
-        {% set size = content.size if content.size else "medium" %}
-        {% set align = content.align if content.align else "left" %}
+        {% elif content.is_header %}
 
-        <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
+            {% set size = content.size if content.size else "medium" %}
+            {% set align = content.align if content.align else "left" %}
 
-    {% elif content.is_break %}
+            <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
 
-        {% set size = content.size if content.size else "medium" %}
+        {% elif content.is_break %}
 
-        <div class="break__{{ size }}">&nbsp;</div>
+            {% set size = content.size if content.size else "medium" %}
 
-    {% endif %}
+            <div class="break__{{ size }}"></div>
+
+        {% endif %}
+
+    </div>
 
     {% if page.show_captions %}
 
-        {% if content.caption %}
+        {% if content.caption_title or content.caption_description %}
 
             {% set align = content.caption_align if content.caption_align else "left" %}
 
@@ -90,13 +91,13 @@
 
                 {% if content.caption_title %}
 
-                    <span class="content-title markdown">{{ content.caption_title | safe }}</span>
+                    <span class="caption-title markdown">{{ content.caption_title | safe }}</span>
 
                 {% endif %}
 
                 {% if content.caption_description %}
 
-                    <span class="content-description markdown">{{ content.caption_description | safe }}</span>
+                    <span class="caption-description markdown">{{ content.caption_description | safe }}</span>
 
                 {% endif %}
 

@@ -22,6 +22,7 @@
     --a__color: hsla(0, 0%, 0%, 0.75);
 
     --primary__font-family: "Montserrat", sans-serif;
+    --monospace__font-family: "FiraCode", monospace;
 
     --header-and-menu__height: 50px;
     --main__height: auto;
@@ -58,6 +59,31 @@
     --page-gallery__gap: 10px;
 
     /*
+     * page & page-gallery contents
+     * --------------------------------------------------------------------- */
+
+    --content-text-block__font-family: var(--primary__font-family);
+    --content-text-block__font-weight: 400;
+    --content-text-block__font-size: 11pt;
+    --content-text-block__font-color:  hsla(0, 0%, 0%, 0.75);
+
+    --content-header__font-family: var(--primary__font-family);
+    --content-header__font-weight: 400;
+    --content-header__font-size__small: 14pt;
+    --content-header__font-size__medium: 18pt;
+    --content-header__font-size__large: 24pt;
+    --content-header__font-color:  hsla(0, 0%, 0%, 0.75);
+
+    --content-break__size__small: 0px;
+    --content-break__size__medium: 50px;
+    --content-break__size__large: 100px;
+
+    --content-caption__font-family: var(--primary__font-family);
+    --content-caption__font-size: 9pt;
+    --content-caption-title__color: hsla(0, 0%, 0%, 0.75);
+    --content-caption-description__color:  hsla(0, 0%, 0%, 0.50);
+
+    /*
      * footer
      * --------------------------------------------------------------------- */
 
@@ -75,18 +101,38 @@
 }
 
 
-/*
-*:not(path):not(g) {
+
+/* *:not(path):not(g) {
     background: hsla(0, 0%, 0%, 0.5) !important;
     outline: solid 1px hsla(0, 100%, 50%, 0.5) !important;
     color: hsla(0, 0%, 100%, 0.9) !important;
 } */
 
 
-
 * {
 
     box-sizing: border-box;
+}
+
+
+*.align__left {
+
+    text-align: left;
+}
+
+*.align__center {
+
+    text-align: center;
+}
+
+*.align__right {
+
+    text-align: right;
+}
+
+*.align__justify {
+
+    text-align: justify;
 }
 
 
@@ -113,12 +159,12 @@ html {
 
 body {
 
-    height: 100vh;
+    /* height: 100vh; */  /* FIXME */
 
-    padding-top: 50px;
-    padding-left: 50px;
-    padding-right: 50px;
-    padding-bottom: 50px;
+    padding-top: var(--body__padding-top);
+    padding-left: var(--body__padding-left);
+    padding-right: var(--body__padding-right);
+    padding-bottom: var(--body__padding-bottom);
 
     background-color: var(--body__background-color);
 
@@ -132,8 +178,8 @@ body {
 
 
 /*
-* header
-* -------------------------------------------------------------------------- */
+ * header
+ * -------------------------------------------------------------------------- */
 
 header {
 
@@ -159,8 +205,8 @@ header .header-title {
 
 
 /*
-* menu
-* -------------------------------------------------------------------------- */
+ * menu
+ * -------------------------------------------------------------------------- */
 
 menu {
 
@@ -193,8 +239,9 @@ menu * .menu-page-current {
     text-decoration: underline;
 }
 
+
 /*
- * main
+ * main / page
  * ------------------------------------------------------------------------- */
 
 main {
@@ -203,6 +250,17 @@ main {
 
     padding-top: 40px;
 }
+
+/* page */
+
+main #page .page-contents {
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);  /* TODO: Make this 3/4 page. */
+    row-gap: 25px;
+}
+
+/* page-gallery */
 
 main #page-gallery .page-contents {
 
@@ -216,23 +274,153 @@ main #page-gallery .page-contents .content-item {
     margin-bottom: var(--page-gallery__gap);
 }
 
-main [id^=page] .page-contents .content-item .image {
+/* page & page-gallery contents
 
-    display: block;
+    <div class="content-item">
+        <div class="content-container">
+            <content></content>
+        </div>
+        <div class="content-caption">
+            <div class="caption-title"></div>
+            <div class="caption-description"></div>
+        </div>
+    </div>
+*/
 
-    width: 100%;
-    height: auto;
+main [id^=page] .page-contents .content-item .content-container > *,
+main [id^=page] .page-contents .content-item .content-caption {
 
     /* See below: animate__fade-in */
     opacity: 0;
     transition: opacity .5s;
 }
 
-main [id^=page] .page-contents .content-item .image.animate__fade-in {
+main [id^=page] .page-contents .content-item .content-container > *.animate__fade-in,
+main [id^=page] .page-contents .content-item .content-caption.animate__fade-in {
 
     opacity: 1;
 }
 
+/* content-image */
+
+main [id^=page] .page-contents .content-item .content-container .image {
+
+    display: block;
+
+    width: 100%;
+    height: auto;
+}
+
+/* content-video */
+
+main [id^=page] .page-contents .content-item .content-container .video {
+
+
+    display: block;
+
+    max-width: 100%;
+    height: auto;
+}
+
+/* content-audio */
+
+main [id^=page] .page-contents .content-item .content-container .audio {
+
+    width: 100%;
+}
+
+/* content-embedded */
+
+main [id^=page] .page-contents .content-item .content-container .embedded {
+
+    /* See easel/main/static/assets/static/main.js */
+}
+
+main [id^=page] .page-contents .content-item .content-container .embedded iframe {
+
+    /* See easel/main/static/assets/static/main.js */
+}
+
+/* content-text-block */
+
+main [id^=page] .page-contents .content-item .content-container .text-block {
+
+    font-family: var(--content-text-block__font-family);
+    font-weight: var(--content-text-block__font-weight);
+    font-size: var(--content-text-block__font-size);
+    color: var(--content-text-block__font-color);
+}
+
+/* content-header */
+
+main [id^=page] .page-contents .content-item .content-container [class^=header__] {
+
+    font-family: var(--content-header__font-family);
+    font-weight: var(--content-header__font-weight);
+    color: var(--content-header__font-color);
+}
+
+main [id^=page] .page-contents .content-item .content-container .header__small {
+
+    font-size: var(--content-header__font-size__small);
+}
+
+main [id^=page] .page-contents .content-item .content-container .header__medium {
+
+    font-size: var(--content-header__font-size__medium);
+}
+
+main [id^=page] .page-contents .content-item .content-container .header__large {
+
+    font-size: var(--content-header__font-size__large);
+}
+
+/* content-break */
+
+main [id^=page] .page-contents .content-item .content-container .break__small {
+
+    height: var(--content-break__size__small);
+}
+
+main [id^=page] .page-contents .content-item .content-container .break__medium {
+
+    height: var(--content-break__size__medium);
+}
+
+main [id^=page] .page-contents .content-item .content-container .break__large {
+
+    height: var(--content-break__size__large);
+}
+
+/* content captions */
+
+.content-caption {
+
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 0;
+
+    font-family: var(--content-caption__font-family);
+    font-size: var(--content-caption__font-size);
+}
+
+.content-caption .caption-title p,
+.content-caption .caption-description p {
+
+    /* Prevents extra <p> tags created by Markdown from creating line-breaks */
+    display: inline;
+}
+
+.content-caption .caption-title {
+
+    color: var(--content-caption-title__color);
+}
+
+.content-caption .caption-description {
+
+    color: var(--content-caption-description__color);
+}
 
 /*
  * footer

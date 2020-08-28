@@ -1,0 +1,71 @@
+lazy-gallery:
+
+  # Auto-generates placeholders
+  # Supports only 'Images'
+  # No captions
+
+  is-index: false
+  type: lazy-gallery
+  cover: page-cover.jpg
+  title: page-title
+  description: page-description.md
+
+  options:
+    column-width: 250px
+    column-count: 4
+    column-gap: 10px
+
+#
+
+layout-gallery:
+
+  # Auto-generates placeholders
+  # Supports only 'Images'
+  # No captions
+
+  is-index: false
+  type: layout-gallery
+  cover: page-cover.jpg
+  title: page-title
+  description: page-description.md
+
+  options:
+    column-width: 250px
+    column-count: 4
+    column-gap: 10px
+
+  contents: []
+
+#
+
+lazy:
+
+  # All content types
+  # Lazy captions
+
+  is-index: false
+  type: lazy
+  cover: page-cover.jpg
+  title: page-title
+  description: page-description.md
+
+  options:
+    show-captions:
+
+#
+
+layout:
+
+  # All content types
+  # Custom captions
+
+  is-index: false
+  type: layout
+  cover: page-cover.jpg
+  title: page-title
+  description: page-description.md
+
+  options:
+    show-captions:
+
+  contents: []
