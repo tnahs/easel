@@ -180,3 +180,6 @@ dmypy.json
 
 # Temp files
 tmp
+
+# Site cache
+.cache

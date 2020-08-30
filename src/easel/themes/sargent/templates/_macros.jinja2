@@ -29,12 +29,9 @@
 
         {% if content.is_image %}
 
-            {% set image = url_for("site.static", filename=content.path_relative) %}
-            {% set placeholder_image = url_for("site.static", filename=content.placeholder.path_relative_image) %}
-
             <img class="image"
-                src="{{ placeholder_image if content.has_placeholder_image else image }}"
-                data-src="{{ image }}"
+                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                data-src="{{ url_for('site.static', filename=content.path_relative) }}"
                 data-placeholder-color="{{ content.placeholder.color }}">
 
         {% elif content.is_video %}

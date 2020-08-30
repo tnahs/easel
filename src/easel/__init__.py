@@ -12,6 +12,7 @@ from .site.site import Site
 
 
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
+logging.getLogger("PIL").setLevel(logging.ERROR)
 logging.basicConfig(
     level=logging.INFO,
     format="{asctime} {name} {levelname}: {message}",
@@ -33,7 +34,6 @@ class Easel(Flask):
 
         # Create and bind Site.
         self._site = Site()
-        self._site.build_cache()
 
         # Load blueprints.
         from .site.views import blueprint_site
@@ -60,3 +60,6 @@ class Easel(Flask):
             os.environ["FLASK_ENV"] = "development"
 
         super().run(debug=debug, extra_files=global_config.assets, **kwargs)
+
+    def rebuild_cache(self) -> None:
+        self._site.rebuild_cache()

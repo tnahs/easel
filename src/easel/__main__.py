@@ -19,20 +19,13 @@ def serve(directory: str) -> None:
     easel.run()
 
 
-@cli.command()
+@cli.command("rebuild-cache")
 @click.argument("directory", type=click.Path(exists=True))
-def cache(directory: str) -> None:
-    """ Serve an site from an Easel DIRECTORY. """
+def rebuild_cache(directory: str) -> None:
+    """ Re-build Easel DIRECTORY cache. """
 
     easel = Easel(directory, loglevel="DEBUG")
-    easel.site.build_cache(force=True)
-
-
-@cli.command()
-@click.argument("directory", type=click.Path(exists=True))
-def new(directory: str) -> None:
-    """ Generate an new Easel scaffold inside a DIRECTORY. """
-    pass
+    easel.rebuild_cache()
 
 
 if __name__ == "__main__":

@@ -1,8 +1,0 @@
-# template/errors/404
-
-# Page type.
-type: markdown
-
-# Markdown Page options
-options:
-  is-gallery: false

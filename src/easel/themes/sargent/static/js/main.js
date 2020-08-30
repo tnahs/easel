@@ -83,12 +83,6 @@ window.addEventListener("load", () => {
 
 window.addEventListener("load", () => {
 
-    const pageGallery = document.querySelector("#page-gallery")
-
-    if (!pageGallery) {
-        return
-    }
-
     const DEFAULT_PLACEHOLDER_COLOR = "rgba(0, 0, 0, .05)"
     const PLACEHOLDER_COLOR_ALPHA = "0.75"
 
@@ -130,6 +124,7 @@ window.addEventListener("load", () => {
         }
 
         contentContainer.style.backgroundColor = placeholderColor
+
     })
 })
 

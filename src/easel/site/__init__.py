@@ -24,7 +24,10 @@ class Config:
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
 
-    DEFAULT_PLACEHOLDER_SIZE: Tuple[int, int] = (512, 512)
+    # https://pillow.readthedocs.io/en/5.1.x/handbook/image-file-formats.html#jpeg
+    PLACEHOLDER_FORMAT: str = "JPEG"
+    PLACEHOLDER_SIZE: Tuple[int, int] = (512, 512)
+    PLACEHOLDER_QUALITY: int = 95
 
     DEFAULT_THEME_NAME: str = "sargent"
     VALID_THEME_NAMES: List[str] = [
@@ -46,7 +49,7 @@ class Config:
         "justify",
     )
 
-    VALID_GALLERY_COLUMN_COUNT: Tuple[Union[str, int], ...] = (
+    VALID_COLUMN_COUNT: Tuple[Union[str, int], ...] = (
         "auto",
         *range(2, 7),
     )
@@ -66,13 +69,21 @@ class Config:
         ".mp3",
         ".wav",
     )
+    VALID_TEXT_EXTENSIONS: Tuple[str, ...] = (
+        ".md",
+        ".txt",
+    )
+
     VALID_YAML_EXTENSIONS: Tuple[str, ...] = (
         ".yaml",
         ".yml",
     )
-    VALID_TEXT_EXTENSIONS: Tuple[str, ...] = (
-        ".md",
-        ".txt",
+
+    VALID_CONTENT_EXTENSIONS: Tuple[str, ...] = (
+        *VALID_IMAGE_EXTENSIONS,
+        *VALID_VIDEO_EXTENSIONS,
+        *VALID_AUDIO_EXTENSIONS,
+        *VALID_TEXT_EXTENSIONS,
     )
 
     MIMETYPES = {

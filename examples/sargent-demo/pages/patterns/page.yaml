@@ -1,0 +1,6 @@
+# sargent-demo/pages/patterns
+
+type: lazy-gallery
+title: patterns
+cover: page-cover.jpg
+description: page-description.md

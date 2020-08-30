@@ -3,11 +3,11 @@ import logging
 import json
 import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Tuple, Union
-from PIL import Image as PILImage
 
-from easel.main.views import index
+import PIL.Image
+import PIL.ImageFilter
 
-from . import errors, pages
+from . import errors
 from . import global_config
 from .helpers import Key, markdown, Utils
 
@@ -138,96 +138,141 @@ class CaptionMixin(abc.ABC):
             )
 
 
-class ImagePlaceholder:
+class Placeholder:
     def __init__(self, image: "Image"):
 
         self._original_image = image
 
-        self._color: Optional[Tuple[int, int, int]] = None
+        self._color: Tuple[int, int, int]
 
-        # WIP: Placeholder-images/site-caching. For some reason,
-        # ImagePlaceholder does not retain it's value for self._color unless
-        # this functions is run in the __init__.
-        self._load_cached_color()
+        self.cache()
 
-    # WIP: Placeholder-images/site-caching
-    def cache_image(self, force: bool = False) -> None:
+    def cache(self, force: bool = False) -> None:
+        self._create_cache_directory()
+        self._cache_or_load(force=force)
 
-        if self.has_image and force is False:
-            return
+    def _create_cache_directory(self) -> None:
+        self._cache_directory.mkdir(parents=True, exist_ok=True)
 
-        # TODO: Skip unsupported filetypes.
+    def _cache_or_load(self, force: bool) -> None:
 
-        logger.debug(f"Generating placeholder image for {self._original_image}...")
+        if self._has_cache is False or force is True:
+            self._cache()
 
-        self.path_absolute_image.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with open(self.path_absolute_color, "r") as f:
+                self._color = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            logger.warning(
+                f"Error reading '{self._original_image.name}' cache. Re-caching."
+            )
+            self._cache()
 
-        with PILImage.open(self._original_image.path_absolute) as image:
-            image.thumbnail(global_config.DEFAULT_PLACEHOLDER_SIZE)
-            image.save(self.path_absolute_image)
+        if type(self._color) is not list:
+            logger.warning(
+                f"Invalid color data for '{self._original_image.filename}'. Re-caching."
+            )
+            self._cache()
 
-    # WIP: Placeholder-images/site-caching
-    def cache_color(self, force: bool = False) -> None:
+    def _cache(self) -> None:
+        """ PIL Exceptions Reference
 
-        if self.has_image and force is False:
-            return
+        Image.open Exceptions:
 
-        logger.debug(f"Generating placeholder color for {self._original_image}...")
+            IOError
+                If the file cannot be found, or the image cannot be opened and
+                identified.
 
-        self.path_absolute_color.parent.mkdir(parents=True, exist_ok=True)
+        https://pillow.readthedocs.io/en/5.1.x/reference/Image.html#PIL.Image.open
+        """
 
-        with PILImage.open(self._original_image.path_absolute) as image:
-            image = image.resize((1, 1))
-            color = image.getpixel((0, 0))
+        logger.debug(f"Caching color and image for '{self._original_image.filename}'.")
+
+        with PIL.Image.open(self._original_image.path_absolute) as image:
+
+            image = image.convert("RGB")
+
+            self._save_image(image=image)
+            self._save_color(image=image)
+
+    def _save_image(self, image: PIL.Image.Image) -> None:
+        """ Image.save Exceptions:
+
+            KeyError
+                If the output format could not be determined from the file
+                name. Use the format option to solve this.
+
+            IOError
+                If the file could not be written. The file may have been
+                created, and may contain partial data.
+
+        https://pillow.readthedocs.io/en/5.1.x/reference/Image.html#PIL.Image.Image.save
+        """
+
+        image.thumbnail(global_config.PLACEHOLDER_SIZE)
+        image.save(
+            self.path_absolute_image,
+            format=global_config.PLACEHOLDER_FORMAT,
+            quality=global_config.PLACEHOLDER_QUALITY,
+        )
+
+    def _save_color(self, image: PIL.Image.Image) -> None:
+
+        image = image.resize((1, 1))
+        color = image.getpixel((0, 0))
 
         with open(self.path_absolute_color, "w") as f:
             json.dump(color, f)
 
         self._color = color  # type: ignore
 
-    def _load_cached_color(self) -> None:
-
-        logger.debug(f"Reading placeholder color from {self.path_absolute_color}...")
-
-        try:
-            with open(self.path_absolute_color, "r") as f:
-                color = json.load(f)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            self.cache_color(force=True)
-        else:
-            self._color = color
+    @property
+    def _has_cache(self) -> bool:
+        return self.path_absolute_image.exists() and self.path_absolute_color.exists()
 
     @property
-    def has_image(self) -> bool:
-        return self.path_absolute_image.exists()
+    def _cache_directory(self) -> pathlib.Path:
+        """ Returns an absolute path to the cache directory. Transforms the
+        original image path to the cache path:
 
-    @property
-    def path_absolute_image(self) -> pathlib.Path:
-        return global_config.path_site_cache / self._original_image.path_relative
-
-    @property
-    def path_relative_image(self) -> pathlib.Path:
-        return self.path_absolute_image.relative_to(global_config.path_site)
-
-    @property
-    def has_color(self) -> bool:
-        return self.path_absolute_color.exists()
-
-    @property
-    def path_absolute_color(self) -> pathlib.Path:
-        # TODO: This is far too complicated.
+            /site/pages/page-name/image-name.jpg
+            /site/.cache/page-name/image-name
+        """
         return (
             global_config.path_site_cache
             / self._original_image.path_relative.parent
-            / f"{self._original_image.stem}.json"
+            / self._original_image.name
         )
 
     @property
+    def path_absolute_image(self) -> pathlib.Path:
+        """ Returns a absolute path to the cached image:
+
+            /site/.cache/page-name/image-name/image.ext
+        """
+        return self._cache_directory / f"image{self._original_image.extension}"
+
+    @property
+    def path_relative_image(self) -> pathlib.Path:
+        """ Returns a relative path to the cached image:
+
+            .cache/page-name/image-name/image.ext
+        """
+        return self.path_absolute_image.relative_to(global_config.path_site)
+
+    @property
+    def path_absolute_color(self) -> pathlib.Path:
+        """ Returns a absolute path to the cached image:
+
+            /site/.cache/page-name/image-name/color.json
+        """
+        return self._cache_directory / "color.json"
+
+    @property
     def color(self) -> list:
-
-        if self._color is None:
-            return []
-
+        """ Returns the color as a list. This is because this value is passed
+        to HTML then Javascript. It's easier to parse a list in Javascript than
+        a Tuple. """
         return list(self._color)
 
 
@@ -277,32 +322,34 @@ class FileContent(ContentInterface):
             )
 
     @property
-    def stem(self) -> str:
+    def name(self) -> str:
+        """ Returns the filename without the extension. """
         return self.path_absolute.stem
 
     @property
     def filename(self) -> str:
+        """ Returns the whole filename. """
         return self.path_absolute.name
 
     @property
     def extension(self) -> str:
+        """ Returns the filename's extension. """
         return self.path_absolute.suffix
 
     @property
     def path_absolute(self) -> pathlib.Path:
+        """ Returns an absolute path to the FileContent. """
 
         path = self.config[Key.PATH]
 
-        # TODO: The following block might be unnecessary. Layout pages pass
-        # 'path' as a string and Lazy pages pass it as a pathlib.Path... Need
-        # mode clarity in how this all works.
-
-        # For Layout pages, 'path' is passed as a path relative to the page
-        # directory. In this case, concatenate both paths.
-        if isinstance(self.page, pages.Layout):
+        # For Layout/LayoutGallery Pages, 'path' is passed as a string-type
+        # containing a path to the file relative to the Page's root directory.
+        if not isinstance(path, pathlib.Path):
             return self.page.path_absolute / path
 
-        return pathlib.Path(path)
+        # For Lazy/LazyGallery Pages, 'path' is passed as a pathlib.Path object
+        # containing an absolute path to the file.
+        return path
 
     @property
     def path_relative(self) -> pathlib.Path:
@@ -326,10 +373,14 @@ class Image(FileContent, CaptionMixin):
 
     is_image: bool = True
 
+    _placeholder: Optional[Placeholder] = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.placeholder = ImagePlaceholder(image=self)
+        # QUESTION: Is there a better way to do this?
+        # if getattr(self.page, "is_gallery", False):
+        self._placeholder = Placeholder(image=self)
 
     def validate__config(self) -> None:
         super().validate__config()
@@ -341,6 +392,10 @@ class Image(FileContent, CaptionMixin):
             )
 
         self.validate__caption_config()
+
+    @property
+    def placeholder(self) -> Optional[Placeholder]:
+        return self._placeholder
 
 
 class Video(FileContent, CaptionMixin):

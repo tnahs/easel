@@ -1,0 +1,6 @@
+# sargent-demo/pages/places
+
+type: lazy-gallery
+title: places
+cover: page-cover.jpg
+description: page-description.md

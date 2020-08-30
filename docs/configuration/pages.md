@@ -12,13 +12,7 @@
 `type`
 :   Default: `null` -- Required -- Sed sagittis ipsum non tempus volutpat.
 
-`options.generate-placeholders`
-:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
-
-    ``` yaml
-    options:
-      generate-placeholders: false
-    ```
+:   Valid options are: `lazy` `lazy-gallery` `layout` `layout-gallery`
 
 `options.show-captions`
 :   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
@@ -28,36 +22,20 @@
       show-captions: false
     ```
 
-`options.is-gallery`
-:   Default: `false` -- Sed sagittis ipsum non tempus volutpat.
-
-    ``` yaml
-    options:
-      is-gallery: false
-    ```
-
-`options.gallery-column-count`
+`options.column-count`
 :   Default: `auto` -- Sed sagittis ipsum non tempus volutpat.
 
     ``` yaml
     options:
-      gallery-column-count: auto
+      column-count: auto
     ```
 
-`options.gallery-column-width`
+`options.column-width`
 :   Default: `250px` -- Sed sagittis ipsum non tempus volutpat.
 
     ``` yaml
     options:
-      gallery-column-width: 250px
-    ```
-
-`options.gallery-gap`
-:   Default: `25px` -- Sed sagittis ipsum non tempus volutpat.
-
-    ``` yaml
-    options:
-      gallery-gap: 25px
+      column-width: 250px
     ```
 
 ## Lazy Page
@@ -74,19 +52,31 @@ Layout Page Configuration
 
 ``` yaml
 type: layout
-contents:
+contents: []
 ```
 
 `contents`
 :   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. See [Content Types](#content-types) for a list of available types.
 
-## Markdown Page
+## Lazy Gallery Page
 
-Markdown Page Configuration
+Lazy Page Configuration
 
 ``` yaml
-type: markdown
+type: lazy-gallery
 ```
+
+## Layout Gallery Page
+
+Layout Page Configuration
+
+``` yaml
+type: layout-gallery
+contents: []
+```
+
+`contents`
+:   Default: `[]` -- Sed sagittis ipsum non tempus volutpat. See [Content Types](#content-types) for a list of available types.
 
 ## Content Types
 
@@ -211,10 +201,17 @@ type: lazy
 
 options:
   show-captions: true
-  is-gallery: true
-  gallery-column-count: auto
-  gallery-column-width: 300px
-  gallery-gap: 15px
+```
+
+Lazy Gallery Page Configuration
+
+``` yaml
+type: lazy-gallery
+
+options:
+  show-captions: true
+  column-count: auto
+  column-width: 300px
 ```
 
 Layout Page Configuration
@@ -238,14 +235,35 @@ contents:
 
 options:
   show-captions: true
-  is-gallery: true
-  gallery-column-count: auto
-  gallery-column-width: 300px
-  gallery-gap: 15px
 ```
 
-Markdown Page Configuration
+Layout Gallery Page Configuration
 
 ``` yaml
-type: markdown
+type: layout-gallery
+
+contents:
+ - type: image
+   path: image-01.png
+   caption:
+     title: Caption title.
+     description: Caption description.
+
+ - type: image
+   path: image-02.png
+   caption:
+     title: Caption title.
+     description: Caption description.
+
+ - type: image
+   path: image-03.png
+   caption:
+     title: Caption title.
+     description: Caption description.
+
+
+options:
+  show-captions: true
+  gallery-column-count: auto
+  gallery-column-width: 300px
 ```

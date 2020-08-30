@@ -37,6 +37,12 @@
     --mobile__menu__footer__font-weight: 400;
     --mobile__menu__footer__font-size: 12pt;
     --mobile__menu__footer__color: hsla(0, 0%, 0%, 0.25);
+
+    /*
+     * page & page-gallery
+     * --------------------------------------------------------------------- */
+
+    --mobile__page-gallery__column-count: 2;
 }
 
 

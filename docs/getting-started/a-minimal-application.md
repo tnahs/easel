@@ -18,12 +18,12 @@ if __name__ == "__main__":
 
     Note that `my-site` refers to the directory `my-site`. We're providing a relative path here, telling Easel that our site directory is in the same directory as our application.
 
-Now save it as `run.py` in your `my-easel` directory next to your `my-site` directory.
+Now save it as `run.py` in your `my-easel-project` directory next to your `my-site` directory.
 
 Finally, our Easel directory should look like this:
 
 ``` plaintext
-my-easel
+my-easel-project
 ├── run.py
 ├── my-site
 │   ├── site.yaml

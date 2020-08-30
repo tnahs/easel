@@ -2,7 +2,6 @@ import abc
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
-from PIL import Image
 
 from . import contents, errors
 from . import global_config
@@ -11,7 +10,7 @@ from .helpers import Key, Utils
 
 if TYPE_CHECKING:
     from .site import Site
-    from .contents import ContentObj
+    from .contents import ContentObj, Image, Audio, Video, TextBlock
 
 
 logger = logging.getLogger(__name__)
@@ -19,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 # See easel.site.contents
 PageClass = Union[
-    Type["Lazy"], Type["Layout"], Type["Markdown"],
+    Type["Lazy"], Type["Layout"], Type["LazyGallery"], Type["LayoutGallery"],
 ]
 
 PageObj = Union[
-    "Lazy", "Layout", "Markdown",
+    "Lazy", "Layout", "LazyGallery", "LayoutGallery",
 ]
 
 
@@ -32,7 +31,8 @@ class _PageFactory:
         self._page_types = {
             "lazy": Lazy,
             "layout": Layout,
-            "markdown": Markdown,
+            "lazy-gallery": LazyGallery,
+            "layout-gallery": LayoutGallery,
         }
 
     def build(self, site: "Site", path_absolute: pathlib.Path) -> PageObj:
@@ -68,70 +68,21 @@ class _PageFactory:
         self._page_types[name] = page
 
 
-class ShowCaptionsMixin(abc.ABC):
-    @property
-    @abc.abstractmethod
-    def options(self) -> dict:
-        pass
-
-    @property
-    def show_captions(self) -> bool:
-        return self.options.get(Key.SHOW_CAPTIONS, False)
-
-
-class GalleryMixin(abc.ABC):
-    @property
-    @abc.abstractmethod
-    def options(self) -> dict:
-        pass
-
-    def validate__gallery_config(self) -> None:
-
-        if not self.is_gallery:
-            return
-
-        if self.gallery_column_count == "auto" and self.gallery_column_width == "auto":
-            raise errors.PageConfigError(
-                f"{self}: Cannot set '{Key.GALLERY_COLUMN_COUNT}' and "
-                f"'{Key.GALLERY_COLUMN_WIDTH}' to 'auto'."
-            )
-
-        if (
-            self.gallery_column_count is not None
-            and self.gallery_column_count
-            not in global_config.VALID_GALLERY_COLUMN_COUNT
-        ):
-            raise errors.PageConfigError(
-                f"{self}: Unsupported value '{self.gallery_column_count}' for "
-                f"'{Key.GALLERY_COLUMN_COUNT}'."
-            )
-
-    @property
-    def is_gallery(self) -> bool:
-        return self.options.get(Key.IS_GALLERY, False)
-
-    @property
-    def gallery_column_count(self) -> bool:
-        return self.options.get(Key.GALLERY_COLUMN_COUNT, None)
-
-    @property
-    def gallery_column_width(self) -> bool:
-        return self.options.get(Key.GALLERY_COLUMN_WIDTH, None)
-
-    @property
-    def gallery_gap(self) -> bool:
-        return self.options.get(Key.GALLERY_GAP, None)
-
-
 class PageInterface(abc.ABC):
     def __init__(self, site: "Site", path_absolute: pathlib.Path, config: dict):
 
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
-        self._config: dict = config
 
-        self._validate__options()
+        self._config = PageConfig(page=self, data=config)
+
         self.validate__config()
+
+        """ TEMP/NOTE/FIXME: To properly validate and generate placeholder
+        images for Gallery Pages, self.contents needs to be called before the
+        site is run. It would probably a good idea to cache the contents to
+        reduce overhead on a page refresh. This needs a slight redesign. """
+        self.contents
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.path_relative}>"
@@ -148,59 +99,9 @@ class PageInterface(abc.ABC):
     def validate__config(self) -> None:
         pass
 
-    def _validate__options(self) -> None:
-
-        try:
-            options = self.config[Key.OPTIONS]
-        except KeyError:
-            return
-
-        if type(options) is not dict:
-            raise errors.PageConfigError(
-                f"{self}: Expected type 'dict' for '{Key.OPTIONS}' got "
-                f"'{type(options).__name__}'."
-            )
-
     @property
-    def _contents(self) -> Generator[pathlib.Path, None, None]:
-        # pathlib.PosixPath.glob() returns a generator of pathlib.PosixPath
-        # objects. Contains absolute paths of all items and sub-items in the
-        # page's folder.
-        for path in self.path_absolute.glob("**/*"):
-
-            # Ignore directories.
-            if path.is_dir():
-                continue
-
-            # Ignore hidden files.
-            if path.name.startswith("."):
-                continue
-
-            # Ignore page.yaml file.
-            if path.name == global_config.FILENAME_PAGE_YAML:
-                continue
-
-            yield path
-
-    @property
-    def config(self) -> dict:
+    def config(self) -> "PageConfig":
         return self._config
-
-    @property
-    def options(self) -> dict:
-        """ Returns a dictionary of optional page attributes defined in
-        the 'page.yaml':
-
-            {
-                "show-captions": [bool: false],
-                "generate-placeholders": [bool: false],
-                "is-gallery": [bool: false],
-                "gallery-column-count": [str|int: auto],
-                "gallery-column-width": [str: 250px],
-                "gallery-gap": [str: 25px],
-            }
-        """
-        return self.config.get(Key.OPTIONS, {})
 
     @property
     def name(self) -> str:
@@ -216,93 +117,150 @@ class PageInterface(abc.ABC):
         return self._path_absolute.relative_to(global_config.path_site)
 
     @property
-    def file_page_yaml(self) -> pathlib.Path:
-        return self._path_absolute / global_config.FILENAME_PAGE_YAML
-
-    @property
     def url(self) -> str:
         return Utils.slugify(self.name)
 
-    @property
-    def is_index(self) -> bool:
-        return self.config.get(Key.IS_INDEX, False)
+    # TODO: Properly implement 'cover' and 'description'.
 
     @property
-    def generate_placeholders(self) -> bool:
-        return self.options.get(Key.GENERATE_PLACEHOLDERS, False)
+    def cover(self) -> pathlib.Path:
+        return self.path_relative / self.config.cover
+
+    @property
+    def description(self) -> pathlib.Path:
+        return self.path_relative / self.config.description
 
 
-class Lazy(PageInterface, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an Lazy Page object from a dictionary with the following
+class PageConfig:
+    """ Creates a PageConfig object from a dictionary with the following
     attributes:
 
         {
-            "type": "lazy",
+            "is-index": [bool: false],
+            "type": [str: page-type],  // See _PageFactory.page_types
+            "title": [str: title],
+            "cover": [str: path/to/cover],
+            "description": [str: path/to/description],
+            "options: [dict: options],
         }
     """
 
-    def validate__config(self) -> None:
-        self.validate__gallery_config()
+    def __init__(self, page: "PageInterface", data: dict):
+
+        self._page = page
+        self._data: dict = data
+
+        self._validate()
+
+    def _validate(self) -> None:
+        self._validate__options()
+
+    def _validate__options(self) -> None:
+
+        try:
+            options = self._data[Key.OPTIONS]
+        except KeyError:
+            return
+
+        if type(options) is not dict:
+            raise errors.PageConfigError(
+                f"{self}: Expected type 'dict' for '{Key.OPTIONS}' got "
+                f"'{type(options).__name__}'."
+            )
 
     @property
-    def contents(self) -> List["ContentObj"]:
+    def data(self) -> dict:
+        """ Returns the raw config data dict. Used to access configurations
+        not common to all Pages. For example: LayoutMixin._contents """
+        return self._data
 
-        items: List["ContentObj"] = []
+    @property
+    def type(self) -> bool:
+        return self._data[Key.TYPE]
 
-        for path in self._contents:
+    @property
+    def is_index(self) -> bool:
+        return self._data.get(Key.IS_INDEX, False)
 
-            extension = path.suffix
+    @property
+    def title(self) -> str:
+        return self._data.get(Key.TITLE, "")
 
-            if extension in global_config.VALID_IMAGE_EXTENSIONS:
-                item = contents.Image(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+    # TODO: Properly implement 'cover' and 'description'.
 
-            elif extension in global_config.VALID_VIDEO_EXTENSIONS:
-                item = contents.Video(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+    @property
+    def cover(self) -> pathlib.Path:
+        return pathlib.Path(self._data.get(Key.COVER, ""))
 
-            elif extension in global_config.VALID_AUDIO_EXTENSIONS:
-                item = contents.Audio(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+    @property
+    def description(self) -> pathlib.Path:
+        return pathlib.Path(self._data.get(Key.DESCRIPTION, ""))
 
-            elif extension in global_config.VALID_TEXT_EXTENSIONS:
-                item = contents.TextBlock(page=self, path=path)
+    @property
+    def options(self) -> dict:
+        """ Returns a dictionary of optional attributes declared in Page's
+        config file. See PageInterface subclasses Lazy LazyGallery Layout
+        LayoutGallery for specifics. """
+        return self._data.get(Key.OPTIONS, {})
 
-            elif extension in global_config.VALID_YAML_EXTENSIONS:
-                logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
+
+class LazyMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def config(self) -> "PageConfig":
+        pass
+
+    @property
+    @abc.abstractmethod
+    def path_absolute(self) -> pathlib.Path:
+        pass
+
+    def validate__lazy_config(self) -> None:
+        pass
+
+    @property
+    def _contents(self) -> Generator[pathlib.Path, None, None]:
+        """ Returns the contents of the Page's root directory. Primarily used
+        for creating Content objects to populate the Page. """
+
+        for path in self.path_absolute.glob("**/*"):
+
+            # Ignore directories.
+            if path.is_dir():
                 continue
 
-            else:
+            # Ignore hidden files.
+            if path.name.startswith("."):
+                continue
+
+            if path.name == global_config.FILENAME_PAGE_YAML:
+                continue
+
+            # TODO: Properly implement 'cover' and 'description'.
+            if path.name == self.config.description.name:
+                continue
+
+            if path.suffix not in global_config.VALID_CONTENT_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 
-            items.append(item)
+            if path.suffix in global_config.VALID_YAML_EXTENSIONS:
+                logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
+                continue
 
-        # 'VideoEmbedded' doesn't have the property 'path_absolute' however
-        # we're ignoring the typing error here because 'VideoEmbedded' will
-        # never show up in this list.
-        items.sort(key=lambda item: item.path_absolute)  # type: ignore
-
-        return items
+            yield path
 
 
-class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an Layout Page object from a dictionary with the following
-    attributes:
+class LayoutMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def config(self) -> "PageConfig":
+        pass
 
-        {
-            "type": "layout",
-            "contents": [list<Contents>: []],
-        }
-    """
-
-    def validate__config(self) -> None:
+    def validate__layout_config(self) -> None:
 
         try:
-            contents = self.config[Key.CONTENTS]
+            contents = self.config.data[Key.CONTENTS]
         except KeyError as error:
             raise errors.PageConfigError(
                 f"Missing required key '{Key.CONTENTS}' in for "
@@ -317,63 +275,223 @@ class Layout(PageInterface, GalleryMixin, ShowCaptionsMixin):
             if not len(contents):
                 logger.warning(f"{self}: Page has no contents.")
 
-        self.validate__gallery_config()
+    @property
+    def _contents(self) -> List[dict]:
+        """ Returns the content items declared in the Page's config file.
+        Primarily used for creating Content objects to populate the Page. """
+        return self.config.data[Key.CONTENTS]
+
+
+class GalleryMixin(abc.ABC):
+
+    is_gallery = True  # QUESTION: Is there a better way to do this?
 
     @property
-    def contents(self) -> List["ContentObj"]:
+    @abc.abstractmethod
+    def config(self) -> "PageConfig":
+        pass
 
-        items: List["ContentObj"] = []
+    def validate__gallery_config(self) -> None:
 
-        for content_config in self.config[Key.CONTENTS]:
-
-            item: "ContentObj" = contents.content_factory.build(
-                page=self, config=content_config
+        if self.column_count == "auto" and self.column_width == "auto":
+            raise errors.PageConfigError(
+                f"{self}: Cannot set '{Key.COLUMN_COUNT}' and "
+                f"'{Key.COLUMN_WIDTH}' to 'auto'."
             )
 
-            items.append(item)
+        if (
+            self.column_count is not None
+            and self.column_count not in global_config.VALID_COLUMN_COUNT
+        ):
+            raise errors.PageConfigError(
+                f"{self}: Unsupported value '{self.column_count}' for "
+                f"'{Key.COLUMN_COUNT}'."
+            )
 
-        return items
+    @property
+    def column_count(self) -> bool:
+        return self.config.options.get(Key.COLUMN_COUNT, None)
+
+    @property
+    def column_width(self) -> bool:
+        return self.config.options.get(Key.COLUMN_WIDTH, None)
 
 
-class Markdown(PageInterface, GalleryMixin):
-    """ Creates an Markdown Page object from a dictionary with the following
+class ShowCaptionsMixin(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def config(self) -> "PageConfig":
+        pass
+
+    def validate__show_captions_config(self) -> None:
+
+        try:
+            show_captions = self.config.options[Key.SHOW_CAPTIONS]
+        except KeyError:
+            return
+
+        if type(show_captions) is not bool:
+            raise errors.PageConfigError(
+                f"{self}: Expected type 'bool' for '{Key.SHOW_CAPTIONS}' "
+                f"got '{type(show_captions).__name__}'."
+            )
+
+    @property
+    def show_captions(self) -> bool:
+        return self.config.options.get(Key.SHOW_CAPTIONS, False)
+
+
+class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
+    """ Creates an Lazy Page object from a dictionary with the following
     attributes:
 
         {
-            "type": "markdown",
+            "type": "lazy",
+            "options: {
+                "show-captions": [bool: false],
+            }
         }
     """
 
     def validate__config(self) -> None:
+        self.validate__lazy_config()
+        self.validate__show_captions_config()
 
-        if Key.SHOW_CAPTIONS in self.options.keys():
-            logger.warning(
-                f"{self}: Markdown pages do not support captions. "
-                f"Ignoring '{Key.OPTIONS}.{Key.SHOW_CAPTIONS}'."
-            )
+    @property
+    def contents(self) -> List[Union["Image", "Video", "Audio", "TextBlock"]]:
 
+        items: List[Union["Image", "Video", "Audio", "TextBlock"]] = []
+
+        for path in self._contents:
+
+            if path.suffix in global_config.VALID_IMAGE_EXTENSIONS:
+                item = contents.Image(
+                    page=self, path=path, caption={Key.TITLE: path.stem}
+                )
+
+            elif path.suffix in global_config.VALID_VIDEO_EXTENSIONS:
+                item = contents.Video(
+                    page=self, path=path, caption={Key.TITLE: path.stem}
+                )
+
+            elif path.suffix in global_config.VALID_AUDIO_EXTENSIONS:
+                item = contents.Audio(
+                    page=self, path=path, caption={Key.TITLE: path.stem}
+                )
+
+            elif path.suffix in global_config.VALID_TEXT_EXTENSIONS:
+                item = contents.TextBlock(page=self, path=path)
+
+            else:
+                continue
+
+            items.append(item)
+
+        items.sort(key=lambda item: item.path_absolute)
+
+        return items
+
+
+class LazyGallery(PageInterface, LazyMixin, GalleryMixin):
+    """ Creates an LazyGallery Page object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "lazy-gallery",
+            "options": {
+                "column-count": [str|int: auto],
+                "column-width": [str: 250px],
+            }
+        }
+    """
+
+    def validate__config(self) -> None:
+        self.validate__lazy_config()
         self.validate__gallery_config()
+
+    @property
+    def contents(self) -> List["Image"]:
+
+        images: List["Image"] = []
+
+        for path in self._contents:
+
+            if path.suffix not in global_config.VALID_IMAGE_EXTENSIONS:
+                logger.warning(f"Unsupported file '{path.name}' found in {self}.")
+                continue
+
+            image: "Image" = contents.Image(page=self, path=path)
+
+            images.append(image)
+
+        images.sort(key=lambda item: item.path_absolute)
+
+        return images
+
+
+class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
+    """ Creates an Layout Page object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "layout",
+            "contents": [list<ContentObj>: []],
+            "options: {
+                "show-captions": [bool: false],
+            }
+        }
+    """
+
+    def validate__config(self) -> None:
+        self.validate__layout_config()
+        self.validate__show_captions_config()
 
     @property
     def contents(self) -> List["ContentObj"]:
 
         items: List["ContentObj"] = []
 
-        for path in self._contents:
+        for config in self._contents:
 
-            if path.suffix not in global_config.VALID_TEXT_EXTENSIONS:
-                continue
-
-            item = contents.TextBlock(page=self, path=path)
+            # fmt:off
+            item: "ContentObj" = contents.content_factory.build(page=self, config=config)
+            # fmt:on
 
             items.append(item)
 
-        # 'VideoEmbedded' doesn't have the property 'path_absolute' however
-        # we're ignoring the typing error here because 'VideoEmbedded' will
-        # never show up in this list.
-        items.sort(key=lambda items: items.path_absolute)  # type:ignore
-
         return items
+
+
+class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin):
+    """ Creates an LayoutGallery Page object from a dictionary with the following
+    attributes:
+
+        {
+            "type": "layout-gallery",
+            "contents": [list<Images>: []],
+            "options": {
+                "column-count": [str|int: auto],
+                "column-width": [str: 250px],
+            }
+        }
+    """
+
+    def validate__config(self) -> None:
+        self.validate__layout_config()
+        self.validate__gallery_config()
+
+    @property
+    def contents(self) -> List["Image"]:
+
+        images: List["Image"] = []
+
+        for config in self._contents:
+
+            image: "Image" = contents.Image(page=self, config=config)
+
+            images.append(image)
+
+        return images
 
 
 page_factory = _PageFactory()

@@ -1,8 +1,8 @@
 from src.easel import Easel
 
-# easel = Easel("examples/template", loglevel="DEBUG")
-# easel = Easel("examples/sargent", loglevel="DEBUG")
-easel = Easel("examples/sargent")
+
+easel = Easel("examples/sargent-demo", loglevel="DEBUG")
+# easel = Easel("examples/sorolla-demo", loglevel="DEBUG")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ $ touch site.yaml
 Our project directory should now look like this:
 
 ``` plaintext
-my-easel
+my-easel-project
 ├── my-site
 │   └── site.yaml
 └── venv
@@ -32,7 +32,7 @@ $ touch page.yaml
 Our project directory should now look like this:
 
 ``` plaintext
-my-easel
+my-easel-project
 ├── my-site
 │   ├── site.yaml
 │   └── pages
@@ -50,34 +50,17 @@ my-easel
 Add the following to the `site.yaml` file:
 
 ``` yaml
-# my-easel/my-site/site.yaml
+# my-easel-project/my-site/site.yaml
 
-title: easel
-author: My Full Name
-copyright: © 2020 My Full Name
-favicon:
+title: My Site
 
 menu:
 - type: link-page
   label: my-page
   links-to: my-page
 
-theme:
-  menu:
-    width:
-    align:
-    header:
-      label: easel
-      image:
-        path:
-        width:
-        height:
-  page:
-    width:
-    align:
-  colors:
-    accent-base:
-    accent-light:
+header:
+  title: My Site
 ```
 
 Note that under `menu` we have a single item with the attribute `links-to` set to `my-page`. This is a path relative to the `pages` directory referring to the `my-page` directory we just created.
@@ -93,7 +76,7 @@ For this page we will do the laziest thing possible, create a `Lazy` page. This 
 Add the following to the `page.yaml` file:
 
 ``` yaml
-# my-easel/my-site/pages/my-page/page.yaml
+# my-easel-project/my-site/pages/my-page/page.yaml
 
 is-index: true
 
@@ -121,7 +104,7 @@ options:
 Now make sure to add some content: images, videos etc to the `my-page` directory:
 
 ``` plaintext
-my-easel
+my-easel-project
 ├── my-site
 │   ├── site.yaml
 │   └── pages

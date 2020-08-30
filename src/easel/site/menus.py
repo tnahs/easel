@@ -3,7 +3,9 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
-from . import errors
+from click.core import Option
+
+from . import errors, contents
 from . import global_config
 from .helpers import Key, Utils
 

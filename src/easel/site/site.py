@@ -1,4 +1,3 @@
-import functools
 import concurrent.futures
 import logging
 from typing import TYPE_CHECKING, List, Optional
@@ -93,31 +92,24 @@ class Site:
     def _validate_build(self) -> None:
 
         # (Boolean types sum like integers!)
-        index_pages = sum([page.is_index for page in self._pages])
+        index_pages = sum([page.config.is_index for page in self._pages])
 
         if index_pages > 1 or index_pages < 1:
             raise errors.SiteConfigError(
                 "Site must have one and only one 'index' page."
             )
 
-    def build_cache(self, force=False):
+    def rebuild_cache(self):
 
-        logger.info("Building site cache...")
+        logger.info(f"Rebuilding Site cache to {global_config.path_site_cache}.")
 
         for page in self.pages:
             for content in page.contents:
-                if isinstance(content, contents.Image) and page.generate_placeholders:
-                    content.placeholder.cache_image(force=force)
 
-        """
-        processes = []
-        for page in self.pages:
-            for content in page.contents:
-                if isinstance(content, contents.Image) and page.generate_placeholders:
-                    processes.append(content.placeholder.cache_image)
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            [executor.submit(process, force) for process in processes]
-        """
+                try:
+                    content.placeholder.cache(force=True)
+                except AttributeError:
+                    continue
 
     @property
     def config(self) -> "SiteConfig":
@@ -136,7 +128,7 @@ class Site:
 
         for page in self._pages:
 
-            if not page.is_index:
+            if not page.config.is_index:
                 continue
 
             self._page_current = page
@@ -225,12 +217,12 @@ class SiteConfig:
 
     @property
     def header(self) -> SafeDict:
-        # TODO: Test this out...It's acting strange in 'style.jinja2'.
+        # TODO: Test this out... It's acting strange in 'style.jinja2'.
         return SafeDict(**self._data.get(Key.HEADER, {}))
 
     @property
     def theme(self) -> SafeDict:
-        # TODO: Test this out...It's acting strange in 'style.jinja2'.
+        # TODO: Test this out... It's acting strange in 'style.jinja2'.
         return SafeDict(**self._data.get(Key.THEME, {}))
 
     @property

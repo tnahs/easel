@@ -1,0 +1,8 @@
+# sargent-demo/pages/nature
+
+is-index: true
+
+type: lazy-gallery
+title: nature
+cover: page-cover.jpg
+description: page-description.md
