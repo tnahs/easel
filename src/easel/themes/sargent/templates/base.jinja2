@@ -8,20 +8,39 @@
         <title>{{ site.config.title }}</title>
         {% if site.config.favicon %}<link rel="shortcut icon" href="{{ url_for('site.static', filename=site.config.favicon) }}">{% endif %}
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/main.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/mobile.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/main.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/mobile.css') }}"/>
+
+        {% if page.is_gallery %}
+            <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/lightbox.css') }}"/>
+        {% endif %}
 
     </head>
 
     <body>
 
         <header>{% include "_header.jinja2" %}</header>
-        <menu>{% include "_menu.jinja2" %}</menu>
+
+        <menu>
+            {% include "_menu.jinja2" %}
+            {% include "_mobile.jinja2" %}
+        </menu>
+
         <main>{% block page %}{% endblock %}</main>
+
         <footer>{% include "_footer.jinja2" %}</footer>
+
+        {% if page.is_gallery %}
+            {% include "_lightbox.jinja2" %}
+        {% endif %}
 
     </body>
 
     <script src="{{ url_for('main.static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('main.static', filename='js/mobile.js') }}"></script>
+
+    {% if page.is_gallery %}
+        <script src="{{ url_for('main.static', filename='js/lightbox.js') }}"></script>
+    {% endif %}
 
 </html>

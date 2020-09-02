@@ -1,18 +1,10 @@
 :root {
-
     /*
      * base
      * --------------------------------------------------------------------- */
 
-    --mobile__body__padding-top: 40px;
-    --mobile__body__padding-left: 40px;
-    --mobile__body__padding-right: 40px;
-    --mobile__body__padding-bottom: 40px;
-
-    --mobile__header__offset: calc(var(--header-and-menu__height) + var(--mobile__body__padding-top));
-
-    --mobile__toggle-buttons__size: 32px;
-    --mobile__toggle-buttons__opacity: 0.75;
+    --mobile__buttons__size: 32px;
+    --mobile__buttons__opacity: 0.75;
 
     /*
      * header
@@ -21,13 +13,13 @@
     --mobile__header-title__font-size: 20pt;
 
     /*
-     * menu
+     * menu items
      * --------------------------------------------------------------------- */
 
-    --mobile__menu-buttons__font-family: var(--primary__font-family);
-    --mobile__menu-buttons__font-weight: 400;
-    --mobile__menu-buttons__font-size: 20pt;
-    --mobile__menu-buttons__color: hsla(0, 0%, 0%, 0.75);
+    --mobile__menu-items__font-family: var(--primary__font-family);
+    --mobile__menu-items__font-weight: 400;
+    --mobile__menu-items__font-size: 20pt;
+    --mobile__menu-items__color: hsla(0, 0%, 0%, 0.75);
 
     --mobile__menu-spacer__height__small: 3px;
     --mobile__menu-spacer__height__medium: 15px;
@@ -45,42 +37,38 @@
     --mobile__page-gallery__column-count: 2;
 }
 
-
 /*
- * mobile menu toggles
+ * mobile menu buttons
  * ------------------------------------------------------------------------- */
 
-menu #menu-mobile-toggles {
-
+menu #menu-mobile-buttons {
     display: none;
 }
 
-menu #menu-mobile-toggle-open,
-menu #menu-mobile-toggle-close {
-
-    width: var(--mobile__toggle-buttons__size);
+menu #menu-mobile-button-open,
+menu #menu-mobile-button-close {
+    width: var(--mobile__buttons__size);
     height: auto;
 
-    opacity: var(--mobile__toggle-buttons__opacity);
+    opacity: var(--mobile__buttons__opacity);
+
+    cursor: pointer;
 }
 
-menu #menu-mobile-toggle-close {
-
+menu #menu-mobile-button-close {
     display: none;
 }
-
 
 /*
  * mobile menu
  * ------------------------------------------------------------------------- */
 
 menu #menu-mobile {
-
     position: fixed;
     left: 0;
-    top: var(--mobile__header__offset);
+    top: var(--header-and-menu__offset);
     width: 100%;
-    /* height: 100vh;*/  /* FIXME */
+    height: 100vh;
     z-index: 999;
 
     background-color: var(--body__background-color);
@@ -98,13 +86,11 @@ menu #menu-mobile {
 }
 
 menu #menu-mobile.animate__fade-in-out {
-
     opacity: 1;
     pointer-events: auto;
 }
 
-menu #menu-mobile .menu-buttons {
-
+menu #menu-mobile .menu-items {
     grid-area: buttons;
 
     display: grid;
@@ -115,44 +101,41 @@ menu #menu-mobile .menu-buttons {
     padding-right: 50px;
     padding-bottom: 50px;
 
-    font-family: var(--mobile__menu-buttons__font-family);
-    font-weight: var(--mobile__menu-buttons__font-weight);
-    font-size: var(--mobile__menu-buttons__font-size);
-    color: var(--mobile__menu-buttons__color);
+    font-family: var(--mobile__menu-items__font-family);
+    font-weight: var(--mobile__menu-items__font-weight);
+    font-size: var(--mobile__menu-items__font-size);
+    color: var(--mobile__menu-items__color);
 
     text-align: center;
 
     /* See below: animate__fade-in-out */
-    transition: transform .5s var(--custom-ease-out);
+    transition: transform 0.5s var(--custom-ease-out);
     transform: translateY(15px);
 }
 
-menu #menu-mobile .menu-buttons.animate__fade-in-out {
-
+menu #menu-mobile .menu-items.animate__fade-in-out {
     transform: translateY(0);
 }
 
-menu .menu-mobile .menu-buttons .menu-spacer__small {
-
+menu #menu-mobile .menu-items .menu-spacer__small {
     height: var(--mobile__menu-spacer__height__small);
 }
 
-menu .menu-mobile .menu-buttons .menu-spacer__medium {
-
+menu #menu-mobile .menu-items .menu-spacer__medium {
     height: var(--mobile__menu-spacer__height__medium);
 }
 
-menu .menu-mobile .menu-buttons .menu-spacer__large {
-
+menu #menu-mobile .menu-items .menu-spacer__large {
     height: var(--mobile__menu-spacer__height__large);
 }
 
 menu #menu-mobile #menu-footer {
-
     grid-area: footer;
     align-self: flex-end;
 
-    padding-bottom: calc(var(--mobile__header__offset) + var(--mobile__body__padding-bottom));
+    padding-bottom: calc(
+        var(--header-and-menu__offset) + var(--body__padding-bottom)
+    );
 
     font-family: var(--mobile__menu__footer__font-family);
     font-weight: var(--mobile__menu__footer__font-weight);
@@ -167,43 +150,35 @@ menu #menu-mobile #menu-footer {
 }
 
 menu #menu-mobile #menu-footer.animate__fade-in-out {
-
     transform: translateY(0);
 }
 
 menu #menu-mobile #menu-footer .footer-copyright {
-
     display: grid;
     row-gap: 5px;
 }
-
 
 /*
  * media queries
  * ------------------------------------------------------------------------- */
 
 @media only screen and (max-width: 736px) {
-
-    body {
-
-        padding-top: var(--mobile__body__padding-top);
-        padding-left: var(--mobile__body__padding-left);
-        padding-right: var(--mobile__body__padding-right);
-        padding-bottom: var(--mobile__body__padding-bottom);
+    :root {
+        --body__padding-top: 30px;
+        --body__padding-left: 30px;
+        --body__padding-right: 30px;
+        --body__padding-bottom: 30px;
     }
 
     header .header-title {
-
         font-size: var(--mobile__header-title__font-size);
     }
 
     menu #menu-desktop {
-
         display: none;
     }
 
-    menu #menu-mobile-toggles {
-
+    menu #menu-mobile-buttons {
         display: block;
     }
 }

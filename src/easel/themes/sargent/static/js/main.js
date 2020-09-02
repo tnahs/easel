@@ -1,58 +1,105 @@
 "use strict"
 
+// TODO
+class ContentPlaceholder {
+    constructor() {}
+}
 
 window.addEventListener("load", () => {
+    const DEFAULT_PLACEHOLDER_COLOR = "rgba(0, 0, 0, .05)"
+    const PLACEHOLDER_COLOR_ALPHA = "0.75"
 
-    const CLASS_ANIMATE = "animate__fade-in-out"
+    const contentItems = document.querySelectorAll(
+        "#page-contents .content-container .content-item"
+    )
 
-    function animateFadeIn(content) {
-        content.classList.add(CLASS_ANIMATE)
-    }
+    contentItems.forEach((contentItem) => {
+        const contentImage = contentItem.querySelector(".image")
 
-    function animateFadeOut(content) {
-        content.classList.remove(CLASS_ANIMATE)
-    }
+        if (!contentImage) {
+            return
+        }
 
-    const menuMobileToggleOpen = document.querySelector("#menu-mobile-toggle-open")
-    const menuMobileToggleClose = document.querySelector("#menu-mobile-toggle-close")
+        let placeholderColor
 
-    const menuMobile = document.querySelector("#menu-mobile")
-    const menuMobileButtons = menuMobile.querySelector(".menu-buttons")
-    const menuMobileFooter = menuMobile.querySelector("#menu-footer")
+        try {
+            placeholderColor = JSON.parse(contentImage.dataset.placeholderColor)
+        } catch {
+            placeholderColor = DEFAULT_PLACEHOLDER_COLOR
+        }
 
-    menuMobileToggleOpen.addEventListener("click", function () {
+        if (!placeholderColor.length) {
+            placeholderColor = DEFAULT_PLACEHOLDER_COLOR
+        } else {
+            placeholderColor = `
+                rgba(
+                    ${placeholderColor[0]},
+                    ${placeholderColor[1]},
+                    ${placeholderColor[2]},
+                    ${PLACEHOLDER_COLOR_ALPHA}
+                    )
+                `
+        }
 
-        this.style.display = "none"
-        menuMobileToggleClose.style.display = "block"
-
-        animateFadeIn(menuMobile)
-        animateFadeIn(menuMobileButtons)
-        animateFadeIn(menuMobileFooter)
-
-        // Prevent body scrolling.
-        document.body.style.overflow = "hidden"
-    })
-
-    menuMobileToggleClose.addEventListener("click", function () {
-
-        this.style.display = "none"
-        menuMobileToggleOpen.style.display = "block"
-
-        animateFadeOut(menuMobile)
-        animateFadeOut(menuMobileButtons)
-        animateFadeOut(menuMobileFooter)
-
-        document.body.style.overflow = "auto"
+        contentItem.style.backgroundColor = placeholderColor
     })
 })
 
+window.addEventListener("load", () => {
+    function animateFadeIn(element) {
+        element.classList.add("animate__fade-in")
+    }
+
+    function lazyLoadElement(element) {
+        if (element.dataset.src === undefined) {
+            return
+        }
+
+        element.src = element.dataset.src
+    }
+
+    const lazyLoadObserver = new IntersectionObserver(
+        (entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    if (entry.intersectionRatio > 0) {
+                        lazyLoadElement(entry.target)
+                        observer.unobserve(entry.target)
+                    }
+                }
+            })
+        },
+        { rootMargin: "0px 0px -50% 0px" }
+    )
+
+    const fadeInObserver = new IntersectionObserver(
+        (entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    if (entry.intersectionRatio > 0) {
+                        animateFadeIn(entry.target)
+                        observer.unobserve(entry.target)
+                    }
+                }
+            })
+        },
+        { rootMargin: "0px 0px -20% 0px" }
+    )
+
+    const contentItems = document.querySelectorAll(
+        "#page-contents .content-container .content-item > *, .content-caption"
+    )
+
+    contentItems.forEach((contentImage) => {
+        fadeInObserver.observe(contentImage)
+        lazyLoadObserver.observe(contentImage)
+    })
+})
 
 window.addEventListener("load", () => {
-
     const embeddedElements = document.querySelectorAll(".embedded iframe")
 
     for (const element of embeddedElements) {
-
         /**
          * Some elements might have a 'height' and 'width' property defined in
          * the iframe tag. If that's the case, generate the ratio from these
@@ -78,104 +125,4 @@ window.addEventListener("load", () => {
         element.style.height = "100%"
         element.style.position = "absolute"
     }
-})
-
-
-window.addEventListener("load", () => {
-
-    const DEFAULT_PLACEHOLDER_COLOR = "rgba(0, 0, 0, .05)"
-    const PLACEHOLDER_COLOR_ALPHA = "0.75"
-
-    const contentContainers = document.querySelectorAll(".content-container")
-
-    contentContainers.forEach(contentContainer => {
-
-        const contentImage = contentContainer.querySelector(".image")
-
-        if (!contentImage) {
-            return
-        }
-
-        let placeholderColor
-
-        try {
-
-            placeholderColor = JSON.parse(contentImage.dataset.placeholderColor)
-
-        } catch {
-
-            placeholderColor = DEFAULT_PLACEHOLDER_COLOR
-        }
-
-        if (!placeholderColor.length) {
-
-            placeholderColor = DEFAULT_PLACEHOLDER_COLOR
-
-        } else {
-
-            placeholderColor = `
-                rgba(
-                    ${placeholderColor[0]},
-                    ${placeholderColor[1]},
-                    ${placeholderColor[2]},
-                    ${PLACEHOLDER_COLOR_ALPHA}
-                    )
-                `
-        }
-
-        contentContainer.style.backgroundColor = placeholderColor
-
-    })
-})
-
-
-window.addEventListener("load", () => {
-
-    function animateFadeIn(element) {
-        element.classList.add("animate__fade-in")
-    }
-
-    function lazyLoadElement(element) {
-
-        if(element.dataset.src === undefined) {
-            return
-        }
-
-        element.src = element.dataset.src
-    }
-
-    const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
-
-        entries.forEach(entry => {
-
-            if (entry.isIntersecting) {
-                if (entry.intersectionRatio > 0) {
-
-                    lazyLoadElement(entry.target)
-                    observer.unobserve(entry.target)
-                }
-            }
-        })
-    }, {rootMargin: "0px 0px -50% 0px"})
-
-    const stateSetObserver = new IntersectionObserver((entries, observer) => {
-
-        entries.forEach(entry => {
-
-            if (entry.isIntersecting) {
-                if (entry.intersectionRatio > 0) {
-
-                    animateFadeIn(entry.target)
-                    observer.unobserve(entry.target)
-                }
-            }
-        })
-    }, {rootMargin: "0px 0px -20% 0px"})
-
-    const contentItems = document.querySelectorAll(".content-container > *, .content-caption")
-
-    contentItems.forEach(contentImage => {
-        stateSetObserver.observe(contentImage)
-        lazyLoadObserver.observe(contentImage)
-    })
 })

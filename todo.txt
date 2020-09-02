@@ -1,15 +1,7 @@
 HIGH:
-  - Light-box gallery view
-
-MEDIUM:
   - Freeze site (build)
     - Modify the way 400 and 500 errors are handled.
     - Remove 500 error?
-
-LOW:
-  - Check placeholder generation for all Easel supported filetypes.
-  - CSS > SASS and compiling with webassets
-    - https://webassets.readthedocs.io/en/latest/
   - 'page.yaml'
     - date
   - 'site.yaml'
@@ -17,8 +9,21 @@ LOW:
     - base-url
     - canonify-url
 
+MEDIUM:
+  - Cleanup main.js
+  - 'Classify' mobile.js. 'class MobileMenu'
+
+LOW:
+  - CSS > SASS and compiling with webassets
+    - https://webassets.readthedocs.io/en/latest/
+  - Check placeholder generation for all Easel supported filetypes.
+  - Lightbox
+    - Fix .content-container padding in desktop and mobile mode.
+    - Document lightbox.js
+    - Ignore pinch/zoom when open.
+    - Cleanup and understand LightboxGestureController._handleGesture method.
+
 QUESTIONS:
-  - What will the placeholder generation procedure be?
   - How are we doing theme customization?
   - What's the page's width? 100% seems a lot...
 
@@ -32,8 +37,8 @@ FEATURES:
   - 'Collection' Page (For relating other pages or a blog.)
   - 'Landing' Page
   - 'Grid' that holds Content types
-  - CLI Tools: https://click.palletsprojects.com/en/7.x/
   - Menu item icon
+  - CLI Tools: https://click.palletsprojects.com/en/7.x/
   - Better way to find dominant/average color of an image.
 
 MISC:

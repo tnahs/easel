@@ -1,10 +1,7 @@
 :root {
-
-    /* WIP! */
-
     --markdown-link__text-color: red;
 
-    --markdown-strike-through__text-color: hsla(0, 0%, 60%, 1.00);
+    --markdown-strike-through__text-color: hsla(0, 0%, 60%, 1);
 
     --markdown-highlight__text-color: pink;
     --markdown-highlight__background-color: green;
@@ -15,11 +12,9 @@
     --markdown-code__font-size: 10pt;
     --markdown-code__text-color: lightblue;
     --markdown-code__background-color: yellow;
-
 }
 
 .markdown {
-
     /*  */
 }
 
@@ -28,52 +23,43 @@
  * ------------------------------------------------------------------------- */
 
 .markdown p {
-
     line-height: 140%;
     hyphens: auto;
 }
 
 .markdown p + p {
-
     margin-top: 10px;
 }
 
 .markdown a {
-
     color: var(--markdown-link__text-color);
 
-    transition: color .2s;
+    transition: color 0.2s;
 }
 
 .markdown a:hover {
-
     color: var(--markdown-link__text-color-hover);
 }
 
 .markdown strong {
-
     font-weight: bold;
 }
 
 .markdown em {
-
     font-style: italic;
 }
 
 .markdown u {
-
     text-decoration: underline;
     text-decoration-skip: ink;
 }
 
 .markdown del {
-
     color: var(--markdown-strike-through__text-color);
     text-decoration: line-through;
 }
 
 .markdown mark {
-
     color: var(--markdown-highlight__text-color);
     background-color: var(--markdown-highlight__background-color);
 
@@ -84,22 +70,18 @@
 }
 
 .markdown sup {
-
     vertical-align: super;
     font-size: smaller;
 }
 
 .markdown sub {
-
     vertical-align: sub;
     font-size: smaller;
 }
 
 .markdown blockquote {
-
     margin: 30px;
 }
-
 
 /*
  * headers
@@ -111,7 +93,6 @@
 .markdown > h4,
 .markdown > h5,
 .markdown > h6 {
-
     padding-top: 10px;
     padding-left: 0;
     padding-right: 0;
@@ -119,7 +100,6 @@
 }
 
 .markdown h1 {
-
     font-size: 2.5em;
 
     padding-top: 20px;
@@ -129,7 +109,6 @@
 }
 
 .markdown h2 {
-
     font-size: 2em;
 
     padding-top: 15px;
@@ -139,22 +118,18 @@
 }
 
 .markdown h3 {
-
     font-size: 1.75em;
 }
 
 .markdown h4 {
-
     font-size: 1.5em;
 }
 
 .markdown h5 {
-
     font-size: 1.25em;
 }
 
 .markdown h6 {
-
     font-size: 1em;
 }
 
@@ -164,10 +139,8 @@
 .markdown > h4:first-child,
 .markdown > h5:first-child,
 .markdown > h6:first-child {
-
     padding-top: 0;
 }
-
 
 /*
  * lists
@@ -175,7 +148,6 @@
 
 .markdown ol,
 .markdown ul {
-
     line-height: 140%;
 
     margin-top: 0;
@@ -185,7 +157,6 @@
 }
 
 .markdown ul ol {
-
     list-style-position: inside;
     list-style-type: lower-alpha;
 
@@ -196,7 +167,6 @@
 }
 
 .markdown ol ul {
-
     list-style-position: inside;
 
     margin-top: 0;
@@ -206,24 +176,19 @@
 }
 
 .markdown ol {
-
     list-style-type: decimal-leading-zero;
 }
 
 .markdown > ol > li,
 .markdown > ul > li {
-
     padding-top: 5px;
 }
 
 .markdown ul {
-
     list-style-image: url("../images/bullet.png");
 }
 
-
 .markdown hr {
-
     border: solid 1px var(--markdown-hr__color);
 
     margin-top: 20px;
@@ -232,13 +197,11 @@
     margin-bottom: 20px;
 }
 
-
 /*
  * code
  * ------------------------------------------------------------------------- */
 
 .markdown code {
-
     margin-top: 0px;
     margin-left: 0px;
     margin-right: 0px;
@@ -259,7 +222,6 @@
 }
 
 .markdown pre code {
-
     display: block;
 
     line-height: 150%;
@@ -286,7 +248,6 @@
  * ------------------------------------------------------------------------- */
 
 .markdown img {
-
     max-width: 100%;
     height: auto;
 }
@@ -296,7 +257,6 @@
  * ------------------------------------------------------------------------- */
 
 .markdown .footnotes {
-
     padding-top: 0;
     padding-left: 20px;
     padding-right: 0;
@@ -304,22 +264,18 @@
 }
 
 .markdown .footnotes :target {
-
-    color: var(--markdown-link__text-color)
+    color: var(--markdown-link__text-color);
 }
 
 .markdown a[rel="footnote"]::before {
-
-    content: "["
+    content: "[";
 }
 
 .markdown a[rel="footnote"]::after {
-
-    content: "]"
+    content: "]";
 }
 
 .markdown a[rel="footnote"] {
-
     color: var(--markdown-link__text-color);
 
     margin-top: 0;
@@ -329,6 +285,5 @@
 }
 
 .markdown a[rel="footnote"]:hover {
-
     color: var(--markdown-link__text-color-hover);
 }

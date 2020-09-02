@@ -1,0 +1,46 @@
+{% from "_macros.jinja2" import render_lightbox_content, render_caption with context %}
+
+
+{% macro render_lightbox_content(page, content) %}
+
+    <div class="content-container">
+
+        <div class="content-item">
+
+            <img class="image"
+                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                data-src="{{ url_for('site.static', filename=content.path_relative) }}">
+
+        </div>
+
+        {{ render_caption(page, content, align_default="center") }}
+
+        {#
+        <div class="content-caption align__center">
+            <span class="caption-title markdown">Caption Title.</span>
+            <span class="caption-description markdown">Caption Description.</span>
+        </div>
+        #}
+
+    </div>
+
+{% endmacro %}
+
+
+<div id="lightbox">
+
+    <img id="lightbox-button-close" src="{{ url_for('main.static', filename='images/lightbox-button-close.png') }}">
+    <img id="lightbox-button-prev" src="{{ url_for('main.static', filename='images/lightbox-button-prev.png') }}">
+    <img id="lightbox-button-next" src="{{ url_for('main.static', filename='images/lightbox-button-next.png') }}">
+
+    <div id="lightbox-contents">
+
+        {% for content in page.contents %}
+
+            {{ render_lightbox_content(page, content) }}
+
+        {% endfor %}
+
+    <div>
+
+</div>

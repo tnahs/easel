@@ -5,14 +5,12 @@
 @import "fonts/cormorant-garamond.css";
 @import "fonts/montserrat.css";
 
-
 :root {
-
     /*
      * base
      * --------------------------------------------------------------------- */
 
-    --body__background-color: hsla(0, 0%, 100%, 1.0);
+    --body__background-color: hsla(0, 0%, 100%, 1);
 
     --body__padding-top: 50px;
     --body__padding-left: 50px;
@@ -28,6 +26,10 @@
     --main__height: auto;
     --footer__height: 200px;
 
+    --header-and-menu__offset: calc(
+        var(--header-and-menu__height) + var(--body__padding-top)
+    );
+
     /*
      * header
      * --------------------------------------------------------------------- */
@@ -40,13 +42,17 @@
     --header-title__color: hsla(0, 0%, 0%, 0.75);
 
     /*
-     * menu
+     * menu items
      * --------------------------------------------------------------------- */
 
-    --menu-buttons__font-family: var(--primary__font-family);
-    --menu-buttons__font-size: 11pt;
-    --menu-buttons__font-weight: 400;
-    --menu-buttons__color: hsla(0, 0%, 0%, 0.75);
+    --menu-items__font-family: var(--primary__font-family);
+    --menu-items__font-size: 11pt;
+    --menu-items__font-weight: 400;
+    --menu-items__color: hsla(0, 0%, 0%, 0.75);
+
+    --mobile__menu-spacer__width__small: 0;
+    --mobile__menu-spacer__width__medium: 0;
+    --mobile__menu-spacer__width__large: 0;
 
     /*
      * page & page-gallery
@@ -64,14 +70,14 @@
     --content-text-block__font-family: var(--primary__font-family);
     --content-text-block__font-weight: 400;
     --content-text-block__font-size: 11pt;
-    --content-text-block__font-color:  hsla(0, 0%, 0%, 0.75);
+    --content-text-block__font-color: hsla(0, 0%, 0%, 0.75);
 
     --content-header__font-family: var(--primary__font-family);
     --content-header__font-weight: 400;
     --content-header__font-size__small: 14pt;
     --content-header__font-size__medium: 18pt;
     --content-header__font-size__large: 24pt;
-    --content-header__font-color:  hsla(0, 0%, 0%, 0.75);
+    --content-header__font-color: hsla(0, 0%, 0%, 0.75);
 
     --content-break__size__small: 0px;
     --content-break__size__medium: 50px;
@@ -80,7 +86,7 @@
     --content-caption__font-family: var(--primary__font-family);
     --content-caption__font-size: 9pt;
     --content-caption-title__color: hsla(0, 0%, 0%, 0.75);
-    --content-caption-description__color:  hsla(0, 0%, 0%, 0.50);
+    --content-caption-description__color: hsla(0, 0%, 0%, 0.5);
 
     /*
      * footer
@@ -95,11 +101,8 @@
      * animation
      * --------------------------------------------------------------------- */
 
-    --custom-ease-out: cubic-bezier(0.2, 0.5, 0.3, 1.0);
-
+    --custom-ease-out: cubic-bezier(0.2, 0.5, 0.3, 1);
 }
-
-
 
 /* *:not(path):not(g) {
     background: hsla(0, 0%, 0%, 0.5) !important;
@@ -107,43 +110,32 @@
     color: hsla(0, 0%, 100%, 0.9) !important;
 } */
 
-
 * {
-
     box-sizing: border-box;
 }
 
-
 *.align__left {
-
     text-align: left;
 }
 
 *.align__center {
-
     text-align: center;
 }
 
 *.align__right {
-
     text-align: right;
 }
 
 *.align__justify {
-
     text-align: justify;
 }
 
-
 a {
-
     color: var(--a__color);
     text-decoration: none;
 }
 
-
 html {
-
     /* prevent font scaling in landscape */
     -webkit-text-size-adjust: 100%;
 
@@ -151,14 +143,13 @@ html {
     -moz-osx-font-smoothing: grayscale;
 }
 
-
 /*
  * body
  * ------------------------------------------------------------------------- */
 
 body {
-
-    /* height: 100vh; */  /* FIXME */
+    /* FIXME */
+    /* height: 100vh; */
 
     padding-top: var(--body__padding-top);
     padding-left: var(--body__padding-left);
@@ -172,75 +163,78 @@ body {
         "header   menu"
         "main     main"
         "footer footer";
-    grid-template-rows: var(--header-and-menu__height) var(--main__height) var(--footer__height);
+    grid-template-rows: var(--header-and-menu__height) var(--main__height) var(
+            --footer__height
+        );
 }
-
 
 /*
  * header
  * -------------------------------------------------------------------------- */
 
 header {
-
     grid-area: header;
     align-self: flex-start;
 }
 
 header .header-image {
-
     height: var(--header-image__height);
     width: auto;
 }
 
 header .header-title {
-
     font-family: var(--header-title__font-family);
     font-weight: var(--header-title__font-weight);
     font-size: var(--header-title__font-size);
     color: var(--header-title__color);
 }
 
-
 /*
  * menu
  * -------------------------------------------------------------------------- */
 
 menu {
-
     grid-area: menu;
     align-self: flex-start;
     justify-self: end;
 }
 
-menu #menu-desktop {
+menu * .menu-page-current {
+    text-decoration: underline;
+}
 
+menu #menu-desktop {
     /*  */
 }
 
-menu #menu-desktop .menu-buttons {
-
+menu #menu-desktop .menu-items {
     display: grid;
     grid-auto-flow: column;
     gap: 20px;
 
-    font-family: var(--menu-buttons__font-family);
-    font-weight: var(--menu-buttons__font-weight);
-    font-size: var(--menu-buttons__font-size);
-    color: var(--menu-buttons__color);
+    font-family: var(--menu-items__font-family);
+    font-weight: var(--menu-items__font-weight);
+    font-size: var(--menu-items__font-size);
+    color: var(--menu-items__color);
 }
 
-menu * .menu-page-current {
-
-    text-decoration: underline;
+menu #menu-desktop .menu-items .menu-spacer__small {
+    height: var(--mobile__menu-spacer__height__small);
 }
 
+menu #menu-desktop .menu-items .menu-spacer__medium {
+    height: var(--mobile__menu-spacer__height__medium);
+}
+
+menu #menu-desktop .menu-items .menu-spacer__large {
+    height: var(--mobile__menu-spacer__height__large);
+}
 
 /*
  * main / page
  * ------------------------------------------------------------------------- */
 
 main {
-
     grid-area: main;
 
     padding-top: 40px;
@@ -248,8 +242,7 @@ main {
 
 /* page */
 
-main #page .page-contents {
-
+main #page #page-contents {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: 25px;
@@ -257,8 +250,7 @@ main #page .page-contents {
 
 /* page-gallery */
 
-main #page-gallery .page-contents {
-
+main #page-gallery #page-contents {
     -webkit-column-width: var(--page-gallery__column-width);
     -webkit-column-count: var(--page-gallery__column-count);
     -webkit-column-gap: var(--page-gallery__column-gap);
@@ -275,8 +267,7 @@ main #page-gallery .page-contents {
     /* column-fill: var(--page-gallery__column-fill); */
 }
 
-main #page-gallery .page-contents .content-container {
-
+main #page-gallery #page-contents .content-container {
     margin-bottom: var(--page-gallery__column-gap);
 
     cursor: pointer;
@@ -284,35 +275,36 @@ main #page-gallery .page-contents .content-container {
 
 /* page & page-gallery contents
 
-    <div class="content-item">
+<div id="page"> / <div id="page-gallery">
+    <div id="page-contents">
         <div class="content-container">
-            <content></content>
-        </div>
-        <div class="content-caption">
-            <div class="caption-title"></div>
-            <div class="caption-description"></div>
+            <div class="content-item">
+                <content></content>
+            </div>
+            <div class="content-caption">
+                <div class="caption-title"></div>
+                <div class="caption-description"></div>
+            </div>
         </div>
     </div>
+</div>
 */
 
-main [id^=page] .page-contents .content-item .content-container > *,
-main [id^=page] .page-contents .content-item .content-caption {
-
+#page-contents .content-container .content-item > *,
+#page-contents .content-container .content-caption {
     /* See below: animate__fade-in */
     opacity: 0;
-    transition: opacity .5s;
+    transition: opacity 0.5s;
 }
 
-main [id^=page] .page-contents .content-item .content-container > *.animate__fade-in,
-main [id^=page] .page-contents .content-item .content-caption.animate__fade-in {
-
+#page-contents .content-container .content-item > *.animate__fade-in,
+#page-contents .content-container .content-caption.animate__fade-in {
     opacity: 1;
 }
 
 /* content-image */
 
-main [id^=page] .page-contents .content-item .content-container .image {
-
+#page-contents .content-container .content-item .image {
     display: block;
 
     width: 100%;
@@ -321,9 +313,7 @@ main [id^=page] .page-contents .content-item .content-container .image {
 
 /* content-video */
 
-main [id^=page] .page-contents .content-item .content-container .video {
-
-
+#page-contents .content-container .content-item .video {
     display: block;
 
     max-width: 100%;
@@ -332,27 +322,23 @@ main [id^=page] .page-contents .content-item .content-container .video {
 
 /* content-audio */
 
-main [id^=page] .page-contents .content-item .content-container .audio {
-
+#page-contents .content-container .content-item .audio {
     width: 100%;
 }
 
 /* content-embedded */
 
-main [id^=page] .page-contents .content-item .content-container .embedded {
-
+#page-contents .content-container .content-item .embedded {
     /* See easel/main/static/assets/static/main.js */
 }
 
-main [id^=page] .page-contents .content-item .content-container .embedded iframe {
-
+#page-contents .content-container .content-item .embedded iframe {
     /* See easel/main/static/assets/static/main.js */
 }
 
 /* content-text-block */
 
-main [id^=page] .page-contents .content-item .content-container .text-block {
-
+#page-contents .content-container .content-item .text-block {
     font-family: var(--content-text-block__font-family);
     font-weight: var(--content-text-block__font-weight);
     font-size: var(--content-text-block__font-size);
@@ -361,49 +347,41 @@ main [id^=page] .page-contents .content-item .content-container .text-block {
 
 /* content-header */
 
-main [id^=page] .page-contents .content-item .content-container [class^=header__] {
-
+#page-contents .content-container .content-item [class^="header__"] {
     font-family: var(--content-header__font-family);
     font-weight: var(--content-header__font-weight);
     color: var(--content-header__font-color);
 }
 
-main [id^=page] .page-contents .content-item .content-container .header__small {
-
+#page-contents .content-container .content-item .header__small {
     font-size: var(--content-header__font-size__small);
 }
 
-main [id^=page] .page-contents .content-item .content-container .header__medium {
-
+#page-contents .content-container .content-item .header__medium {
     font-size: var(--content-header__font-size__medium);
 }
 
-main [id^=page] .page-contents .content-item .content-container .header__large {
-
+#page-contents .content-container .content-item .header__large {
     font-size: var(--content-header__font-size__large);
 }
 
 /* content-break */
 
-main [id^=page] .page-contents .content-item .content-container .break__small {
-
+#page-contents .content-container .content-item .break__small {
     height: var(--content-break__size__small);
 }
 
-main [id^=page] .page-contents .content-item .content-container .break__medium {
-
+#page-contents .content-container .content-item .break__medium {
     height: var(--content-break__size__medium);
 }
 
-main [id^=page] .page-contents .content-item .content-container .break__large {
-
+#page-contents .content-container .content-item .break__large {
     height: var(--content-break__size__large);
 }
 
 /* content captions */
 
 .content-caption {
-
     padding-top: 5px;
     padding-left: 5px;
     padding-right: 5px;
@@ -415,18 +393,15 @@ main [id^=page] .page-contents .content-item .content-container .break__large {
 
 .content-caption .caption-title p,
 .content-caption .caption-description p {
-
     /* Prevents extra <p> tags created by Markdown from creating line-breaks */
     display: inline;
 }
 
 .content-caption .caption-title {
-
     color: var(--content-caption-title__color);
 }
 
 .content-caption .caption-description {
-
     color: var(--content-caption-description__color);
 }
 
@@ -435,7 +410,6 @@ main [id^=page] .page-contents .content-item .content-container .break__large {
  * ------------------------------------------------------------------------- */
 
 footer {
-
     grid-area: footer;
     align-self: flex-end;
     justify-self: flex-end;
@@ -447,7 +421,6 @@ footer {
 }
 
 footer .footer-copyright {
-
     display: grid;
     row-gap: 5px;
 }

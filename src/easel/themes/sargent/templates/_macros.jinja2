@@ -1,4 +1,4 @@
-{% macro render_menu_buttons() %}
+{% macro render_menu_items() %}
 
     {% for item in site.menu %}
 
@@ -27,62 +27,73 @@
 
     <div class="content-container">
 
-        {% if content.is_image %}
+        <div class="content-item">
 
-            <img class="image"
-                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                data-src="{{ url_for('site.static', filename=content.path_relative) }}"
-                data-placeholder-color="{{ content.placeholder.color }}">
+            {% if content.is_image %}
 
-        {% elif content.is_video %}
+                <img class="image"
+                    src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                    data-src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    data-placeholder-color="{{ content.placeholder.color }}">
 
-            <video class="video" controls>
-                <source
-                    src="{{ url_for('site.static', filename=content.path_relative) }}"
-                    type="{{ content.mimetype }}">
-            </video>
+            {% elif content.is_video %}
 
-        {% elif content.is_audio %}
+                <video class="video" controls>
+                    <source
+                        src="{{ url_for('site.static', filename=content.path_relative) }}"
+                        type="{{ content.mimetype }}">
+                </video>
 
-            <audio class="audio" controls preload="metadata">
-                <source
-                    src="{{ url_for('site.static', filename=content.path_relative) }}"
-                    type="{{ content.mimetype }}">
-                Your browser does not support the audio element.
-            </audio>
+            {% elif content.is_audio %}
 
-        {% elif content.is_embedded %}
+                <audio class="audio" controls preload="metadata">
+                    <source
+                        src="{{ url_for('site.static', filename=content.path_relative) }}"
+                        type="{{ content.mimetype }}">
+                    Your browser does not support the audio element.
+                </audio>
 
-            <div class="embedded">{{ content.html | safe }}</div>
+            {% elif content.is_embedded %}
 
-        {% elif content.is_text_block %}
+                <div class="embedded">{{ content.html | safe }}</div>
 
-            {% set align = content.align if content.align else "justify" %}
+            {% elif content.is_text_block %}
 
-            <div class="text-block align__{{ align }} markdown">{{ content.body | safe }}</div>
+                {% set align = content.align if content.align else "justify" %}
 
-        {% elif content.is_header %}
+                <div class="text-block align__{{ align }} markdown">{{ content.body | safe }}</div>
 
-            {% set size = content.size if content.size else "medium" %}
-            {% set align = content.align if content.align else "left" %}
+            {% elif content.is_header %}
 
-            <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
+                {% set size = content.size if content.size else "medium" %}
+                {% set align = content.align if content.align else "left" %}
 
-        {% elif content.is_break %}
+                <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
 
-            {% set size = content.size if content.size else "medium" %}
+            {% elif content.is_break %}
 
-            <div class="break__{{ size }}"></div>
+                {% set size = content.size if content.size else "medium" %}
 
-        {% endif %}
+                <div class="break__{{ size }}"></div>
+
+            {% endif %}
+
+        </div>
+
+        {{ render_caption(page, content) }}
 
     </div>
+
+{% endmacro %}
+
+
+{% macro render_caption(page, content, align_default="left") %}
 
     {% if page.show_captions %}
 
         {% if content.caption_title or content.caption_description %}
 
-            {% set align = content.caption_align if content.caption_align else "left" %}
+            {% set align = content.caption_align if content.caption_align else align_default %}
 
             <div class="content-caption align__{{ align }}">
 

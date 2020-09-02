@@ -8,15 +8,11 @@
 
     <div id="{{ 'page-gallery' if page.is_gallery else 'page'}}">
 
-        <div class="page-contents">
+        <div id="page-contents">
 
             {% for content in page.contents %}
 
-                <div class="content-item">
-
-                    {{ render_content(page, content) }}
-
-                </div>
+                {{ render_content(page, content) }}
 
             {% endfor %}
 
