@@ -15,7 +15,7 @@ class MenuMobile {
         this.menuItems = document.querySelector("#menu-mobile__menu-items")
         this.footer = document.querySelector("#menu-mobile__footer")
 
-        this._animated = [this.main, this.menuItems, this.footer]
+        this._menuElements__toFadeIn = [this.main, this.menuItems, this.footer]
 
         this._uiButtonsController = new MenuMobileUIButtonsController(this)
         this._keyboardController = new MenuMobileKeyboardController(this)
@@ -24,8 +24,8 @@ class MenuMobile {
     setup() {}
 
     open() {
-        this._animated.forEach((element) => {
-            element.classList.add(this.CLASS_FADE_IN_OUT)
+        this._menuElements__toFadeIn.forEach((menuElement) => {
+            menuElement.classList.add(this.CLASS_FADE_IN_OUT)
         })
 
         this.isVisible = true
@@ -37,8 +37,8 @@ class MenuMobile {
     }
 
     close() {
-        this._animated.forEach((element) => {
-            element.classList.remove(this.CLASS_FADE_IN_OUT)
+        this._menuElements__toFadeIn.forEach((menuElement) => {
+            menuElement.classList.remove(this.CLASS_FADE_IN_OUT)
         })
 
         this.isVisible = false

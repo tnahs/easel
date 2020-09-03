@@ -3,23 +3,32 @@
      * base
      * --------------------------------------------------------------------- */
 
-    /* TODO: Setup in mobile */
-    --header-image__height: 40px;
+    --header__image--height: 40px;
 
-    --header-title__font-family: var(--font-family--primary);
-    --header-title__font-weight: 400;
-    --header-title__font-size: 26pt;
-    --header-title__color: hsla(0, 0%, 0%, 0.75);
+    --header__title--font-family: var(--font-family--primary);
+    --header__title--font-weight: 400;
+    --header__title--font-size: 26pt;
+    --header__title--color: hsla(0, 0%, 0%, 0.75);
 }
 
 #header__image {
-    height: var(--header-image__height);
+    height: var(--header__image--height);
     width: auto;
 }
 
 #header__title {
-    font-family: var(--header-title__font-family);
-    font-weight: var(--header-title__font-weight);
-    font-size: var(--header-title__font-size);
-    color: var(--header-title__color);
+    font-family: var(--header__title--font-family);
+    font-weight: var(--header__title--font-weight);
+    font-size: var(--header__title--font-size);
+    color: var(--header__title--color);
+}
+
+@media only screen and (max-width: 736px) {
+    :root {
+        /*
+         * base
+         * ----------------------------------------------------------------- */
+
+        --header__title--font-size: 20pt;
+    }
 }

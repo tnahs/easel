@@ -1,100 +1,158 @@
 "use strict"
 
-class PageContentTools {
+class ContentTools {
     constructor() {
-        this.DEFAULT_PLACEHOLDER_COLOR = "red" //"rgba(0, 0, 0, .05)"
-        this.PLACEHOLDER_COLOR_ALPHA = "0.75"
+        this._contentItems = [
+            ...document.querySelectorAll("[class^='content-item__']"),
+        ]
 
-        this._contentItems = document.querySelectorAll(
-            "[class^='content-item__']"
+        this._contentItems__toLazyLoad = this._contentItems.filter((item) =>
+            item.hasAttribute("data-src")
         )
 
-        this._embeddedItems = document.querySelectorAll(
+        this._contentItems__toWrapPlaceholder = this._contentItems.filter(
+            (item) => item.hasAttribute("data-placeholder-color")
+        )
+
+        this._contentItems__toResizeEmbedded = document.querySelectorAll(
             ".content-item__embedded iframe"
         )
+    }
 
-        const callback = (entries, observer) => {
+    setup() {
+        this._setupPlaceholderColors()
+        this._setupEmbeddedContentItems()
+        this._setupObservers()
+    }
+
+    _setupPlaceholderColors() {
+        // TODO: Do we want to add another layer of fallback in case the CSS
+        // properties aren't defined?
+
+        const documentStyle = getComputedStyle(document.documentElement)
+
+        const placeholderColorFallback = documentStyle.getPropertyValue(
+            "--placeholder-color--fallback"
+        )
+
+        const placeholderAlpha = documentStyle.getPropertyValue(
+            "--placeholder-color--alpha"
+        )
+
+        this._contentItems__toWrapPlaceholder.forEach((contentItem) => {
+            const placeholderColor = this._getPlaceholderColor(
+                contentItem,
+                placeholderAlpha,
+                placeholderColorFallback
+            )
+
+            this._wrapPlaceholderColor(contentItem, placeholderColor)
+        })
+    }
+
+    _setupEmbeddedContentItems() {
+        this._contentItems__toResizeEmbedded.forEach((contentItem) => {
+            this._resizeEmbeddedContentItem(contentItem)
+        })
+    }
+
+    _setupObservers() {
+        const fadeInCallback = (entries, observer) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) {
                     return
                 }
 
-                if (!entry.intersectionRatio > 0) {
-                    return
-                }
-
-                this._fadeInElement(entry.target)
-                this._loadElement(entry.target)
+                this._triggerFadeIn(entry.target)
 
                 observer.unobserve(entry.target)
             })
         }
 
-        this._intersectionObserver = new IntersectionObserver(callback, {
-            rootMargin: "0px 0px -20% 0px",
-        })
-    }
+        const fadeInOptions = {
+            root: null, // Entire viewport
+            rootMargin: "0px 0px 0px 0px",
+            threshold: 0.5, // Trigger when element is 50% visible
+        }
 
-    setup() {
+        const lazyLoadCallback = (entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return
+                }
+
+                this._triggerLazyLoad(entry.target)
+
+                observer.unobserve(entry.target)
+            })
+        }
+
+        const lazyLoadOptions = {
+            root: null, // Entire viewport
+            rootMargin: "0px 0px 25% 0px", // Trigger outside the viewport
+            threshold: 0,
+        }
+
+        const fadeInObserver = new IntersectionObserver(
+            fadeInCallback,
+            fadeInOptions
+        )
+
+        const lazyLoadObserver = new IntersectionObserver(
+            lazyLoadCallback,
+            lazyLoadOptions
+        )
+
         this._contentItems.forEach((contentItem) => {
-            const placeholderColor = this._getPlaceholderColor(contentItem)
-            this._wrapElement(contentItem, placeholderColor)
-
-            this._intersectionObserver.observe(contentItem)
+            fadeInObserver.observe(contentItem)
         })
 
-        this._embeddedItems.forEach((embeddedItem) => {
-            this._resizeEmbeddedItem(embeddedItem)
+        this._contentItems__toLazyLoad.forEach((contentItem) => {
+            lazyLoadObserver.observe(contentItem)
         })
     }
 
-    _getPlaceholderColor(item) {
-        let placeholderColor
+    // Placeholder Color methods
+
+    _getPlaceholderColor(element, placeholderAlpha, placeholderColorFallback) {
+        let color
 
         try {
-            placeholderColor = JSON.parse(item.dataset.placeholderColor)
+            color = JSON.parse(element.dataset.placeholderColor)
         } catch {
-            placeholderColor = this.DEFAULT_PLACEHOLDER_COLOR
+            return placeholderColorFallback
         }
 
-        if (!placeholderColor.length) {
-            placeholderColor = this.DEFAULT_PLACEHOLDER_COLOR
-        } else {
-            placeholderColor = `
-                rgba(
-                    ${placeholderColor[0]},
-                    ${placeholderColor[1]},
-                    ${placeholderColor[2]},
-                    ${this.PLACEHOLDER_COLOR_ALPHA}
-                    )
-                `
+        if (!("r" in color) || !("g" in color) || !("b" in color)) {
+            return placeholderColorFallback
         }
-        return placeholderColor
+
+        return `rgba(${color.r}, ${color.g}, ${color.b}, ${placeholderAlpha})`
     }
 
-    _wrapElement(element, placeholderColor) {
+    _wrapPlaceholderColor(element, placeholderColor) {
         const wrapper = document.createElement("div")
 
         element.parentNode.insertBefore(wrapper, element)
 
-        wrapper.classList.add("content__placeholder")
+        wrapper.classList.add("placeholder-color")
         wrapper.style.backgroundColor = placeholderColor
         wrapper.appendChild(element)
     }
 
-    _fadeInElement(element) {
+    // Fade-in and LazyLoad methods
+
+    _triggerFadeIn(element) {
         element.classList.add("animation__fade-in")
     }
 
-    _loadElement(element) {
-        if (element.dataset.src === undefined) {
-            return
-        }
-
+    _triggerLazyLoad(element) {
         element.src = element.dataset.src
     }
 
-    _resizeEmbeddedItem(element) {
+    // Embedded Content Item methods
+
+    _resizeEmbeddedContentItem(element) {
         /**
          * Some elements might have a 'height' and 'width' property defined in
          * the iframe tag. If that's the case, generate the ratio from these
@@ -123,7 +181,7 @@ class PageContentTools {
 }
 
 window.addEventListener("load", () => {
-    const pageContentTools = new PageContentTools()
+    const contentTools = new ContentTools()
 
-    pageContentTools.setup()
+    contentTools.setup()
 })

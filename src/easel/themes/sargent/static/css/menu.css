@@ -17,17 +17,17 @@
 }
 
 /*
- * menu desktop
+ * Structure of #menu-desktop
 
- #menu-desktop
-    #menu-desktop__menu-items
-        .menu-item__link-page
-        .menu-item__link-url
-            .menu-item__spacer
-                .menu-item__spacer--small
-                .menu-item__spacer--medium
-                .menu-item__spacer--large
-*/
+    #menu-desktop
+        #menu-desktop__menu-items
+            .menu-item__link-page
+            .menu-item__link-url
+                .menu-item__spacer
+                    .menu-item__spacer--small
+                    .menu-item__spacer--medium
+                    .menu-item__spacer--large
+ * ------------------------------------------------------------------------- */
 
 #menu-desktop {
     /*  */

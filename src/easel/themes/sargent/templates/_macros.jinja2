@@ -32,7 +32,11 @@
             <img class="content-item__image"
                 src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
                 data-src="{{ url_for('site.static', filename=content.path_relative) }}"
-                data-placeholder-color="{{ content.placeholder.color }}">
+                data-placeholder-color='{{ content.placeholder.color | tojson }}'>
+
+                {# NOTE: This last attribute 'data-placeholder-color' *must* be
+                surrounded by single quotes. to properly render as JSON in the
+                template. Its value is retrieved and parsed in Javascript. #}
 
         {% elif content.is_video %}
 
@@ -98,7 +102,11 @@
         <img class="content-item__image"
             src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
             data-src="{{ url_for('site.static', filename=content.path_relative) }}"
-            data-placeholder-color="{{ content.placeholder.color }}">
+            data-placeholder-color='{{ content.placeholder.color | tojson }}'>
+
+            {# NOTE: This last attribute 'data-placeholder-color' *must* be
+            surrounded by single quotes. to properly render as JSON in the
+            template. Its value is retrieved and parsed in Javascript. #}
 
         {# Captions are rendered in the Lightbox. #}
 

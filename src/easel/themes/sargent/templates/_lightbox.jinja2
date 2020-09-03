@@ -7,30 +7,26 @@
     <img id="lightbox__button-prev" src="{{ url_for('main.static', filename='images/prev.png') }}">
     <img id="lightbox__button-next" src="{{ url_for('main.static', filename='images/next.png') }}">
 
-    <div id="lightbox__contents">
+    {% for content in page.contents %}
 
-        {% for content in page.contents %}
+        <div class="lightbox__container">
 
-            <div class="lightbox__container">
+            <img class="lightbox-item__image"
+                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                data-src="{{ url_for('site.static', filename=content.path_relative) }}">
 
-                <img class="lightbox__image"
-                    src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                    data-src="{{ url_for('site.static', filename=content.path_relative) }}">
+            {% if page.show_captions %}
 
-                {% if page.show_captions %}
+                <div class="lightbox__caption">
 
-                    <div class="lightbox__caption">
+                    {{ render_caption(page, content) }}
 
-                        {{ render_caption(page, content) }}
+                </div>
 
-                    </div>
+            {% endif %}
 
-                {% endif %}
+        </div>
 
-            </div>
-
-        {% endfor %}
-
-    </div>
+    {% endfor %}
 
 </div>

@@ -269,11 +269,15 @@ class Placeholder:
         return self._cache_directory / "color.json"
 
     @property
-    def color(self) -> list:
-        """ Returns the color as a list. This is because this value is passed
-        to HTML then Javascript. It's easier to parse a list in Javascript than
-        a Tuple. """
-        return list(self._color)
+    def color(self) -> dict:
+        """ Returns the color as a dictionary. This is because this value needs
+        to be passed to HTML then Javascript. It's easier to parse a dictionary
+        in Javascript than a Tuple. """
+        return {
+            "r": self._color[0],
+            "g": self._color[1],
+            "b": self._color[2],
+        }
 
 
 class ContentInterface(abc.ABC):

@@ -1,17 +1,16 @@
 "use strict"
 
 class Lightbox {
-    /**
-     *
-      #lightbox
-          #lightbox__contents
-              .lightbox__container
-                .lightbox__image
+    /** Structure of #lightbox
+
+        #lightbox
+            .lightbox__container
+                .lightbox-item__image
                 .lightbox__caption
                     .caption
                         .caption__title
                         .caption__description
-     */
+    ------------------------------------------------------------------------ */
     constructor() {
         this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
 
@@ -25,31 +24,29 @@ class Lightbox {
         this.buttonPrev = document.querySelector("#lightbox__button-prev")
         this.buttonNext = document.querySelector("#lightbox__button-next")
 
-        this._containers = document.querySelectorAll(".lightbox__container")
+        this._lightboxContainers = document.querySelectorAll(
+            ".lightbox__container"
+        )
+
+        this._lightboxItems = [
+            ...document.querySelectorAll("[class^='lightbox-item__']"),
+        ]
+
+        this._lightboxItems__toLazyLoad = this._lightboxItems.filter((item) =>
+            item.hasAttribute("data-src")
+        )
 
         this._gestureController = new LightboxGestureController(this)
         this._uiButtonsController = new LightboxUIButtonsController(this)
         this._keyboardController = new LightboxKeyboardController(this)
-
-        this._lazyLoadObserver = new IntersectionObserver(
-            (entries, observer) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        if (entry.intersectionRatio > 0) {
-                            this._lazyLoadContents(entry.target)
-                            observer.unobserve(entry.target)
-                        }
-                    }
-                })
-            }
-        )
     }
 
     setup() {
-        this._containers.forEach((contentContainer) => {
-            this._lazyLoadObserver.observe(contentContainer)
-        })
+        this._setupEventListeners()
+        this._setupLazyLoadObserver()
+    }
 
+    _setupEventListeners() {
         const contentContainers = document.querySelectorAll(
             ".content__container"
         )
@@ -62,6 +59,26 @@ class Lightbox {
                 )
                 this.show(index)
             })
+        })
+    }
+
+    _setupLazyLoadObserver() {
+        const lazyLoadCallback = (entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return
+                }
+
+                this._triggerLazyLoad(entry.target)
+
+                observer.unobserve(entry.target)
+            })
+        }
+
+        const lazyLoadObserver = new IntersectionObserver(lazyLoadCallback)
+
+        this._lightboxItems__toLazyLoad.forEach((lightboxItem) => {
+            lazyLoadObserver.observe(lightboxItem)
         })
     }
 
@@ -90,6 +107,7 @@ class Lightbox {
     _show() {
         this.isVisible = true
         this.main.classList.add(this.CLASS_FADE_IN_OUT)
+
         // Prevent body scrolling.
         document.body.style.overflow = "hidden"
     }
@@ -97,29 +115,25 @@ class Lightbox {
     _close() {
         this.isVisible = false
         this.main.classList.remove(this.CLASS_FADE_IN_OUT)
+
         // Re-enable body scrolling.
         document.body.style.overflow = "auto"
     }
 
     _showContainer(index) {
-        this._containers[index].style.display = "block"
+        this._lightboxContainers[index].style.display = "block"
     }
 
     _hideContainer(index) {
-        this._containers[index].style.display = "none"
+        this._lightboxContainers[index].style.display = "none"
     }
 
-    _lazyLoadContents(container) {
-        let item = container.firstElementChild
-
-        if (item.dataset.src === undefined) {
-            return
-        }
-        item.src = item.dataset.src
+    _triggerLazyLoad(element) {
+        element.src = element.dataset.src
     }
 
     get _nextIndex() {
-        if (this._currentIndex >= this._containers.length - 1) {
+        if (this._currentIndex >= this._lightboxContainers.length - 1) {
             this._currentIndex = 0
         } else {
             this._currentIndex++
@@ -130,7 +144,7 @@ class Lightbox {
 
     get _prevIndex() {
         if (this._currentIndex == 0) {
-            this._currentIndex = this._containers.length - 1
+            this._currentIndex = this._lightboxContainers.length - 1
         } else {
             this._currentIndex--
         }

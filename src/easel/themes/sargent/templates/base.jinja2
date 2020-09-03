@@ -13,7 +13,7 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/page.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/footer.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/mobile.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-mobile.css') }}"/>
 
         {% if page.is_gallery %}
             <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/lightbox.css') }}"/>
@@ -27,7 +27,7 @@
 
         <menu>
             {% include "_menu.jinja2" %}
-            {% include "_mobile.jinja2" %}
+            {% include "_menu-mobile.jinja2" %}
         </menu>
 
         <main>{% block page %}{% endblock %}</main>
@@ -41,7 +41,7 @@
     </body>
 
     <script src="{{ url_for('main.static', filename='js/base.js') }}"></script>
-    <script src="{{ url_for('main.static', filename='js/mobile.js') }}"></script>
+    <script src="{{ url_for('main.static', filename='js/menu-mobile.js') }}"></script>
 
     {% if page.is_gallery %}
         <script src="{{ url_for('main.static', filename='js/lightbox.js') }}"></script>

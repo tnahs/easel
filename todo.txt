@@ -1,36 +1,29 @@
 HIGH:
   - Freeze site (build)
-  - 'page.yaml'
-    - date
-  - 'site.yaml'
-    - 404
-    - base-url
-    - canonify-url
+  - CSS
+    - CSS -> SASS
+    - https://webassets.readthedocs.io/en/latest/
+    - Convert non-grid-like layouts to 'flex'
+    - Test header__image in desktop and mobile
+    - Style markdown
+    - Style page width
 
 MEDIUM:
-  - CSS
-    - SASS
-    - Convert row/columns to flexbox?
-    - Minium column count -> 2
-    - Cleanup the way contents/container/item works.
-    - Cleanup variable names
-    - Style markdown
+  - Move to Typescript
 
 LOW:
-  - CSS > SASS and compiling with webassets
-    - https://webassets.readthedocs.io/en/latest/
   - Check placeholder generation for all Easel supported filetypes.
   - Lightbox
-    - Fix .content-container padding in desktop and mobile mode.
+    - Fix styling in desktop and mobile.
     - Document lightbox.js
     - Ignore pinch/zoom when open.
     - Cleanup and understand LightboxGestureController._handleGesture method.
+  - Add 'date' to page.yaml
 
 QUESTIONS:
   - How are we doing theme customization?
   - How are gallery captions handled? / toggled?
   - How are 400 and 500 errors are handled? / configured?
-  - What's the page's width? 100% seems a lot...
 
 HOUSEKEEPING:
   - Covert 'span' -> 'div'. Set style to inline/inline-block.
