@@ -1,7 +1,5 @@
 HIGH:
   - Freeze site (build)
-    - Modify the way 400 and 500 errors are handled.
-    - Remove 500 error?
   - 'page.yaml'
     - date
   - 'site.yaml'
@@ -10,8 +8,13 @@ HIGH:
     - canonify-url
 
 MEDIUM:
-  - Cleanup main.js
-  - 'Classify' mobile.js. 'class MobileMenu'
+  - CSS
+    - SASS
+    - Convert row/columns to flexbox?
+    - Minium column count -> 2
+    - Cleanup the way contents/container/item works.
+    - Cleanup variable names
+    - Style markdown
 
 LOW:
   - CSS > SASS and compiling with webassets
@@ -25,9 +28,12 @@ LOW:
 
 QUESTIONS:
   - How are we doing theme customization?
+  - How are gallery captions handled? / toggled?
+  - How are 400 and 500 errors are handled? / configured?
   - What's the page's width? 100% seems a lot...
 
 HOUSEKEEPING:
+  - Covert 'span' -> 'div'. Set style to inline/inline-block.
   - Documentation
   - Print site map method.
   - Unified validation setup.

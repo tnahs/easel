@@ -1,4 +1,8 @@
 :root {
+    /*
+     * base
+     * --------------------------------------------------------------------- */
+
     --lightbox__background-color: var(--body__background-color);
 
     --lightbox__buttons__size: 32px;
@@ -8,6 +12,19 @@
         100vh - calc(var(--body__padding-top) + var(--body__padding-bottom))
     );
 }
+
+/*
+ *
+
+ #lightbox
+    #lightbox__contents
+        .lightbox__container
+            .lightbox__image
+            .lightbox__caption
+                .caption
+                    .caption__title
+                    .caption__description
+ */
 
 #lightbox {
     position: fixed;
@@ -31,20 +48,20 @@
     grid-template-rows: min-content var(--vh);
     grid-template-columns: min-content auto min-content;
 
-    /* See below: animate__fade-in-out */
+    /* See below: animation__fade-in-out */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s var(--custom-ease-out);
+    transition: opacity 0.5s var(--transition__ease-out);
 }
 
-#lightbox.animate__fade-in-out {
+#lightbox.animation__fade-in-out {
     opacity: 1;
     pointer-events: auto;
 }
 
-#lightbox-button-close,
-#lightbox-button-prev,
-#lightbox-button-next {
+#lightbox__button-close,
+#lightbox__button-prev,
+#lightbox__button-next {
     cursor: pointer;
 
     width: var(--lightbox__buttons__size);
@@ -53,35 +70,35 @@
     opacity: var(--lightbox__buttons__opacity);
 }
 
-#lightbox-button-close {
+#lightbox__button-close {
     grid-area: close;
 
     justify-self: flex-end;
     align-self: flex-start;
 }
 
-#lightbox-button-prev {
+#lightbox__button-prev {
     grid-area: prev;
 
     align-self: center;
     justify-self: flex-start;
 }
 
-#lightbox-button-next {
+#lightbox__button-next {
     grid-area: next;
 
     align-self: center;
     justify-self: flex-end;
 }
 
-#lightbox-contents {
+#lightbox__contents {
     grid-area: contents;
 
     width: 100%;
     height: 100%;
 }
 
-#lightbox-contents .content-container {
+.lightbox__container {
     width: inherit;
     height: inherit;
 
@@ -94,20 +111,15 @@
     display: none;
 }
 
-#lightbox-contents .content-container .content-item {
-    width: inherit;
-    height: inherit;
-}
-
-#lightbox-contents .content-container .content-caption {
-    /*  */
-}
-
-#lightbox-contents .content-container .content-item .image {
+.lightbox__image {
     width: inherit;
     height: inherit;
 
     object-fit: contain;
+}
+
+.lightbox__caption {
+    /* TODO: Style this. */
 }
 
 @media only screen and (max-width: 736px) {
@@ -119,15 +131,12 @@
         grid-template-columns: auto auto;
     }
 
-    #lightbox-button-prev,
-    #lightbox-button-next {
+    #lightbox__button-prev,
+    #lightbox__button-next {
         display: none;
     }
 
-    #lightbox-contents .content-container {
-        width: inherit;
-        height: inherit;
-
+    .lightbox__container {
         padding-top: 0;
         padding-left: 0;
         padding-right: 0;

@@ -1,13 +1,13 @@
 {% if site.config.header.image.path %}
 
     <a href="{{ url_for('main.index') }}">
-        <img class="header-image" src="{{ url_for('site.static', filename=site.config.header.image.path) }}">
+        <img id="header__image" src="{{ url_for('site.static', filename=site.config.header.image.path) }}">
     </a>
 
 {% elif site.config.header.title is not none %}
 
     {% set title = site.config.header.title if site.config.header.title else site.config.title %}
 
-    <a class="header-title" href="{{ url_for('main.index') }}">{{ title | safe }}</a>
+    <a id="header__title" href="{{ url_for('main.index') }}">{{ title | safe }}</a>
 
 {% endif %}

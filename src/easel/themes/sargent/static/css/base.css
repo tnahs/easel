@@ -1,0 +1,155 @@
+@import "_reset.css";
+@import "_normalize.css";
+@import "_markdown.css";
+
+@import "fonts/cormorant-garamond.css";
+@import "fonts/montserrat.css";
+
+:root {
+    /*
+     * base
+     * --------------------------------------------------------------------- */
+
+    /* --[ELEMENT]--[ATTRIBUTE] */
+
+    --body__background-color: hsla(0, 0%, 100%, 1);
+
+    --body__padding-top: 50px;
+    --body__padding-left: 50px;
+    --body__padding-right: 50px;
+    --body__padding-bottom: 50px;
+
+    --link-color: hsla(0, 0%, 0%, 0.75);
+
+    --font-family--primary: "Montserrat", sans-serif;
+    --font-family--monospace: "FiraCode", monospace;
+
+    --header-and-menu__height: 50px;
+    --main__height: auto;
+    --footer__height: 200px;
+
+    --header-and-menu__offset: calc(
+        var(--header-and-menu__height) + var(--body__padding-top)
+    );
+
+    /*
+     * shared
+     * --------------------------------------------------------------------- */
+
+    --transition__ease-out: cubic-bezier(0.2, 0.5, 0.3, 1);
+
+    --caption--font-family: var(--font-family--primary);
+    --caption--font-size: 9pt;
+    --caption__title--color: hsla(0, 0%, 0%, 0.75);
+    --caption__description--color: hsla(0, 0%, 0%, 0.5);
+}
+
+/* *:not(path):not(g) {
+    background: hsla(0, 0%, 0%, 0.5) !important;
+    outline: solid 1px hsla(0, 100%, 50%, 0.5) !important;
+    color: hsla(0, 0%, 100%, 0.9) !important;
+} */
+
+* {
+    box-sizing: border-box;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+html {
+    /* prevent font scaling in landscape */
+    -webkit-text-size-adjust: 100%;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    /* FIXME */
+    /* height: 100vh; */
+
+    padding-top: var(--body__padding-top);
+    padding-left: var(--body__padding-left);
+    padding-right: var(--body__padding-right);
+    padding-bottom: var(--body__padding-bottom);
+
+    background-color: var(--body__background-color);
+
+    display: grid;
+    grid-template-areas:
+        "header   menu"
+        "main     main"
+        "footer footer";
+    grid-template-rows: var(--header-and-menu__height) var(--main__height) var(
+            --footer__height
+        );
+}
+
+header {
+    grid-area: header;
+    align-self: flex-start;
+}
+
+menu {
+    grid-area: menu;
+    align-self: flex-start;
+    justify-self: end;
+}
+
+main {
+    grid-area: main;
+
+    padding-top: 40px;
+}
+
+footer {
+    grid-area: footer;
+    align-self: flex-end;
+    justify-self: flex-end;
+}
+
+/*
+ * shared
+ * ------------------------------------------------------------------------- */
+
+/* Alignments */
+
+.align--left {
+    text-align: left;
+}
+
+.align--center {
+    text-align: center;
+}
+
+.align--right {
+    text-align: right;
+}
+
+.align--justify {
+    text-align: justify;
+}
+
+/* Captions */
+
+.caption {
+    font-family: var(--caption--font-family);
+    font-size: var(--caption--font-size);
+}
+
+.caption__title p,
+.caption__description p {
+    /* Prevents extra <p> tags created by Markdown from creating line-breaks */
+    display: inline;
+}
+
+.caption__title {
+    color: var(--caption__title--color);
+}
+
+.caption__description {
+    color: var(--caption__description--color);
+}

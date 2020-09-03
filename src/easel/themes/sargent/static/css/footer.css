@@ -1,0 +1,22 @@
+:root {
+    /*
+     * base
+     * --------------------------------------------------------------------- */
+
+    --footer__font-family: var(--font-family--primary);
+    --footer__font-weight: 400;
+    --footer__font-size: 11pt;
+    --footer__color: hsla(0, 0%, 0%, 0.6);
+}
+
+#footer {
+    font-family: var(--footer__font-family);
+    font-weight: var(--footer__font-weight);
+    font-size: var(--footer__font-size);
+    color: var(--footer__color);
+}
+
+#footer__copyright {
+    display: grid;
+    row-gap: 5px;
+}

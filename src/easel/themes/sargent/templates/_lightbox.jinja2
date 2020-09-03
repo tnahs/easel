@@ -1,46 +1,36 @@
-{% from "_macros.jinja2" import render_lightbox_content, render_caption with context %}
-
-
-{% macro render_lightbox_content(page, content) %}
-
-    <div class="content-container">
-
-        <div class="content-item">
-
-            <img class="image"
-                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                data-src="{{ url_for('site.static', filename=content.path_relative) }}">
-
-        </div>
-
-        {{ render_caption(page, content, align_default="center") }}
-
-        {#
-        <div class="content-caption align__center">
-            <span class="caption-title markdown">Caption Title.</span>
-            <span class="caption-description markdown">Caption Description.</span>
-        </div>
-        #}
-
-    </div>
-
-{% endmacro %}
+{% from "_macros.jinja2" import render_caption with context %}
 
 
 <div id="lightbox">
 
-    <img id="lightbox-button-close" src="{{ url_for('main.static', filename='images/lightbox-button-close.png') }}">
-    <img id="lightbox-button-prev" src="{{ url_for('main.static', filename='images/lightbox-button-prev.png') }}">
-    <img id="lightbox-button-next" src="{{ url_for('main.static', filename='images/lightbox-button-next.png') }}">
+    <img id="lightbox__button-close" src="{{ url_for('main.static', filename='images/close.png') }}">
+    <img id="lightbox__button-prev" src="{{ url_for('main.static', filename='images/prev.png') }}">
+    <img id="lightbox__button-next" src="{{ url_for('main.static', filename='images/next.png') }}">
 
-    <div id="lightbox-contents">
+    <div id="lightbox__contents">
 
         {% for content in page.contents %}
 
-            {{ render_lightbox_content(page, content) }}
+            <div class="lightbox__container">
+
+                <img class="lightbox__image"
+                    src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                    data-src="{{ url_for('site.static', filename=content.path_relative) }}">
+
+                {% if page.show_captions %}
+
+                    <div class="lightbox__caption">
+
+                        {{ render_caption(page, content) }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
 
         {% endfor %}
 
-    <div>
+    </div>
 
 </div>

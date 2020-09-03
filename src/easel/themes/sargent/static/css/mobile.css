@@ -3,67 +3,61 @@
      * base
      * --------------------------------------------------------------------- */
 
-    --mobile__buttons__size: 32px;
-    --mobile__buttons__opacity: 0.75;
+    --menu-mobile-buttons--size: 32px;
+    --menu-mobile-buttons--opacity: 0.75;
 
     /*
-     * header
+     * footer
      * --------------------------------------------------------------------- */
 
-    --mobile__header-title__font-size: 20pt;
-
-    /*
-     * menu items
-     * --------------------------------------------------------------------- */
-
-    --mobile__menu-items__font-family: var(--primary__font-family);
-    --mobile__menu-items__font-weight: 400;
-    --mobile__menu-items__font-size: 20pt;
-    --mobile__menu-items__color: hsla(0, 0%, 0%, 0.75);
-
-    --mobile__menu-spacer__height__small: 3px;
-    --mobile__menu-spacer__height__medium: 15px;
-    --mobile__menu-spacer__height__large: 50px;
-
-    --mobile__menu__footer__font-family: var(--primary__font-family);
-    --mobile__menu__footer__font-weight: 400;
-    --mobile__menu__footer__font-size: 12pt;
-    --mobile__menu__footer__color: hsla(0, 0%, 0%, 0.25);
-
-    /*
-     * page & page-gallery
-     * --------------------------------------------------------------------- */
-
-    --mobile__page-gallery__column-count: 2;
+    --menu-mobile__footer--font-family: var(--font-family--primary);
+    --menu-mobile__footer--font-weight: 400;
+    --menu-mobile__footer--font-size: 12pt;
+    --menu-mobile__footer--color: hsla(0, 0%, 0%, 0.5);
 }
 
 /*
- * mobile menu buttons
+ * menu mobile buttons
+
+ #menu-mobile__buttons
+    #menu-mobile-buttons__open
+    #menu-mobile-buttons__close
  * ------------------------------------------------------------------------- */
 
-menu #menu-mobile-buttons {
+#menu-mobile-buttons {
     display: none;
 }
 
-menu #menu-mobile-button-open,
-menu #menu-mobile-button-close {
-    width: var(--mobile__buttons__size);
+#menu-mobile-buttons__open,
+#menu-mobile-buttons__close {
+    width: var(--menu-mobile-buttons--size);
     height: auto;
 
-    opacity: var(--mobile__buttons__opacity);
+    opacity: var(--menu-mobile-buttons--opacity);
 
     cursor: pointer;
 }
 
-menu #menu-mobile-button-close {
+#menu-mobile-buttons__close {
     display: none;
 }
 
 /*
- * mobile menu
+ * menu mobile
+
+ #menu-mobile
+    #menu-mobile__menu-items
+        .menu-item__link-page
+        .menu-item__link-url
+            .menu-item__spacer
+            .menu-item__spacer--small
+            .menu-item__spacer--medium
+            .menu-item__spacer--large
+    #menu-mobile__footer
+
  * ------------------------------------------------------------------------- */
 
-menu #menu-mobile {
+#menu-mobile {
     position: fixed;
     left: 0;
     top: var(--header-and-menu__offset);
@@ -79,57 +73,41 @@ menu #menu-mobile {
         "footer";
     grid-template-rows: min-content auto;
 
-    /* See below: animate__fade-in-out */
+    /* See below: animation__fade-in-out */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s var(--custom-ease-out);
+    transition: opacity 0.5s var(--transition__ease-out);
 }
 
-menu #menu-mobile.animate__fade-in-out {
+#menu-mobile.animation__fade-in-out {
     opacity: 1;
     pointer-events: auto;
 }
 
-menu #menu-mobile .menu-items {
+#menu-mobile__menu-items {
     grid-area: buttons;
 
-    display: grid;
-    row-gap: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 15px;
 
     padding-top: 50px;
     padding-left: 50px;
     padding-right: 50px;
     padding-bottom: 50px;
 
-    font-family: var(--mobile__menu-items__font-family);
-    font-weight: var(--mobile__menu-items__font-weight);
-    font-size: var(--mobile__menu-items__font-size);
-    color: var(--mobile__menu-items__color);
-
-    text-align: center;
-
-    /* See below: animate__fade-in-out */
-    transition: transform 0.5s var(--custom-ease-out);
+    /* See below: animation__fade-in-out */
+    transition: transform 0.5s var(--transition__ease-out);
     transform: translateY(15px);
 }
 
-menu #menu-mobile .menu-items.animate__fade-in-out {
+#menu-mobile__menu-items.animation__fade-in-out {
     transform: translateY(0);
 }
 
-menu #menu-mobile .menu-items .menu-spacer__small {
-    height: var(--mobile__menu-spacer__height__small);
-}
-
-menu #menu-mobile .menu-items .menu-spacer__medium {
-    height: var(--mobile__menu-spacer__height__medium);
-}
-
-menu #menu-mobile .menu-items .menu-spacer__large {
-    height: var(--mobile__menu-spacer__height__large);
-}
-
-menu #menu-mobile #menu-footer {
+#menu-mobile__footer {
     grid-area: footer;
     align-self: flex-end;
 
@@ -137,25 +115,23 @@ menu #menu-mobile #menu-footer {
         var(--header-and-menu__offset) + var(--body__padding-bottom)
     );
 
-    font-family: var(--mobile__menu__footer__font-family);
-    font-weight: var(--mobile__menu__footer__font-weight);
-    font-size: var(--mobile__menu__footer__font-size);
-    color: var(--mobile__menu__footer__color);
+    font-family: var(--menu-mobile__footer--font-family);
+    font-weight: var(--menu-mobile__footer--font-weight);
+    font-size: var(--menu-mobile__footer--font-size);
+    color: var(--menu-mobile__footer--color);
 
     text-align: center;
 
-    /* See below: animate__fade-in-out */
-    transition: transform 1s var(--custom-ease-out);
+    display: grid;
+    row-gap: 5px;
+
+    /* See below: animation__fade-in-out */
+    transition: transform 1s var(--transition__ease-out);
     transform: translateY(15px);
 }
 
-menu #menu-mobile #menu-footer.animate__fade-in-out {
+#menu-mobile__footer.animation__fade-in-out {
     transform: translateY(0);
-}
-
-menu #menu-mobile #menu-footer .footer-copyright {
-    display: grid;
-    row-gap: 5px;
 }
 
 /*
@@ -164,21 +140,40 @@ menu #menu-mobile #menu-footer .footer-copyright {
 
 @media only screen and (max-width: 736px) {
     :root {
+        /*
+         * base
+         * ----------------------------------------------------------------- */
+
         --body__padding-top: 30px;
         --body__padding-left: 30px;
         --body__padding-right: 30px;
         --body__padding-bottom: 30px;
+
+        /*
+         * header
+         * ----------------------------------------------------------------- */
+
+        --header-title__font-size: 20pt;
+
+        /*
+         * menu items
+         * ----------------------------------------------------------------- */
+
+        --menu-items--font-size: 20pt;
+
+        --menu-item__spacer--small-width: 0;
+        --menu-item__spacer--small-height: 0;
+        --menu-item__spacer--medium-width: 0;
+        --menu-item__spacer--medium-height: 15px;
+        --menu-item__spacer--large-width: 0;
+        --menu-item__spacer--large-height: 30px;
     }
 
-    header .header-title {
-        font-size: var(--mobile__header-title__font-size);
-    }
-
-    menu #menu-desktop {
+    #menu-desktop {
         display: none;
     }
 
-    menu #menu-mobile-buttons {
+    #menu-mobile-buttons {
         display: block;
     }
 }

@@ -2,11 +2,14 @@
 
 
 <div id="menu-mobile-buttons">
-    <img id="menu-mobile-button-open" src="{{ url_for('main.static', filename='images/menu-mobile-button-open.png') }}">
-    <img id="menu-mobile-button-close" src="{{ url_for('main.static', filename='images/menu-mobile-button-close.png') }}">
+    <img id="menu-mobile-buttons__open" src="{{ url_for('main.static', filename='images/menu.png') }}">
+    <img id="menu-mobile-buttons__close" src="{{ url_for('main.static', filename='images/close.png') }}">
 </div>
 
 <div id="menu-mobile">
-    <div class="menu-items">{{ render_menu_items() }}</div>
-    <div id="menu-footer">{% include "_footer.jinja2" %}</div>
+    <div id="menu-mobile__menu-items">{{ render_menu_items() }}</div>
+    <div id="menu-mobile__footer">
+        <div>Lorem ipsum dolor sit.</div>
+        <div>Duis et felis.</div>
+    </div>
 </div>

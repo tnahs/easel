@@ -392,7 +392,7 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
         return items
 
 
-class LazyGallery(PageInterface, LazyMixin, GalleryMixin):
+class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
     """ Creates an LazyGallery Page object from a dictionary with the following
     attributes:
 
@@ -401,6 +401,7 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin):
             "options": {
                 "column-count": [str|int: auto],
                 "column-width": [str: 250px],
+                "show-captions": [bool: false],
             }
         }
     """
@@ -408,6 +409,7 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin):
     def validate__config(self) -> None:
         self.validate__lazy_config()
         self.validate__gallery_config()
+        self.validate__show_captions_config()
 
     @property
     def contents(self) -> List["Image"]:
@@ -462,7 +464,7 @@ class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
         return items
 
 
-class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin):
+class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin, ShowCaptionsMixin):
     """ Creates an LayoutGallery Page object from a dictionary with the following
     attributes:
 
@@ -472,6 +474,7 @@ class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin):
             "options": {
                 "column-count": [str|int: auto],
                 "column-width": [str: 250px],
+                "show-captions": [bool: false],
             }
         }
     """
@@ -479,6 +482,7 @@ class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin):
     def validate__config(self) -> None:
         self.validate__layout_config()
         self.validate__gallery_config()
+        self.validate__show_captions_config()
 
     @property
     def contents(self) -> List["Image"]:

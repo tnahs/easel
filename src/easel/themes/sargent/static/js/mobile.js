@@ -1,74 +1,94 @@
 "use strict"
 
-// TODO
-class MobileMenu {
-    constructor() {}
-}
+class MenuMobile {
+    constructor() {
+        this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
 
-// TODO
-class MobileMenuKeyboardController {
-    constructor() {}
-}
+        this.isVisible = false
 
-// TODO
-class MobileMenuUIButtonsController {
-    constructor() {}
-}
+        this.main = document.querySelector("#menu-mobile")
 
-window.addEventListener("load", () => {
-    const CLASS_ANIMATE = "animate__fade-in-out"
+        this.buttons = document.querySelector("#menu-mobile-buttons")
+        this.buttonOpen = document.querySelector("#menu-mobile-buttons__open")
+        this.buttonClose = document.querySelector("#menu-mobile-buttons__close")
 
-    function animateFadeIn(content) {
-        content.classList.add(CLASS_ANIMATE)
+        this.menuItems = document.querySelector("#menu-mobile__menu-items")
+        this.footer = document.querySelector("#menu-mobile__footer")
+
+        this._animated = [this.main, this.menuItems, this.footer]
+
+        this._uiButtonsController = new MenuMobileUIButtonsController(this)
+        this._keyboardController = new MenuMobileKeyboardController(this)
     }
 
-    function animateFadeOut(content) {
-        content.classList.remove(CLASS_ANIMATE)
-    }
+    setup() {}
 
-    const menuMobileButtonOpen = document.querySelector(
-        "#menu-mobile-button-open"
-    )
-    const menuMobileButtonClose = document.querySelector(
-        "#menu-mobile-button-close"
-    )
+    open() {
+        this._animated.forEach((element) => {
+            element.classList.add(this.CLASS_FADE_IN_OUT)
+        })
 
-    const menuMobile = document.querySelector("#menu-mobile")
-    const menuMobileButtons = menuMobile.querySelector(".menu-items")
-    const menuMobileFooter = menuMobile.querySelector("#menu-footer")
-
-    menuMobileButtonOpen.addEventListener("click", function () {
-        this.style.display = "none"
-        menuMobileButtonClose.style.display = "block"
-
-        animateFadeIn(menuMobile)
-        animateFadeIn(menuMobileButtons)
-        animateFadeIn(menuMobileFooter)
+        this.isVisible = true
+        this.buttonOpen.style.display = "none"
+        this.buttonClose.style.display = "block"
 
         // Prevent body scrolling.
         document.body.style.overflow = "hidden"
-    })
+    }
 
-    menuMobileButtonClose.addEventListener("click", function () {
-        this.style.display = "none"
-        menuMobileButtonOpen.style.display = "block"
+    close() {
+        this._animated.forEach((element) => {
+            element.classList.remove(this.CLASS_FADE_IN_OUT)
+        })
 
-        animateFadeOut(menuMobile)
-        animateFadeOut(menuMobileButtons)
-        animateFadeOut(menuMobileFooter)
+        this.isVisible = false
+        this.buttonOpen.style.display = "block"
+        this.buttonClose.style.display = "none"
 
+        // Re-enable body scrolling.
         document.body.style.overflow = "auto"
-    })
+    }
+}
 
-    document.addEventListener("keydown", (event) => {
-        if (!menuMobile.classList.contains("animate__fade-in-out")) {
-            return
-        }
+class MenuMobileUIButtonsController {
+    constructor(menuMobile) {
+        this._menuMobile = menuMobile
 
-        if (event.code == "Escape") {
-            animateFadeOut(menuMobile)
-            animateFadeOut(menuMobileButtons)
-            animateFadeOut(menuMobileFooter)
-        }
-    })
+        this.setup()
+    }
+
+    setup() {
+        this._menuMobile.buttonOpen.addEventListener("click", () => {
+            this._menuMobile.open()
+        })
+        this._menuMobile.buttonClose.addEventListener("click", () => {
+            this._menuMobile.close()
+        })
+    }
+}
+
+class MenuMobileKeyboardController {
+    constructor(menuMobile) {
+        this._menuMobile = menuMobile
+
+        this.setup()
+    }
+
+    setup() {
+        document.addEventListener("keydown", (event) => {
+            if (!this._menuMobile.isVisible) {
+                return
+            }
+
+            if (event.code == "Escape") {
+                this._menuMobile.close()
+            }
+        })
+    }
+}
+
+window.addEventListener("load", () => {
+    const menuMobile = new MenuMobile()
+
+    menuMobile.setup()
 })

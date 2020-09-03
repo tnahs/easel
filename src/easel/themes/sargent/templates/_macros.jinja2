@@ -4,17 +4,17 @@
 
         {% if item.is_link_page %}
 
-            {% set current = "menu-page-current" if item.url == site.page_current.url else "" %}
+            {% set current = "menu-item--current" if item.url == site.page_current.url else "" %}
 
-            <a class="menu-link-page {{ current }}" href="{{ item.url }}">{{ item.label }}</a>
+            <a class="menu-item__link-page" id="{{ current }}" href="{{ item.url }}">{{ item.label }}</a>
 
         {% elif item.is_link_url %}
 
-            <a class="menu-link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
+            <a class="menu-item__link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
 
         {% elif item.is_spacer %}
 
-            <span class="menu-spacer__{{ item.size }}">{{ item.label if item.label is not none }}</span>
+            <span class="menu-item__spacer--{{ item.size }}">{{ item.label if item.label is not none }}</span>
 
         {% endif %}
 
@@ -25,93 +25,109 @@
 
 {% macro render_content(page, content) %}
 
-    <div class="content-container">
+    <div class="content__container">
 
-        <div class="content-item">
+        {% if content.is_image %}
 
-            {% if content.is_image %}
+            <img class="content-item__image"
+                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+                data-src="{{ url_for('site.static', filename=content.path_relative) }}"
+                data-placeholder-color="{{ content.placeholder.color }}">
 
-                <img class="image"
-                    src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                    data-src="{{ url_for('site.static', filename=content.path_relative) }}"
-                    data-placeholder-color="{{ content.placeholder.color }}">
+        {% elif content.is_video %}
 
-            {% elif content.is_video %}
+            <video class="content-item__video" controls>
+                <source
+                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    type="{{ content.mimetype }}">
+            </video>
 
-                <video class="video" controls>
-                    <source
-                        src="{{ url_for('site.static', filename=content.path_relative) }}"
-                        type="{{ content.mimetype }}">
-                </video>
+        {% elif content.is_audio %}
 
-            {% elif content.is_audio %}
+            <audio class="content-item__audio" controls preload="metadata">
+                <source
+                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    type="{{ content.mimetype }}">
+                Your browser does not support the audio element.
+            </audio>
 
-                <audio class="audio" controls preload="metadata">
-                    <source
-                        src="{{ url_for('site.static', filename=content.path_relative) }}"
-                        type="{{ content.mimetype }}">
-                    Your browser does not support the audio element.
-                </audio>
+        {% elif content.is_embedded %}
 
-            {% elif content.is_embedded %}
+            <div class="content-item__embedded">{{ content.html | safe }}</div>
 
-                <div class="embedded">{{ content.html | safe }}</div>
+        {% elif content.is_text_block %}
 
-            {% elif content.is_text_block %}
+            {% set align = content.align if content.align else "justify" %}
 
-                {% set align = content.align if content.align else "justify" %}
+            <div class="content-item__text-block align--{{ align }} markdown">{{ content.body | safe }}</div>
 
-                <div class="text-block align__{{ align }} markdown">{{ content.body | safe }}</div>
+        {% elif content.is_header %}
 
-            {% elif content.is_header %}
+            {% set size = content.size if content.size else "medium" %}
+            {% set align = content.align if content.align else "left" %}
 
-                {% set size = content.size if content.size else "medium" %}
-                {% set align = content.align if content.align else "left" %}
+            <div class="content-item__header--{{ size }} align--{{ align }}">{{ content.text }}</div>
 
-                <div class="header__{{ size }} align__{{ align }}">{{ content.text }}</div>
+        {% elif content.is_break %}
 
-            {% elif content.is_break %}
+            {% set size = content.size if content.size else "medium" %}
 
-                {% set size = content.size if content.size else "medium" %}
+            <div class="content-item__break--{{ size }}"></div>
 
-                <div class="break__{{ size }}"></div>
+        {% endif %}
 
-            {% endif %}
+        {% if page.show_captions %}
 
-        </div>
+            <div class="content-item__caption">
 
-        {{ render_caption(page, content) }}
+                {{ render_caption(page, content) }}
+
+            </div>
+
+        {% endif %}
 
     </div>
 
 {% endmacro %}
 
 
-{% macro render_caption(page, content, align_default="left") %}
+{% macro render_gallery_content(page, content) %}
 
-    {% if page.show_captions %}
+    <div class="content__container">
 
-        {% if content.caption_title or content.caption_description %}
+        <img class="content-item__image"
+            src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
+            data-src="{{ url_for('site.static', filename=content.path_relative) }}"
+            data-placeholder-color="{{ content.placeholder.color }}">
 
-            {% set align = content.caption_align if content.caption_align else align_default %}
+        {# Captions are rendered in the Lightbox. #}
 
-            <div class="content-caption align__{{ align }}">
+    </div>
 
-                {% if content.caption_title %}
+{% endmacro %}
 
-                    <span class="caption-title markdown">{{ content.caption_title | safe }}</span>
 
-                {% endif %}
+{% macro render_caption(content, align_default="left") %}
 
-                {% if content.caption_description %}
+    {% if content.caption_title or content.caption_description %}
 
-                    <span class="caption-description markdown">{{ content.caption_description | safe }}</span>
+        {% set align = content.caption_align if content.caption_align else align_default %}
 
-                {% endif %}
+        <div class="caption align--{{ align }}">
 
-            </div>
+            {% if content.caption_title %}
 
-        {% endif %}
+                <span class="caption__title markdown">{{ content.caption_title | safe }}</span>
+
+            {% endif %}
+
+            {% if content.caption_description %}
+
+                <span class="caption__description markdown">{{ content.caption_description | safe }}</span>
+
+            {% endif %}
+
+        </div>
 
     {% endif %}
 

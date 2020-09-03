@@ -2,36 +2,30 @@
 
 class Lightbox {
     /**
-     * <div id=lightbox">
-     *     <div id="lightbox-contents">
-     *         <div class="content-container">
-     *             <div class="content-item">
-     *                 <content></content>
-     *             </div>
-     *             <div class="content-caption">
-     *                 <div class="caption-title"></div>
-     *                 <div class="caption-description"></div>
-     *             </div>
-     *         </div>
-     *     </div>
-     * </div>
+     *
+      #lightbox
+          #lightbox__contents
+              .lightbox__container
+                .lightbox__image
+                .lightbox__caption
+                    .caption
+                        .caption__title
+                        .caption__description
      */
     constructor() {
-        this.CLASS_FADE_IN_OUT = "animate__fade-in-out"
+        this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
 
         this.isVisible = false
 
         this._currentIndex = null
 
-        this._main = document.querySelector("#lightbox")
+        this.main = document.querySelector("#lightbox")
 
-        this._contentContainers = this._main.querySelectorAll(
-            "#lightbox-contents .content-container"
-        )
+        this.buttonClose = document.querySelector("#lightbox__button-close")
+        this.buttonPrev = document.querySelector("#lightbox__button-prev")
+        this.buttonNext = document.querySelector("#lightbox__button-next")
 
-        this._galleryContentContainers = document.querySelectorAll(
-            "#page-contents .content-container"
-        )
+        this._containers = document.querySelectorAll(".lightbox__container")
 
         this._gestureController = new LightboxGestureController(this)
         this._uiButtonsController = new LightboxUIButtonsController(this)
@@ -52,18 +46,22 @@ class Lightbox {
     }
 
     setup() {
-        this._galleryContentContainers.forEach((contentContainer) => {
+        this._containers.forEach((contentContainer) => {
+            this._lazyLoadObserver.observe(contentContainer)
+        })
+
+        const contentContainers = document.querySelectorAll(
+            ".content__container"
+        )
+
+        contentContainers.forEach((contentContainer) => {
             contentContainer.addEventListener("click", () => {
                 let index = Array.prototype.indexOf.call(
-                    this._galleryContentContainers,
+                    contentContainers,
                     contentContainer
                 )
                 this.show(index)
             })
-        })
-
-        this._contentContainers.forEach((contentContainer) => {
-            this._lazyLoadObserver.observe(contentContainer)
         })
     }
 
@@ -91,34 +89,37 @@ class Lightbox {
 
     _show() {
         this.isVisible = true
-        this._main.classList.add(this.CLASS_FADE_IN_OUT)
+        this.main.classList.add(this.CLASS_FADE_IN_OUT)
+        // Prevent body scrolling.
         document.body.style.overflow = "hidden"
     }
 
     _close() {
         this.isVisible = false
-        this._main.classList.remove(this.CLASS_FADE_IN_OUT)
+        this.main.classList.remove(this.CLASS_FADE_IN_OUT)
+        // Re-enable body scrolling.
         document.body.style.overflow = "auto"
     }
 
     _showContainer(index) {
-        this._contentContainers[index].style.display = "block"
+        this._containers[index].style.display = "block"
     }
 
     _hideContainer(index) {
-        this._contentContainers[index].style.display = "none"
+        this._containers[index].style.display = "none"
     }
 
     _lazyLoadContents(container) {
-        let item = container.querySelector(".image")
+        let item = container.firstElementChild
 
         if (item.dataset.src === undefined) {
             return
         }
         item.src = item.dataset.src
     }
+
     get _nextIndex() {
-        if (this._currentIndex >= this._contentContainers.length - 1) {
+        if (this._currentIndex >= this._containers.length - 1) {
             this._currentIndex = 0
         } else {
             this._currentIndex++
@@ -129,7 +130,7 @@ class Lightbox {
 
     get _prevIndex() {
         if (this._currentIndex == 0) {
-            this._currentIndex = this._contentContainers.length - 1
+            this._currentIndex = this._containers.length - 1
         } else {
             this._currentIndex--
         }
@@ -142,29 +143,19 @@ class LightboxUIButtonsController {
     constructor(lightbox) {
         this._lightbox = lightbox
 
-        this._buttonClose = this._lightbox._main.querySelector(
-            "#lightbox-button-close"
-        )
-        this._buttonPrev = this._lightbox._main.querySelector(
-            "#lightbox-button-prev"
-        )
-        this._buttonNext = this._lightbox._main.querySelector(
-            "#lightbox-button-next"
-        )
-
         this.setup()
     }
 
     setup() {
-        this._buttonClose.addEventListener("click", () => {
+        this._lightbox.buttonClose.addEventListener("click", () => {
             this._lightbox.close()
         })
 
-        this._buttonPrev.addEventListener("click", () => {
+        this._lightbox.buttonPrev.addEventListener("click", () => {
             this._lightbox.prev()
         })
 
-        this._buttonNext.addEventListener("click", () => {
+        this._lightbox.buttonNext.addEventListener("click", () => {
             this._lightbox.next()
         })
     }
@@ -212,7 +203,7 @@ class LightboxGestureController {
     }
 
     setup() {
-        this._lightbox._main.addEventListener(
+        this._lightbox.main.addEventListener(
             "touchstart",
             (event) => {
                 this._touchStart_x = event.changedTouches[0].screenX
@@ -221,7 +212,7 @@ class LightboxGestureController {
             false
         )
 
-        this._lightbox._main.addEventListener(
+        this._lightbox.main.addEventListener(
             "touchend",
             (event) => {
                 this._touchEnd_x = event.changedTouches[0].screenX
@@ -234,11 +225,10 @@ class LightboxGestureController {
     }
 
     _handleGesture() {
-        let touchDiff_x = this._touchEnd_x - this._touchStart_x
-        let touchDiff_y = this._touchEnd_y - this._touchStart_y
-
-        let touchDiffRatio_xy = Math.abs(touchDiff_x / touchDiff_y)
-        let touchDiffRatio_yx = Math.abs(touchDiff_y / touchDiff_x)
+        const touchDiff_x = this._touchEnd_x - this._touchStart_x
+        const touchDiff_y = this._touchEnd_y - this._touchStart_y
+        const touchDiffRatio_xy = Math.abs(touchDiff_x / touchDiff_y)
+        const touchDiffRatio_yx = Math.abs(touchDiff_y / touchDiff_x)
 
         if (
             Math.abs(touchDiff_x) > this._threshold ||

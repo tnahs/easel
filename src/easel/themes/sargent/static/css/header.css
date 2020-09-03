@@ -1,0 +1,25 @@
+:root {
+    /*
+     * base
+     * --------------------------------------------------------------------- */
+
+    /* TODO: Setup in mobile */
+    --header-image__height: 40px;
+
+    --header-title__font-family: var(--font-family--primary);
+    --header-title__font-weight: 400;
+    --header-title__font-size: 26pt;
+    --header-title__color: hsla(0, 0%, 0%, 0.75);
+}
+
+#header__image {
+    height: var(--header-image__height);
+    width: auto;
+}
+
+#header__title {
+    font-family: var(--header-title__font-family);
+    font-weight: var(--header-title__font-weight);
+    font-size: var(--header-title__font-size);
+    color: var(--header-title__color);
+}
