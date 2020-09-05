@@ -17,10 +17,10 @@
 }
 
 /*
- * Structure of #menu-desktop
+ * Structure of #menu-base
 
-    #menu-desktop
-        #menu-desktop__menu-items
+    #menu-base
+        #menu-base__menu-items
             .menu-item__link-page
             .menu-item__link-url
                 .menu-item__spacer
@@ -29,11 +29,11 @@
                     .menu-item__spacer--large
  * ------------------------------------------------------------------------- */
 
-#menu-desktop {
+#menu-base {
     /*  */
 }
 
-#menu-desktop__menu-items {
+#menu-base__menu-items {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -44,6 +44,8 @@
 /* Menu Items */
 
 #menu-item--current {
+    /* TODO: Style #menu-item--current. */
+
     text-decoration: underline;
 }
 
@@ -67,4 +69,14 @@
 .menu-item__spacer--large {
     width: var(--menu-item__spacer--large-width);
     height: var(--menu-item__spacer--large-height);
+}
+
+/*
+ * media queries
+ * ------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 736px) {
+    #menu-base {
+        display: none;
+    }
 }

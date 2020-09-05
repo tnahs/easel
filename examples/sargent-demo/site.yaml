@@ -3,6 +3,7 @@
 title: J. S. Sargent
 author: Full Name
 copyright: © 2020 Full Name
+description: A demo of the 'Sargent' theme for Easel.
 favicon:
 
 menu:
@@ -17,6 +18,10 @@ menu:
 - type: link-page
   label: Places
   links-to: pages/places
+
+- type: link-page
+  label: Food
+  links-to: pages/food
 
 - type: spacer
   size: small

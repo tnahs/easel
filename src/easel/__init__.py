@@ -2,13 +2,6 @@ __version__ = "2.0.0-dev"
 
 
 import logging
-import os
-from typing import Optional, Union
-
-from flask import Flask
-
-from .site import global_config
-from .site.site import Site
 
 
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
@@ -21,9 +14,20 @@ logging.basicConfig(
 )
 
 
+from typing import Optional, Union
+
+from flask import Flask
+
+from .site import global_config
+from .site.site import Site
+
+
 class Easel(Flask):
     def __init__(
-        self, site: str, loglevel: Optional[Union[str, int]] = None,
+        self,
+        site: str,
+        debug: bool = False,
+        loglevel: Optional[Union[str, int]] = None,
     ):
         super().__init__(__name__)
 
@@ -31,6 +35,7 @@ class Easel(Flask):
             logging.getLogger().setLevel(loglevel)
 
         global_config.path_site = site
+        global_config.debug = debug
 
         # Create and bind Site.
         self._site = Site()
@@ -54,12 +59,10 @@ class Easel(Flask):
     def site(self) -> Site:
         return self._site
 
-    def run(self, debug: bool = True, **kwargs) -> None:
-
-        if debug:
-            os.environ["FLASK_ENV"] = "development"
-
-        super().run(debug=debug, extra_files=global_config.assets, **kwargs)
+    def run(self, **kwargs) -> None:
+        super().run(
+            debug=global_config.debug, extra_files=global_config.assets, **kwargs
+        )
 
     def rebuild_cache(self) -> None:
         self._site.rebuild_cache()

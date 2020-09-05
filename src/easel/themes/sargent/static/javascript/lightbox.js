@@ -11,6 +11,7 @@ class Lightbox {
                         .caption__title
                         .caption__description
     ------------------------------------------------------------------------ */
+
     constructor() {
         this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
 
@@ -121,11 +122,11 @@ class Lightbox {
     }
 
     _showContainer(index) {
-        this._lightboxContainers[index].style.display = "block"
+        this._lightboxContainers[index].classList.add("show")
     }
 
     _hideContainer(index) {
-        this._lightboxContainers[index].style.display = "none"
+        this._lightboxContainers[index].classList.remove("show")
     }
 
     _triggerLazyLoad(element) {

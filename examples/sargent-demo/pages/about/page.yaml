@@ -1,7 +1,7 @@
 # sargent-demo/pages/about
 
 type: layout
-title: about
+title: About
 
 contents:
 - type: header

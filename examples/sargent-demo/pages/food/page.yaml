@@ -1,0 +1,6 @@
+# sargent-demo/pages/food
+
+type: lazy-gallery
+title: Food
+cover: page-cover.jpg
+description: page-description.md

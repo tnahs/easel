@@ -30,14 +30,6 @@
       column-count: auto
     ```
 
-`options.column-width`
-:   Default: `250px` -- Sed sagittis ipsum non tempus volutpat.
-
-    ``` yaml
-    options:
-      column-width: 250px
-    ```
-
 ## Lazy Page
 
 Lazy Page Configuration
@@ -211,7 +203,6 @@ type: lazy-gallery
 options:
   show-captions: true
   column-count: auto
-  column-width: 300px
 ```
 
 Layout Page Configuration
@@ -264,6 +255,5 @@ contents:
 
 options:
   show-captions: true
-  gallery-column-count: auto
-  gallery-column-width: 300px
+  column-count: auto
 ```

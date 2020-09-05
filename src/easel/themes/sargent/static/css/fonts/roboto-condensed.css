@@ -1,41 +1,41 @@
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-Light.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-Light.ttf");
     font-weight: 300;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-Regular.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-Regular.ttf");
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-Bold.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-Bold.ttf");
     font-weight: 700;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-LightItalic.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-LightItalic.ttf");
     font-weight: 300;
     font-style: italic;
 }
 
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-Italic.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-Italic.ttf");
     font-weight: 400;
     font-style: italic;
 }
 
 @font-face {
     font-family: "Roboto Condensed";
-    src: url("../fonts/Roboto_Condensed/RobotoCondensed-BoldItalic.ttf");
+    src: url("../../fonts/Roboto_Condensed/RobotoCondensed-BoldItalic.ttf");
     font-weight: 700;
     font-style: italic;
 }

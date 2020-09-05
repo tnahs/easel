@@ -3,6 +3,10 @@
      * page-gallery
      * --------------------------------------------------------------------- */
 
+    /* NOTE: When both 'column-width' and 'column-count' properties are
+     declared, 'column-count' is the maximum number of columns and
+     'column-width' is the minimum width for those columns. */
+
     --page-gallery--column-width: 250px;
     --page-gallery--column-count: auto;
     --page-gallery--column-gap: 10px;
@@ -52,12 +56,20 @@
 ---------------------------------------------------------------------------- */
 
 #page {
+
+    /* TODO: Implement page-width with grid columns. This will mainly be used
+    to prevent the text content on the page from spanning 100%. */
+
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: 25px;
 }
 
 #page-gallery {
+
+    /* TODO: Change the way regular pages and gallery pages are setup in terms
+    of classes. Something like .page .page--base .page--gallery */
+
     -webkit-column-width: var(--page-gallery--column-width);
     -webkit-column-count: var(--page-gallery--column-count);
     -webkit-column-gap: var(--page-gallery--column-gap);
@@ -81,7 +93,7 @@
 
 [class^="content-item__"],
 .content__caption {
-    /* See below: animation__fade-in */
+    /* See below: content-*.animation__fade-in */
     opacity: 0;
     transition: opacity 0.5s var(--transition--ease-out);
 }

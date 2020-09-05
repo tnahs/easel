@@ -1,9 +1,10 @@
-@import "_reset.css";
-@import "_normalize.css";
-@import "_markdown.css";
+@import "libs/normalize.css";
+@import "libs/reset.css";
 
 @import "fonts/cormorant-garamond.css";
+@import "fonts/fira-code.css";
 @import "fonts/montserrat.css";
+@import "fonts/pt-sans.css";
 
 :root {
     /*
@@ -22,7 +23,8 @@
     --link--color: hsla(0, 0%, 0%, 0.75);
 
     --font-family--primary: "Montserrat", sans-serif;
-    --font-family--monospace: "FiraCode", monospace;
+    --font-family--secondary: "Cormorant Garamond", serif;
+    --font-family--monospace: "Fira Code", monospace;
 
     --header-and-menu--height: 50px;
     --main--height: auto;
@@ -75,8 +77,11 @@ html {
 }
 
 body {
-    /* FIXME */
-    /* height: 100vh; */
+    /* FIXME: When this is enabled, the footer acts correctly and gets pushed
+    to the bottom of the page. However in when in mobile-mode it causes the
+    footer to lose all it's lower padding.
+
+    height: 100vh; */
 
     padding-top: var(--body--padding-top);
     padding-left: var(--body--padding-left);
@@ -120,7 +125,7 @@ footer {
 }
 
 /*
- * shared
+ * common
  * ------------------------------------------------------------------------- */
 
 /* Alignments */

@@ -1,3 +1,4 @@
+import os
 import logging
 import pathlib
 from typing import List, Optional, Tuple, Union
@@ -8,14 +9,11 @@ from . import errors
 logger = logging.getLogger(__name__)
 
 
-class Config:
+class GlobalConfig:
 
     PATH_ROOT = pathlib.Path(__file__).parent.parent
 
     DIRECTORY_NAME_PAGES: str = "pages"
-    DIRECTORY_NAME_ERRORS: str = "errors"
-    DIRECTORY_NAME_ERROR_404: str = "404"
-    DIRECTORY_NAME_ERROR_500: str = "500"
     DIRECTORY_NAME_THEMES: str = "themes"
     DIRECTORY_NAME_TEMPLATES: str = "templates"
     DIRECTORY_NAME_STATIC: str = "static"
@@ -28,6 +26,9 @@ class Config:
     PLACEHOLDER_FORMAT: str = "JPEG"
     PLACEHOLDER_SIZE: Tuple[int, int] = (512, 512)
     PLACEHOLDER_QUALITY: int = 95
+
+    DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
+    DATE_FORMAT_PRETTY: str = "YYYY-MM-DD HH:MM:SS"
 
     DEFAULT_THEME_NAME: str = "sargent"
     VALID_THEME_NAMES: List[str] = [
@@ -96,8 +97,21 @@ class Config:
         ".wav": "audio/wav",
     }
 
+    _debug: bool = False
     _path_site: Optional[pathlib.Path] = None
     _theme_name: str = DEFAULT_THEME_NAME
+
+    @property
+    def debug(self) -> bool:
+        return self._debug
+
+    @debug.setter
+    def debug(self, value: bool) -> None:
+
+        if value is True:
+            os.environ["FLASK_ENV"] = "development"
+
+        self._debug = value
 
     @property
     def path_site(self) -> pathlib.Path:
@@ -145,21 +159,6 @@ class Config:
         return self.path_site / self.DIRECTORY_NAME_CACHE
 
     @property
-    def path_site_errors(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/errors """
-        return self.path_site / self.DIRECTORY_NAME_ERRORS
-
-    @property
-    def path_site_error_404(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/errors/404 """
-        return self.path_site_errors / self.DIRECTORY_NAME_ERROR_404
-
-    @property
-    def path_site_error_500(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/errors/500 """
-        return self.path_site_errors / self.DIRECTORY_NAME_ERROR_500
-
-    @property
     def path_themes(self) -> pathlib.Path:
         """ Returns /absolute/path/to/[application]/themes. """
         return self.PATH_ROOT / self.DIRECTORY_NAME_THEMES
@@ -200,12 +199,14 @@ class Config:
 
     @property
     def _assets_theme(self) -> List[pathlib.Path]:
-        """ See Config.assets below. """
+        """ TEMP: This might become obsolete with the future implementation of
+        themeing. Also see GlobalConfig.assets. """
         return list(self.path_theme.glob("**/*"))
 
     @property
     def _assets_site(self) -> List[pathlib.Path]:
-        """ See Config.assets below. """
+        """ TEMP: This might dramatically change with the future implementation
+        of themeing. Also see GlobalConfig.assets. """
 
         assets_site = []
 
@@ -221,12 +222,14 @@ class Config:
     @property
     def assets(self) -> List[pathlib.Path]:
         """ Returns a list of paths pointing to all the sub-directories and
-        files inside the main site directory. When starting up a development
-        server, this list is passed to the 'extra_files' argument, allowing it
-        to reload when any of the site files are modifed.
+        files inside the 'theme' and 'site' directory.
+
+        When starting up a development server, this list is passed to the
+        'extra_files' argument, allowing it to reload when any of the site
+        files are modifed.
 
         via. https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
         return [*self._assets_theme, *self._assets_site]
 
 
-global_config = Config()
+global_config = GlobalConfig()

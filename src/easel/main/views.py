@@ -4,9 +4,7 @@ from flask import (
     Blueprint,
     abort,
     current_app,
-    redirect,
     render_template,
-    url_for,
 )
 
 from ..site import global_config
@@ -43,7 +41,7 @@ def index() -> str:
     if page is None:
         abort(404)
 
-    return render_template("page.jinja2", page=page)
+    return render_template("main.jinja2", page=page)
 
 
 @blueprint_main.route("/<path:page_url>")
@@ -54,26 +52,9 @@ def render_page(page_url: str) -> str:
     if page is None:
         abort(404)
 
-    return render_template("page.jinja2", page=page)
+    return render_template("main.jinja2", page=page)
 
 
 @blueprint_main.errorhandler(404)
 def error_404(error):
-
-    page: Optional["PageObj"] = current_app.site.page_error_404
-
-    if page is None:
-        return redirect(url_for("main.index"))
-
-    return render_template("page.jinja2", page=page)
-
-
-@blueprint_main.errorhandler(500)
-def error_500(error):
-
-    page: Optional["PageObj"] = current_app.site.page_error_500
-
-    if page is None:
-        return redirect(url_for("main.index"))
-
-    return render_template("page.jinja2", page=page)
+    return render_template("404.jinja2")

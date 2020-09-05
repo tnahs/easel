@@ -46,7 +46,7 @@
     grid-template-rows: min-content var(--contents-area-height);
     grid-template-columns: min-content auto min-content;
 
-    /* See below: animation__fade-in-out */
+    /* See below: #lightbox.animation__fade-in-out */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s var(--transition--ease-out);
@@ -100,9 +100,15 @@
     padding-right: 25px;
     padding-bottom: 0;
 
-    /*  */
+    /* See below: .lightbox__container.show */
     display: none;
 }
+
+.lightbox__container.show {
+
+    display: block;
+}
+
 
 .lightbox-item__image {
     width: inherit;
@@ -112,7 +118,7 @@
 }
 
 .lightbox__caption {
-    /* TODO: Style this. */
+    /* TODO: Style captions for Lightbox items. */
 }
 
 @media only screen and (max-width: 736px) {

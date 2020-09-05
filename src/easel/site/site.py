@@ -1,10 +1,9 @@
-import concurrent.futures
 import logging
 from typing import TYPE_CHECKING, List, Optional
 
-from . import errors, menus, pages, contents
+from . import errors, menus, pages
 from . import global_config
-from .helpers import Key, SafeDict, Utils
+from .helpers import Key, Utils
 
 
 if TYPE_CHECKING:
@@ -18,8 +17,6 @@ logger = logging.getLogger(__name__)
 class Site:
 
     _pages: List["PageObj"] = []
-    _page_error_404: Optional["PageObj"] = None
-    _page_error_500: Optional["PageObj"] = None
     _page_current: "PageObj"
 
     _menu: List["MenuObj"] = []
@@ -31,7 +28,6 @@ class Site:
         self._config = SiteConfig()
 
         self._build_pages()
-        self._build_error_pages()
         self._build_menu()
         self._validate_build()
 
@@ -61,20 +57,6 @@ class Site:
 
             self._pages.append(page)
 
-    def _build_error_pages(self) -> None:
-
-        if global_config.path_site_error_404.exists():
-
-            self._page_error_404 = pages.page_factory.build(
-                site=self, path_absolute=global_config.path_site_error_404
-            )
-
-        if global_config.path_site_error_500.exists():
-
-            self._page_error_500 = pages.page_factory.build(
-                site=self, path_absolute=global_config.path_site_error_500
-            )
-
     def _build_menu(self) -> None:
 
         if not self.config.menu:
@@ -91,7 +73,7 @@ class Site:
 
     def _validate_build(self) -> None:
 
-        # (Boolean types sum like integers!)
+        # NOTE: Boolean types sum like integers!
         index_pages = sum([page.config.is_index for page in self._pages])
 
         if index_pages > 1 or index_pages < 1:
@@ -107,7 +89,7 @@ class Site:
             for content in page.contents:
 
                 try:
-                    content.placeholder.cache(force=True)
+                    content.placeholder.cache(force=True)  # type: ignore
                 except AttributeError:
                     continue
 
@@ -128,7 +110,7 @@ class Site:
 
         for page in self._pages:
 
-            if not page.config.is_index:
+            if not page.is_index:
                 continue
 
             self._page_current = page
@@ -153,14 +135,6 @@ class Site:
     @property
     def page_current(self) -> "PageObj":
         return self._page_current
-
-    @property
-    def page_error_404(self) -> Optional["PageObj"]:
-        return self._page_error_404
-
-    @property
-    def page_error_500(self) -> Optional["PageObj"]:
-        return self._page_error_500
 
 
 class SiteConfig:
@@ -208,6 +182,10 @@ class SiteConfig:
         return self._data.get(Key.COPYRIGHT, "")
 
     @property
+    def description(self) -> str:
+        return self._data.get(Key.DESCRIPTION, "")
+
+    @property
     def favicon(self) -> str:
         return self._data.get(Key.FAVICON, "")
 
@@ -216,15 +194,19 @@ class SiteConfig:
         return self._data.get(Key.MENU, [])
 
     @property
-    def header(self) -> SafeDict:
-        # TODO: Test this out... It's acting strange in 'style.jinja2'.
-        return SafeDict(**self._data.get(Key.HEADER, {}))
+    def header(self) -> dict:
+        # TODO: Re-implement SiteConfig.header after it's clearer how missing
+        # keys and values will handled. We're trying to avoid forcing the user
+        # to declare blank key-value pairs as well as avoid having to traverse
+        # dictionaries to provide fallback default values.
+        return self._data.get(Key.HEADER, {})
 
     @property
-    def theme(self) -> SafeDict:
-        # TODO: Test this out... It's acting strange in 'style.jinja2'.
-        return SafeDict(**self._data.get(Key.THEME, {}))
+    def theme(self) -> dict:
+        # TODO: Re-implement SiteConfig.theme after it's clearer how themes
+        # will be configured.
+        return self._data.get(Key.THEME, {})
 
     @property
-    def theme_name(self) -> str:
+    def theme_name(self) -> Optional[str]:
         return self.theme.get(Key.NAME, "")

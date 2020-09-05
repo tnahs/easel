@@ -1,5 +1,6 @@
 import abc
 import logging
+import datetime
 import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
@@ -120,15 +121,10 @@ class PageInterface(abc.ABC):
     def url(self) -> str:
         return Utils.slugify(self.name)
 
-    # TODO: Properly implement 'cover' and 'description'.
-
     @property
-    def cover(self) -> pathlib.Path:
-        return self.path_relative / self.config.cover
-
-    @property
-    def description(self) -> pathlib.Path:
-        return self.path_relative / self.config.description
+    def is_index(self) -> bool:
+        """ Convenience method to access the 'is_index' configuration. """
+        return self.config.is_index
 
 
 class PageConfig:
@@ -143,7 +139,18 @@ class PageConfig:
             "description": [str: path/to/description],
             "options: [dict: options],
         }
-    """
+
+    TODO/NOTE: The main design concern is who, between PageInterface and
+    PageConfig is responsible for what attributes. Should all the page
+    configurations be accessed through PageConfig or should some of them be
+    accessible through the PageInterface. One solution is that the config
+    contains the raw/parsed config data and the page responds to that by
+    loading elements and/or mutating based on them.
+
+    The verdict is to parse and load everything in PageConfig. The reason being
+    it's easier to implement mixins and give them access to all the page's
+    configuration. Otherwise every mixin would have to ask for different sets
+    of configurations. """
 
     def __init__(self, page: "PageInterface", data: dict):
 
@@ -186,14 +193,27 @@ class PageConfig:
     def title(self) -> str:
         return self._data.get(Key.TITLE, "")
 
-    # TODO: Properly implement 'cover' and 'description'.
-
     @property
     def cover(self) -> pathlib.Path:
+        # TODO: Implement 'Page.cover'.
         return pathlib.Path(self._data.get(Key.COVER, ""))
 
     @property
+    def date(self) -> datetime.datetime:
+
+        date = self._data.get(Key.DATE, "")
+
+        try:
+            return datetime.datetime.strptime(date, global_config.DATE_FORMAT)
+        except ValueError as error:
+            raise errors.PageConfigError(
+                f"Unsupported value '{date}' for {Key.DATE}. Dates must be"
+                f"be formatted as '{global_config.DATE_FORMAT_PRETTY}'."
+            ) from error
+
+    @property
     def description(self) -> pathlib.Path:
+        # TODO: Implement 'Page.description'.
         return pathlib.Path(self._data.get(Key.DESCRIPTION, ""))
 
     @property
@@ -236,7 +256,9 @@ class LazyMixin(abc.ABC):
             if path.name == global_config.FILENAME_PAGE_YAML:
                 continue
 
-            # TODO: Properly implement 'cover' and 'description'.
+            if path.name == self.config.cover.name:
+                continue
+
             if path.name == self.config.description.name:
                 continue
 
@@ -293,12 +315,6 @@ class GalleryMixin(abc.ABC):
 
     def validate__gallery_config(self) -> None:
 
-        if self.column_count == "auto" and self.column_width == "auto":
-            raise errors.PageConfigError(
-                f"{self}: Cannot set '{Key.COLUMN_COUNT}' and "
-                f"'{Key.COLUMN_WIDTH}' to 'auto'."
-            )
-
         if (
             self.column_count is not None
             and self.column_count not in global_config.VALID_COLUMN_COUNT
@@ -311,10 +327,6 @@ class GalleryMixin(abc.ABC):
     @property
     def column_count(self) -> bool:
         return self.config.options.get(Key.COLUMN_COUNT, None)
-
-    @property
-    def column_width(self) -> bool:
-        return self.config.options.get(Key.COLUMN_WIDTH, None)
 
 
 class ShowCaptionsMixin(abc.ABC):
@@ -400,7 +412,6 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
             "type": "lazy-gallery",
             "options": {
                 "column-count": [str|int: auto],
-                "column-width": [str: 250px],
                 "show-captions": [bool: false],
             }
         }
@@ -473,7 +484,6 @@ class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin, ShowCaptionsMixin)
             "contents": [list<Images>: []],
             "options": {
                 "column-count": [str|int: auto],
-                "column-width": [str: 250px],
                 "show-captions": [bool: false],
             }
         }

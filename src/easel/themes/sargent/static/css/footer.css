@@ -9,6 +9,8 @@
     --footer--color: hsla(0, 0%, 0%, 0.6);
 }
 
+/* TODO: Footer needs to styled. */
+
 #footer {
     font-family: var(--footer--font-family);
     font-weight: var(--footer--font-weight);
@@ -17,6 +19,9 @@
 }
 
 #footer__copyright {
-    display: grid;
-    row-gap: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
 }

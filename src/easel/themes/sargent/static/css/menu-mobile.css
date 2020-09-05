@@ -1,6 +1,6 @@
 :root {
     /*
-     * base
+     * buttons
      * --------------------------------------------------------------------- */
 
     --menu-mobile-buttons--size: 32px;
@@ -17,9 +17,9 @@
 }
 
 /*
- * Structure of #menu-mobile__buttons
+ * Structure of #menu-mobile-buttons
 
-    #menu-mobile__buttons
+    #menu-mobile-buttons
         #menu-mobile-buttons__open
         #menu-mobile-buttons__close
  * ------------------------------------------------------------------------- */
@@ -71,7 +71,7 @@
         "footer";
     grid-template-rows: min-content auto;
 
-    /* See below: animation__fade-in-out */
+    /* See below: #menu-mobile.animation__fade-in-out */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s var(--transition--ease-out);
@@ -96,7 +96,7 @@
     padding-right: 50px;
     padding-bottom: 50px;
 
-    /* See below: animation__fade-in-out */
+    /* See below: #menu-mobile__menu-items.animation__fade-in-out */
     transition: transform 0.5s var(--transition--ease-out);
     transform: translateY(15px);
 }
@@ -120,10 +120,13 @@
 
     text-align: center;
 
-    display: grid;
-    row-gap: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
 
-    /* See below: animation__fade-in-out */
+    /* See below: #menu-mobile__footer.animation__fade-in-out */
     transition: transform 1s var(--transition--ease-out);
     transform: translateY(15px);
 }
@@ -150,10 +153,6 @@
         --menu-item__spacer--medium-height: 15px;
         --menu-item__spacer--large-width: 0;
         --menu-item__spacer--large-height: 30px;
-    }
-
-    #menu-desktop {
-        display: none;
     }
 
     #menu-mobile-buttons {

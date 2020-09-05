@@ -12,6 +12,9 @@
 }
 
 #header__image {
+
+    /* TODO: Test this on mobile. Make sure it's working as expected. */
+
     height: var(--header__image--height);
     width: auto;
 }
