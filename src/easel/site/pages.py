@@ -140,7 +140,7 @@ class PageConfig:
             "options: [dict: options],
         }
 
-    TODO/NOTE: The main design concern is who, between PageInterface and
+    NOTE/TODO: The main design concern is who, between PageInterface and
     PageConfig is responsible for what attributes. Should all the page
     configurations be accessed through PageConfig or should some of them be
     accessible through the PageInterface. One solution is that the config

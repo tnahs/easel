@@ -1,21 +1,38 @@
 "use strict"
 
 class MenuMobile {
-    constructor() {
-        this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
+    /** Structure of #menu-mobile-buttons & #menu-mobile
 
+        #menu-mobile-buttons
+            #menu-mobile-buttons__open
+            #menu-mobile-buttons__close
+
+        #menu-mobile
+            #menu-mobile__menu-items
+                .menu-item__link-page
+                .menu-item__link-url
+                    .menu-item__spacer
+                    .menu-item__spacer--small
+                    .menu-item__spacer--medium
+                    .menu-item__spacer--large
+            #menu-mobile__footer
+    ------------------------------------------------------------------------ */
+
+    CLASS_FADE_IN_OUT = "animation__fade-in-out"
+
+    main = document.querySelector("#menu-mobile")
+
+    buttons = document.querySelector("#menu-mobile-buttons")
+    buttonOpen = document.querySelector("#menu-mobile-buttons__open")
+    buttonClose = document.querySelector("#menu-mobile-buttons__close")
+
+    menuItems = document.querySelector("#menu-mobile__menu-items")
+    footer = document.querySelector("#menu-mobile__footer")
+
+    constructor() {
         this.isVisible = false
 
-        this.main = document.querySelector("#menu-mobile")
-
-        this.buttons = document.querySelector("#menu-mobile-buttons")
-        this.buttonOpen = document.querySelector("#menu-mobile-buttons__open")
-        this.buttonClose = document.querySelector("#menu-mobile-buttons__close")
-
-        this.menuItems = document.querySelector("#menu-mobile__menu-items")
-        this.footer = document.querySelector("#menu-mobile__footer")
-
-        this._menuElements__toFadeIn = [this.main, this.menuItems, this.footer]
+        this.menuElements__toFadeIn = [this.main, this.menuItems, this.footer]
 
         this._uiButtonsController = new MenuMobileUIButtonsController(this)
         this._keyboardController = new MenuMobileKeyboardController(this)
@@ -24,7 +41,7 @@ class MenuMobile {
     setup() {}
 
     open() {
-        this._menuElements__toFadeIn.forEach((menuElement) => {
+        this.menuElements__toFadeIn.forEach((menuElement) => {
             menuElement.classList.add(this.CLASS_FADE_IN_OUT)
         })
 
@@ -37,7 +54,7 @@ class MenuMobile {
     }
 
     close() {
-        this._menuElements__toFadeIn.forEach((menuElement) => {
+        this.menuElements__toFadeIn.forEach((menuElement) => {
             menuElement.classList.remove(this.CLASS_FADE_IN_OUT)
         })
 

@@ -1,20 +1,18 @@
 "use strict"
 
 class ContentTools {
-    constructor() {
-        this._contentItems = [
-            ...document.querySelectorAll("[class^='content-item__']"),
-        ]
+    contentItems = document.querySelectorAll("[class^='content-item__']")
 
-        this._contentItems__toLazyLoad = this._contentItems.filter((item) =>
+    constructor() {
+        this.contentItems__toLazyLoad = [...this.contentItems].filter((item) =>
             item.hasAttribute("data-src")
         )
 
-        this._contentItems__toWrapPlaceholder = this._contentItems.filter(
-            (item) => item.hasAttribute("data-placeholder-color")
-        )
+        this.contentItems__toWrapPlaceholder = [
+            ...this.contentItems,
+        ].filter((item) => item.hasAttribute("data-placeholder-color"))
 
-        this._contentItems__toResizeEmbedded = document.querySelectorAll(
+        this.contentItems__toResizeEmbedded = document.querySelectorAll(
             ".content-item__embedded iframe"
         )
     }
@@ -39,7 +37,7 @@ class ContentTools {
             "--placeholder-color--alpha"
         )
 
-        this._contentItems__toWrapPlaceholder.forEach((contentItem) => {
+        this.contentItems__toWrapPlaceholder.forEach((contentItem) => {
             const placeholderColor = this._getPlaceholderColor(
                 contentItem,
                 placeholderAlpha,
@@ -51,7 +49,7 @@ class ContentTools {
     }
 
     _setupEmbeddedContentItems() {
-        this._contentItems__toResizeEmbedded.forEach((contentItem) => {
+        this.contentItems__toResizeEmbedded.forEach((contentItem) => {
             this._resizeEmbeddedContentItem(contentItem)
         })
     }
@@ -103,11 +101,11 @@ class ContentTools {
             lazyLoadOptions
         )
 
-        this._contentItems.forEach((contentItem) => {
+        this.contentItems.forEach((contentItem) => {
             fadeInObserver.observe(contentItem)
         })
 
-        this._contentItems__toLazyLoad.forEach((contentItem) => {
+        this.contentItems__toLazyLoad.forEach((contentItem) => {
             lazyLoadObserver.observe(contentItem)
         })
     }
@@ -123,6 +121,7 @@ class ContentTools {
             return placeholderColorFallback
         }
 
+        // Check that color object has "r", "g" and "b" keys.
         if (!("r" in color) || !("g" in color) || !("b" in color)) {
             return placeholderColorFallback
         }

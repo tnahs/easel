@@ -16,13 +16,12 @@
     --menu-mobile__footer--color: hsla(0, 0%, 0%, 0.5);
 }
 
-/*
- * Structure of #menu-mobile-buttons
+/** Structure of #menu-mobile-buttons
 
     #menu-mobile-buttons
         #menu-mobile-buttons__open
         #menu-mobile-buttons__close
- * ------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 
 #menu-mobile-buttons {
     display: none;

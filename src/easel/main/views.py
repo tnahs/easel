@@ -41,7 +41,7 @@ def index() -> str:
     if page is None:
         abort(404)
 
-    return render_template("main.jinja2", page=page)
+    return render_template("main.html", page=page)
 
 
 @blueprint_main.route("/<path:page_url>")
@@ -52,9 +52,9 @@ def render_page(page_url: str) -> str:
     if page is None:
         abort(404)
 
-    return render_template("main.jinja2", page=page)
+    return render_template("main.html", page=page)
 
 
 @blueprint_main.errorhandler(404)
 def error_404(error):
-    return render_template("404.jinja2")
+    return render_template("404.html")

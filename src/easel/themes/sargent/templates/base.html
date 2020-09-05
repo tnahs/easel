@@ -28,19 +28,19 @@
 
     <body>
 
-        <header>{% include "_header.jinja2" %}</header>
+        <header>{% include "_header.html" %}</header>
 
         <menu>
-            {% include "_menu.jinja2" %}
-            {% include "_menu-mobile.jinja2" %}
+            {% include "_menu.html" %}
+            {% include "_menu-mobile.html" %}
         </menu>
 
         <main>{% block main %}{% endblock %}</main>
 
-        <footer>{% include "_footer.jinja2" %}</footer>
+        <footer>{% include "_footer.html" %}</footer>
 
         {% if page.is_gallery %}
-            {% include "_lightbox.jinja2" %}
+            {% include "_lightbox.html" %}
         {% endif %}
 
         <script src="{{ url_for('main.static', filename='javascript/base.js') }}"></script>
