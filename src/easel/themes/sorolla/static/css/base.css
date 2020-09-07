@@ -77,7 +77,7 @@ html {
 }
 
 body {
-    /* FIXME: When this is enabled, the footer acts correctly and gets pushed
+    /* FIXME:MED When this is enabled, the footer acts correctly and gets pushed
     to the bottom of the page. However in when in mobile-mode it causes the
     footer to lose all it's lower padding.
 

@@ -1,12 +1,12 @@
 from flask import Blueprint
 
-from .paths import site_paths__
+from .globals import site_globals
 
 
 # fmt:off
 blueprint_site = Blueprint(
     name="site",
     import_name=__name__,
-    static_folder=str(site_paths__.root),
+    static_folder=str(site_globals.paths.root),
 )
 # fmt:on

@@ -105,10 +105,8 @@
 }
 
 .lightbox__container.show {
-
     display: block;
 }
-
 
 .lightbox-item__image {
     width: inherit;
@@ -118,7 +116,7 @@
 }
 
 .lightbox__caption {
-    /* TODO: Style captions for Lightbox items. */
+    /* TODO:LOW Style captions for Lightbox items. */
 }
 
 @media only screen and (max-width: 736px) {

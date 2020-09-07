@@ -2,44 +2,37 @@
 
 ## HIGH
 
-- ImagePlaceholder > ImageProxies
-  - Add support for 3 sizes: `small`, `medium`, `large`.
-- Use gulp
-  - Install `reset.css`, `normalize.css` and `hammmer.js`
-  - Copy it to theme dir on dev/build.
-- Support only one default theme for now.
-  - If theme name is not "default", drop in a comment where it attempts to import the theme from the Python path. Throw an error if it doesn't exist.
-- All url_for calls to `main.static` should become `site.static`. Or we can write a custom method to retrieve site assets e.g. `{{  site.config.favicon | url }}`
-- Change `.cache` folder to `assets`.
-- Copy all theme data to `path_site` under 'theme-name'.
-  - Ignore hidden files which might contains source data. e.g. `.images/buttons.afdesign`
-- Convert Javascript -> Typescript
-- Convert CSS -> SASS
-- Remove all `#ids` from styling.
 - Style 404
 - Style Markdown
+- Remove all `#ids` from styling.
+- Use gulp to copy/install `reset.css`, `normalize.css` and `hammmer.js` on dev/build
 
 ## MEDIUM
 
-- Site ass Flask app.
-  - On Easel.run()
-    - Raw theme data is copied to site-name/assets/theme
-    - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
-    - ...
-
-- Site as flattened html -> `easel build`
-  - On 'easel build'
-    - ...
+- ImagePlaceholder > ImageProxies
+  - Add support for 3 sizes: `small`, `medium`, `large`.
+- Set theme/custom-theme through 'site.yaml'
 
 ## LOW
 
-- ThemeManager class.
+- Convert CSS -> SASS
+- Convert Javascript -> Typescript
+- ThemeConfig class.
+- Check placeholder generation for all Easel supported filetypes.
+- Change `.cache` folder to `assets`.
+- Can we make all calls to `main.static` into `site.static`? Or a custom method to retrieve site assets e.g. `{{ site.config.favicon | url }}`
 - Lightbox
   - Fix styling on both desktop and mobile.
   - Use hammer.js - <https://github.com/hammerjs/hammer.js>
   - Documentation
   - Ignore pinch/zoom when open.
-- Check placeholder generation for all Easel supported filetypes.
+- Site ass Flask app.
+  - On Easel.run()
+    - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
+    - ...
+- Site as flattened html -> `easel build`
+  - On 'easel build'
+    - ...
 
 ## QUESTIONS
 
@@ -60,6 +53,7 @@
 - Better way to find dominant/average color of an image.
 - Menu item icon
 - Custom Themes
+  - Theme configuration file `theme.yaml` for theme development.
   - READ: <https://www.mkdocs.org/user-guide/custom-themes/>
   - READ: <https://www.mkdocs.org/user-guide/custom-themes/#packaging-themes>
   - Repo for 'easel-basic-theme'
@@ -110,12 +104,5 @@
         │   ├── page02
         │   │   └──...
         │   └──...
-        └── theme
-            ├── css
-            ├── javascript
-            ├── images
-            ├── fonts
-            └── templates
-                ├── 404.jinja
-                └── main.jinja2
+        └──...
     ```

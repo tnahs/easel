@@ -4,8 +4,8 @@ import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
-from .defaults import SiteDefaults
-from .helpers import Key, Utils
+from .defaults import Key, SiteDefaults
+from .helpers import Utils
 
 
 if TYPE_CHECKING:

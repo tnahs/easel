@@ -195,7 +195,7 @@ class LightboxKeyboardController {
 }
 
 class LightboxGestureController {
-    // TODO: Ignore pinch/zoom.
+    // TODO:LOW Ignore pinch/zoom.
     constructor(lightbox) {
         this._lightbox = lightbox
 

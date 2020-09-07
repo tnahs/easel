@@ -56,9 +56,8 @@
 ---------------------------------------------------------------------------- */
 
 #page {
-
-    /* TODO: Implement page-width with grid columns. This will mainly be used
-    to prevent the text content on the page from spanning 100%. */
+    /* TODO:LOW Implement page-width with grid columns. This will mainly be
+    used to prevent the text content on the page from spanning 100%. */
 
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -66,9 +65,8 @@
 }
 
 #page-gallery {
-
-    /* TODO: Change the way regular pages and gallery pages are setup in terms
-    of classes. Something like .page .page--base .page--gallery */
+    /* TODO:LOW Change the way regular pages and gallery pages are setup in
+    terms of classes. Something like .page .page--base .page--gallery */
 
     -webkit-column-width: var(--page-gallery--column-width);
     -webkit-column-count: var(--page-gallery--column-count);

@@ -8,9 +8,10 @@ import PIL.Image
 import PIL.ImageFilter
 
 from . import errors
-from .defaults import SiteDefaults
-from .helpers import Key, Utils, markdown
-from .paths import site_paths__
+from .defaults import Key, SiteDefaults
+from .helpers import Utils
+from .globals import site_globals
+from .markdown import markdown
 
 
 if TYPE_CHECKING:
@@ -240,7 +241,7 @@ class Placeholder:
             /site/.cache/page-name/image-name
         """
         return (
-            site_paths__.cache
+            site_globals.paths.cache
             / self._original_image.path_relative.parent
             / self._original_image.name
         )
@@ -259,7 +260,7 @@ class Placeholder:
 
             .cache/page-name/image-name/image.ext
         """
-        return self.path_absolute_image.relative_to(site_paths__.root)
+        return self.path_absolute_image.relative_to(site_globals.paths.root)
 
     @property
     def path_absolute_color(self) -> pathlib.Path:
@@ -319,7 +320,7 @@ class FileContent(ContentInterface):
                 f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
             ) from error
 
-        # TODO: Check type of self.config[Key.PATH]
+        # TODO:LOW Check type of self.config[Key.PATH]
 
         if not self.path_absolute.exists():
             raise errors.MissingContent(
@@ -359,7 +360,7 @@ class FileContent(ContentInterface):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns a path relative to to /[site]. """
-        return self.path_absolute.relative_to(site_paths__.root)
+        return self.path_absolute.relative_to(site_globals.paths.root)
 
     @property
     def mimetype(self) -> str:

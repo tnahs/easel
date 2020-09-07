@@ -4,12 +4,12 @@ import pathlib
 from typing import TYPE_CHECKING, List, Optional
 
 from . import errors, menus, pages
-from .helpers import Key, Utils
-from .paths import site_paths__
-from .theme import site_theme__
+from .defaults import Key
+from .globals import site_globals
 
 
 if TYPE_CHECKING:
+    from .globals import SiteConfig
     from .menus import MenuObj
     from .pages import PageObj
 
@@ -20,82 +20,7 @@ logger = logging.getLogger(__name__)
 from .defaults import SiteDefaults
 
 
-class SiteConfig:
-    def __init__(self, site: "Site"):
-
-        self._site = site
-
-        self._data = Utils.load_config(
-            path=site_paths__.root / SiteDefaults.FILENAME_SITE_YAML
-        )
-
-        self._validate()
-
-    def _validate(self) -> None:
-
-        menu: dict = self._data.get(Key.MENU, [])
-
-        if type(menu) is not list:
-            raise errors.SiteConfigError(
-                f"Expected type 'list' for '{Key.MENU}' got '{type(menu).__name__}'."
-            )
-
-        header: dict = self._data.get(Key.HEADER, {})
-
-        if type(header) is not dict:
-            raise errors.SiteConfigError(
-                f"Expected type 'dict' for '{Key.HEADER}' got '{type(header).__name__}'."
-            )
-
-        theme: dict = self._data.get(Key.THEME, {})
-
-        if type(theme) is not dict:
-            raise errors.SiteConfigError(
-                f"Expected type 'dict' for '{Key.THEME}' got '{type(theme).__name__}'."
-            )
-
-    @property
-    def title(self) -> str:
-        return self._data.get(Key.TITLE, "")
-
-    @property
-    def author(self) -> str:
-        return self._data.get(Key.AUTHOR, "")
-
-    @property
-    def copyright(self) -> str:
-        return self._data.get(Key.COPYRIGHT, "")
-
-    @property
-    def description(self) -> str:
-        return self._data.get(Key.DESCRIPTION, "")
-
-    @property
-    def favicon(self) -> str:
-        return self._data.get(Key.FAVICON, "")
-
-    @property
-    def menu(self) -> list:
-        return self._data.get(Key.MENU, [])
-
-    @property
-    def header(self) -> dict:
-        # TODO: Re-implement SiteConfig.header after it's clearer how missing
-        # keys and values will handled. We're trying to avoid forcing the user
-        # to declare blank key-value pairs as well as avoid having to traverse
-        # dictionaries to provide fallback default values.
-        return self._data.get(Key.HEADER, {})
-
-    @property
-    def theme(self) -> dict:
-        # TODO: Re-implement SiteConfig.theme after it's clearer how themes
-        # will be configured.
-        return self._data.get(Key.THEME, {})
-
-
 class Site:
-
-    _config: "SiteConfig"
 
     _pages: List["PageObj"] = []
     _page_current: "PageObj"
@@ -116,23 +41,21 @@ class Site:
 
     def build(self) -> None:
 
-        logger.info(f"Building Site from {site_paths__.root}.")
-
-        self._config = SiteConfig(site=self)
+        logger.info(f"Building Site from {site_globals.paths.root}.")
 
         self._build_pages()
         self._build_menu()
         self._validate_build()
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {site_paths__.root}>"
+        return f"<{self.__class__.__name__}: {site_globals.paths.root}>"
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}: {self.config.title}"
 
     def _build_pages(self) -> None:
 
-        for path in site_paths__.pages.iterdir():
+        for path in site_globals.paths.pages.iterdir():
 
             if not path.is_dir():
                 continue
@@ -178,7 +101,7 @@ class Site:
 
     def rebuild_cache(self):
 
-        logger.info(f"Rebuilding Site cache to {site_paths__.cache}.")
+        logger.info(f"Rebuilding Site cache to {site_globals.paths.cache}.")
 
         for page in self.pages:
             for content in page.contents:
@@ -190,7 +113,7 @@ class Site:
 
     @property
     def config(self) -> "SiteConfig":
-        return self._config
+        return site_globals.config
 
     @property
     def pages(self) -> List["PageObj"]:
@@ -235,7 +158,7 @@ class Site:
     def _assets_theme(self) -> List[pathlib.Path]:
         """ TEMP: This might become obsolete with the future implementation of
         themeing. Also see SiteDefaults.assets. """
-        return list(site_theme__.root.glob("**/*"))
+        return list(site_globals.theme.root.glob("**/*"))
 
     @property
     def _assets_site(self) -> List[pathlib.Path]:
@@ -244,7 +167,7 @@ class Site:
 
         assets_site = []
 
-        for item in site_paths__.root.glob("**/*"):
+        for item in site_globals.paths.root.glob("**/*"):
 
             if item.name == SiteDefaults.DIRECTORY_NAME_CACHE:
                 continue

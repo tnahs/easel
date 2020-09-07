@@ -20,8 +20,7 @@ from typing import Optional, Union
 from flask import Flask
 
 from .site import Site
-from .site.paths import site_paths__
-from .site.theme import site_theme__
+from .site.globals import site_globals
 
 
 class Easel(Flask):
@@ -29,9 +28,9 @@ class Easel(Flask):
     attributes, Easel._site and it's accessor Easel.site which returns a
     Site object.
 
-    TEMP/NOTE: Both 'theme' and 'custom_theme' are temporary ways of
-    setting and customizing the theme. Future implementations will use the
-    'site.yaml' to do this. See src.easel.site.GlobalConfig for more info. """
+    TEMP:Both 'theme' and 'custom_theme' are temporary ways of setting and
+    customizing the theme. Future implementations will use the 'site.yaml' to
+    do this. See src.easel.site.GlobalConfig for more info. """
 
     def __init__(
         self,
@@ -51,12 +50,14 @@ class Easel(Flask):
 
         if theme_name and theme_root:
             logger.warning(
-                "Setting both 'theme' and 'theme_root' might result in unexpected behavior."
+                "Setting both 'theme_name' and 'theme_root' might result in unexpected behavior."
             )
 
-        site_paths__.root = root
-        site_theme__.name = theme_name
-        site_theme__.root = theme_root
+        site_globals.paths.root = root
+        site_globals.theme.name = theme_name
+        site_globals.theme.root = theme_root
+
+        site_globals.config.load()
 
         # Create and bind Site.
         self._site = Site()
@@ -76,10 +77,10 @@ class Easel(Flask):
             return {"site": self._site}
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}:{site_paths__.root}>"
+        return f"<{self.__class__.__name__}:{site_globals.paths.root}>"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}:{site_paths__.root}"
+        return f"{self.__class__.__name__}:{site_globals.paths.root}"
 
     @property
     def site(self) -> "Site":

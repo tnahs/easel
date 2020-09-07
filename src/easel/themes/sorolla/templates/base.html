@@ -6,7 +6,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        {# TODO: Need to check for "page" incase we hit a 404 error. See if there's a cleaner way to do this. #}
+        {# TODO:LOW Need to check for "page" in case we hit a 404 error. Is there
+        a clearer way to do this? #}
 
         {% if site.config.description and page and page.is_index %}<meta name="description" content="{{ site.config.description }}">{% endif %}
         {% if site.config.author %}<meta name="author" content="{{ site.config.author }}">{% endif %}

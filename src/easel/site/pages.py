@@ -5,9 +5,9 @@ import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
 from . import contents, errors
-from .defaults import SiteDefaults
-from .helpers import Key, Utils
-from .paths import site_paths__
+from .defaults import Key, SiteDefaults
+from .globals import site_globals
+from .helpers import Utils
 
 
 if TYPE_CHECKING:
@@ -116,7 +116,7 @@ class PageInterface(abc.ABC):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(site_paths__.root)
+        return self._path_absolute.relative_to(site_globals.paths.root)
 
     @property
     def url(self) -> str:
@@ -189,7 +189,7 @@ class PageConfig:
 
     @property
     def cover(self) -> pathlib.Path:
-        # TODO: Implement 'Page.cover'.
+        # TODO:LOW Implement 'Page.cover'.
         return pathlib.Path(self._data.get(Key.COVER, ""))
 
     @property
@@ -207,7 +207,7 @@ class PageConfig:
 
     @property
     def description(self) -> pathlib.Path:
-        # TODO:HIGH: Implement 'Page.description'.
+        # TODO:HIGH Implement 'Page.description'.
         return pathlib.Path(self._data.get(Key.DESCRIPTION, ""))
 
     @property

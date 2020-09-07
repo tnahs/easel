@@ -24,7 +24,7 @@ class ContentTools {
     }
 
     _setupPlaceholderColors() {
-        // TODO: Do we want to add another layer of fallback in case the CSS
+        // TODO:LOW Do we want to add another layer of fallback in case the CSS
         // properties aren't defined?
 
         const documentStyle = getComputedStyle(document.documentElement)

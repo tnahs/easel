@@ -62,5 +62,8 @@ function build() {
     gulp.parallel(runSCSS, runTS)
 }
 
+// gulp dev --theme=THEME-NAME
 exports.dev = dev
+
+// gulp build --theme=THEME-NAME
 exports.build = build

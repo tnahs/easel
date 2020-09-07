@@ -2,53 +2,14 @@ import logging
 import pathlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Optional
 
-import markdown as _markdown
 import yaml
 
 from . import errors
 from .defaults import SiteDefaults
-from .paths import site_paths__
-
-
-if TYPE_CHECKING:
-    from .pages import PageObj
 
 
 logger = logging.getLogger(__name__)
-
-
-class Key:
-    ALIGN: str = "align"
-    AUTHOR: str = "author"
-    CAPTION: str = "caption"
-    CONTENTS: str = "contents"
-    COVER: str = "cover"
-    COPYRIGHT: str = "copyright"
-    DATE: str = "date"
-    DESCRIPTION: str = "description"
-    EXTRAS: str = "extras"
-    FAVICON: str = "favicon"
-    COLUMN_COUNT: str = "column-count"
-    HEADER: str = "header"
-    HTML: str = "html"
-    ICON: str = "icon"
-    IS_GALLERY: str = "is-gallery"
-    IS_INDEX: str = "is-index"
-    LABEL: str = "label"
-    LINKS_TO: str = "links-to"
-    MENU: str = "menu"
-    NAME: str = "name"
-    OPTIONS: str = "options"
-    PATH: str = "path"
-    SHOW_CAPTIONS: str = "show-captions"
-    SIZE: str = "size"
-    TEXT: str = "text"
-    THEME: str = "theme"
-    TITLE: str = "title"
-    TYPE: str = "type"
-    URL: str = "url"
 
 
 class SafeDict(dict):
@@ -134,54 +95,3 @@ class Utils:
         string = re.sub(r"[-\s]+", delimiter, string)
 
         return string
-
-
-class Markdown:
-    def _convert(self, string: str, base_path: Optional[pathlib.Path] = None) -> str:
-        """ https://facelessuser.github.io/pymdown-extensions/ """
-
-        md = _markdown.Markdown(
-            extensions=[
-                "nl2br",
-                "sane_lists",
-                "pymdownx.pathconverter",
-                "pymdownx.smartsymbols",
-                "pymdownx.magiclink",
-                "pymdownx.tasklist",
-                "pymdownx.extra",
-                "pymdownx.caret",
-                "pymdownx.tilde",
-                "pymdownx.mark",
-            ],
-            extension_configs={
-                "pymdownx.pathconverter": {"absolute": True, "base_path": base_path}
-            },
-        )
-
-        return md.convert(string)
-
-    def from_file(self, filepath: pathlib.Path, page: "PageObj") -> str:
-        """ Render Markdown from a file. """
-
-        # 'base_path' is pre-pended to any 'path' or 'src' in <a>, <script>,
-        # <img>, and <link> tags, allowing the use of relative paths in
-        # markdown files.
-        #
-        # via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
-        base_path = pathlib.Path(f"{site_paths__.root.name}/{page.path_relative}")
-
-        with open(filepath, encoding="utf-8") as f:
-            string = f.read()
-
-        return self._convert(string, base_path)
-
-    def from_string(self, string: Optional[str] = None) -> str:
-        """ Render Markdown from a string. """
-
-        if string is not None:
-            return self._convert(string)
-
-        return ""
-
-
-markdown = Markdown()

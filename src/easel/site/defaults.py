@@ -11,7 +11,7 @@ class SiteDefaults:
     across modules as well as default/valid configuration values. """
 
     # Path to [repo]/src/easel
-    PATH_ROOT = pathlib.Path(__file__).parent.parent
+    APP_ROOT = pathlib.Path(__file__).parent.parent
 
     DIRECTORY_NAME_PAGES: str = "pages"
     DIRECTORY_NAME_THEMES: str = "themes"
@@ -34,7 +34,7 @@ class SiteDefaults:
     DEFAULT_THEME_NAME: str = "sorolla"
     VALID_THEME_NAMES = [
         item.name
-        for item in (PATH_ROOT / DIRECTORY_NAME_THEMES).iterdir()
+        for item in (APP_ROOT / DIRECTORY_NAME_THEMES).iterdir()
         if item.is_dir() and not item.name.startswith(".")
     ]
 
@@ -98,3 +98,36 @@ class SiteDefaults:
         ".mp3": "audio/mpeg",
         ".wav": "audio/wav",
     }
+
+
+class Key:
+    ALIGN: str = "align"
+    AUTHOR: str = "author"
+    CAPTION: str = "caption"
+    CONTENTS: str = "contents"
+    COVER: str = "cover"
+    COPYRIGHT: str = "copyright"
+    DATE: str = "date"
+    DESCRIPTION: str = "description"
+    EXTRAS: str = "extras"
+    FAVICON: str = "favicon"
+    COLUMN_COUNT: str = "column-count"
+    HEADER: str = "header"
+    HTML: str = "html"
+    ICON: str = "icon"
+    IS_GALLERY: str = "is-gallery"
+    IS_INDEX: str = "is-index"
+    LABEL: str = "label"
+    LINKS_TO: str = "links-to"
+    MENU: str = "menu"
+    NAME: str = "name"
+    OPTIONS: str = "options"
+    PATH: str = "path"
+    SHOW_CAPTIONS: str = "show-captions"
+    SITE_ROOT: str = "SITE_ROOT"
+    SIZE: str = "size"
+    TEXT: str = "text"
+    THEME: str = "theme"
+    TITLE: str = "title"
+    TYPE: str = "type"
+    URL: str = "url"
