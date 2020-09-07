@@ -3,15 +3,13 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
-from click.core import Option
-
-from . import errors, contents
-from . import global_config
+from . import errors
+from .defaults import SiteDefaults
 from .helpers import Key, Utils
 
 
 if TYPE_CHECKING:
-    from .site import Site
+    from . import Site
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +42,7 @@ class _MenuFactory:
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.TYPE}' for Menu-like item in "
-                f"{global_config.FILENAME_SITE_YAML}."
+                f"{SiteDefaults.FILENAME_SITE_YAML}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
@@ -53,7 +51,7 @@ class _MenuFactory:
         if Menu is None:
             raise errors.MenuConfigError(
                 f"Unsupported value '{menu_type}' for '{Key.TYPE}' for "
-                f"Menu-like item in {global_config.FILENAME_SITE_YAML}."
+                f"Menu-like item in {SiteDefaults.FILENAME_SITE_YAML}."
             )
 
         return Menu(site=site, **config)
@@ -115,7 +113,7 @@ class LinkPage(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
-                f"for {self.__class__.__name__} in {global_config.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
             ) from error
 
         try:
@@ -123,7 +121,7 @@ class LinkPage(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LINKS_TO}' "
-                f"for {self.__class__.__name__} in {global_config.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
             ) from error
 
         self._normalize__links_to()
@@ -131,7 +129,7 @@ class LinkPage(MenuInterface):
 
     def _normalize__links_to(self) -> None:
         """ Ensures the 'links-to' attribute from 'config' is always a path
-        relative to the 'config.path_site_pages' directory.
+        relative to the 'config.path_pages' directory.
 
             pages/page-000 --> page-000
             page-001       --> page-001
@@ -143,7 +141,7 @@ class LinkPage(MenuInterface):
 
         try:
             links_to = pathlib.Path(links_to)
-            links_to = links_to.relative_to(global_config.DIRECTORY_NAME_PAGES)
+            links_to = links_to.relative_to(SiteDefaults.DIRECTORY_NAME_PAGES)
         except ValueError:
             # pathlib raises a ValueError if the path does not begin with the
             # value passed to Path.relative_to(). In this case 'pages'.
@@ -200,7 +198,7 @@ class LinkURL(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
-                f"for {self.__class__.__name__} in {global_config.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
             ) from error
 
         try:
@@ -208,7 +206,7 @@ class LinkURL(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.URL}' "
-                f"for {self.__class__.__name__} in {global_config.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
             ) from error
 
     @property
@@ -238,10 +236,10 @@ class Spacer(MenuInterface):
 
     def validate__config(self) -> None:
 
-        if self.size is not None and self.size not in global_config.VALID_SIZES:
+        if self.size is not None and self.size not in SiteDefaults.VALID_SIZES:
             raise errors.MenuConfigError(
                 f"Unsupported value '{self.size}' for {Key.SIZE} for "
-                f"{self.__class__.__name__} in {global_config.FILENAME_SITE_YAML}."
+                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
             )
 
     @property

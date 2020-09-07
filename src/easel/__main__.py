@@ -1,7 +1,8 @@
+import logging
+
 import click
 
-from . import __version__
-from . import Easel
+from . import Easel, __version__
 
 
 @click.group()
@@ -15,7 +16,7 @@ def cli() -> None:
 def serve(directory: str) -> None:
     """ Serve an site from an Easel DIRECTORY. """
 
-    easel = Easel(directory, loglevel="DEBUG")
+    easel = Easel(directory, loglevel=logging.DEBUG)
     easel.run()
 
 
@@ -24,8 +25,8 @@ def serve(directory: str) -> None:
 def rebuild_cache(directory: str) -> None:
     """ Re-build cache from an Easel DIRECTORY. """
 
-    easel = Easel(directory, loglevel="DEBUG")
-    easel.rebuild_cache()
+    easel = Easel(directory, loglevel=logging.INFO)
+    easel.site.rebuild_cache()
 
 
 @click.group()

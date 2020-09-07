@@ -1,0 +1,6 @@
+# sorolla-demo/pages/patterns
+
+type: lazy-gallery
+title: Patterns
+cover: page-cover.jpg
+description: page-description.md

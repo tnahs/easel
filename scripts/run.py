@@ -1,5 +1,6 @@
-import sys
 import pathlib
+import sys
+
 
 path_src = str(pathlib.Path(__file__).resolve().parent.parent / "src")
 sys.path.append(path_src)
@@ -8,8 +9,7 @@ sys.path.append(path_src)
 from easel import Easel
 
 
-easel = Easel("examples/sargent-demo", debug=True, loglevel="DEBUG")
-# easel = Easel("examples/sorolla-demo", debug=True, loglevel="DEBUG")
+easel = Easel("./examples/sorolla-demo", debug=True, loglevel="DEBUG")
 
 
 if __name__ == "__main__":

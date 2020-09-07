@@ -1,17 +1,18 @@
 import abc
-import logging
 import datetime
+import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
 from . import contents, errors
-from . import global_config
+from .defaults import SiteDefaults
 from .helpers import Key, Utils
+from .paths import site_paths__
 
 
 if TYPE_CHECKING:
-    from .site import Site
-    from .contents import ContentObj, Image, Audio, Video, TextBlock
+    from . import Site
+    from .contents import Audio, ContentObj, Image, TextBlock, Video
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ class _PageFactory:
     def build(self, site: "Site", path_absolute: pathlib.Path) -> PageObj:
         """ Builds Page-like object from a path. """
 
-        path_page_config: pathlib.Path = path_absolute / global_config.FILENAME_PAGE_YAML
+        path_page_config: pathlib.Path = path_absolute / SiteDefaults.FILENAME_PAGE_YAML
 
         page_config: dict = Utils.load_config(path=path_page_config)
 
@@ -115,7 +116,7 @@ class PageInterface(abc.ABC):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(global_config.path_site)
+        return self._path_absolute.relative_to(site_paths__.root)
 
     @property
     def url(self) -> str:
@@ -140,17 +141,10 @@ class PageConfig:
             "options: [dict: options],
         }
 
-    NOTE/TODO: The main design concern is who, between PageInterface and
-    PageConfig is responsible for what attributes. Should all the page
-    configurations be accessed through PageConfig or should some of them be
-    accessible through the PageInterface. One solution is that the config
-    contains the raw/parsed config data and the page responds to that by
-    loading elements and/or mutating based on them.
-
-    The verdict is to parse and load everything in PageConfig. The reason being
-    it's easier to implement mixins and give them access to all the page's
-    configuration. Otherwise every mixin would have to ask for different sets
-    of configurations. """
+    All page configuration is accessed through this class. The reason being
+    that it's easier to implement mixins by declaring one abstract method
+    'config' that returns a 'PageConfig' object. Otherwise every mixin would
+    have to ask for different sets of configurations. """
 
     def __init__(self, page: "PageInterface", data: dict):
 
@@ -204,16 +198,16 @@ class PageConfig:
         date = self._data.get(Key.DATE, "")
 
         try:
-            return datetime.datetime.strptime(date, global_config.DATE_FORMAT)
+            return datetime.datetime.strptime(date, SiteDefaults.DATE_FORMAT)
         except ValueError as error:
             raise errors.PageConfigError(
                 f"Unsupported value '{date}' for {Key.DATE}. Dates must be"
-                f"be formatted as '{global_config.DATE_FORMAT_PRETTY}'."
+                f"be formatted as '{SiteDefaults.DATE_FORMAT_PRETTY}'."
             ) from error
 
     @property
     def description(self) -> pathlib.Path:
-        # TODO: Implement 'Page.description'.
+        # TODO:HIGH: Implement 'Page.description'.
         return pathlib.Path(self._data.get(Key.DESCRIPTION, ""))
 
     @property
@@ -253,7 +247,7 @@ class LazyMixin(abc.ABC):
             if path.name.startswith("."):
                 continue
 
-            if path.name == global_config.FILENAME_PAGE_YAML:
+            if path.name == SiteDefaults.FILENAME_PAGE_YAML:
                 continue
 
             if path.name == self.config.cover.name:
@@ -262,11 +256,11 @@ class LazyMixin(abc.ABC):
             if path.name == self.config.description.name:
                 continue
 
-            if path.suffix not in global_config.VALID_CONTENT_EXTENSIONS:
+            if path.suffix not in SiteDefaults.VALID_CONTENT_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 
-            if path.suffix in global_config.VALID_YAML_EXTENSIONS:
+            if path.suffix in SiteDefaults.VALID_YAML_EXTENSIONS:
                 logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
                 continue
 
@@ -286,7 +280,7 @@ class LayoutMixin(abc.ABC):
         except KeyError as error:
             raise errors.PageConfigError(
                 f"Missing required key '{Key.CONTENTS}' in for "
-                f"{self.__class__.__name__} in {global_config.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
             ) from error
         else:
             if type(contents) is not list:
@@ -317,7 +311,7 @@ class GalleryMixin(abc.ABC):
 
         if (
             self.column_count is not None
-            and self.column_count not in global_config.VALID_COLUMN_COUNT
+            and self.column_count not in SiteDefaults.VALID_COLUMN_COUNT
         ):
             raise errors.PageConfigError(
                 f"{self}: Unsupported value '{self.column_count}' for "
@@ -376,22 +370,22 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
 
         for path in self._contents:
 
-            if path.suffix in global_config.VALID_IMAGE_EXTENSIONS:
+            if path.suffix in SiteDefaults.VALID_IMAGE_EXTENSIONS:
                 item = contents.Image(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in global_config.VALID_VIDEO_EXTENSIONS:
+            elif path.suffix in SiteDefaults.VALID_VIDEO_EXTENSIONS:
                 item = contents.Video(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in global_config.VALID_AUDIO_EXTENSIONS:
+            elif path.suffix in SiteDefaults.VALID_AUDIO_EXTENSIONS:
                 item = contents.Audio(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in global_config.VALID_TEXT_EXTENSIONS:
+            elif path.suffix in SiteDefaults.VALID_TEXT_EXTENSIONS:
                 item = contents.TextBlock(page=self, path=path)
 
             else:
@@ -429,7 +423,7 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
 
         for path in self._contents:
 
-            if path.suffix not in global_config.VALID_IMAGE_EXTENSIONS:
+            if path.suffix not in SiteDefaults.VALID_IMAGE_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 

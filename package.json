@@ -1,22 +1,19 @@
 {
     "scripts": {
-        "dev:sargent":         "npm-run-all --parallel build:sargent-* dev:sargent-*",
-        "build:sargent":       "npm-run-all --parallel build:sargent-*",
-        "dev:sargent-ts":      "cd ./scripts/theming && zsh ./dev-ts.sh sargent",
-        "dev:sargent-scss":    "cd ./scripts/theming && zsh ./dev-scss.sh sargent",
-        "build:sargent-ts":    "cd ./scripts/theming && zsh ./build-ts.sh sargent",
-        "build:sargent-scss":  "cd ./scripts/theming && zsh ./build-scss.sh sargent",
-
-        "dev:sorolla":         "npm-run-all --parallel build:sorolla-* dev:sorolla-*",
-        "build:sorolla":       "npm-run-all --parallel build:sorolla-*",
-        "dev:sorolla-ts":      "cd ./scripts/theming && zsh ./dev-ts.sh sorolla",
-        "dev:sorolla-scss":    "cd ./scripts/theming && zsh ./dev-scss.sh sorolla",
-        "build:sorolla-ts":    "cd ./scripts/theming && zsh ./build-ts.sh sorolla",
-        "build:sorolla-scss":  "cd ./scripts/theming && zsh ./build-scss.sh sorolla"
+        "dev": "gulp dev",
+        "build": "gulp build"
     },
     "devDependencies": {
-        "typescript": "^4.0.2",
+        "gulp": "^4.0.2",
+        "gulp-sass": "^4.1.0",
+        "gulp-typescript": "^6.0.0-alpha.1",
+        "minimist": "^1.2.5",
         "node-sass": "^4.14.1",
-        "npm-run-all": "^4.1.5"
+        "npm-run-all": "^4.1.5",
+        "typescript": "^4.0.2"
+    },
+    "dependencies": {
+        "hammerjs": "^2.0.8",
+        "normalize.css": "^8.0.1"
     }
 }

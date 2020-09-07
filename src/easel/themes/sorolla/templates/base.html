@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        {# TODO: Need to check for "page" incase we hit a 404 error. See if there's a cleaner way to do this. #}
+
+        {% if site.config.description and page and page.is_index %}<meta name="description" content="{{ site.config.description }}">{% endif %}
+        {% if site.config.author %}<meta name="author" content="{{ site.config.author }}">{% endif %}
+        {% if site.config.favicon %}<link rel="shortcut icon" href="{{ url_for('site.static', filename=site.config.favicon) }}">{% endif %}
+
+        <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ site.config.title }}</title>
+
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/base.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/header.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-base.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-mobile.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/page.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/footer.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/markdown.css') }}"/>
+
+        {% if page.is_gallery %}
+            <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/lightbox.css') }}"/>
+        {% endif %}
+
+    </head>
+
+    <body>
+
+        <header>{% include "_header.html" %}</header>
+
+        <menu>
+            {% include "_menu.html" %}
+            {% include "_menu-mobile.html" %}
+        </menu>
+
+        <main>{% block main %}{% endblock %}</main>
+
+        <footer>{% include "_footer.html" %}</footer>
+
+        {% if page.is_gallery %}
+            {% include "_lightbox.html" %}
+        {% endif %}
+
+        <script src="{{ url_for('main.static', filename='javascript/base.js') }}"></script>
+        <script src="{{ url_for('main.static', filename='javascript/menu-mobile.js') }}"></script>
+
+        {% if page.is_gallery %}
+            <script src="{{ url_for('main.static', filename='javascript/lightbox.js') }}"></script>
+        {% endif %}
+
+    </body>
+
+</html>

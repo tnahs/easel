@@ -31,9 +31,15 @@ gunicorn = "^20.0.4"
 mkdocs = "^1.1.2"
 mkdocs-material = "^5.5.3"
 coverage = "^5.2.1"
+isort = "^5.5.1"
 
 [tool.poetry.scripts]
 easel = "easel.__main__:cli"
+
+[tool.isort]
+profile = "black"
+lines_after_imports = 2
+skip_gitignore = true
 
 [build-system]
 requires = ["poetry>=0.12"]

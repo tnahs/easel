@@ -1,0 +1,2 @@
+class SiteGlobals:
+    pass

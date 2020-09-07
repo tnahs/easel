@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig-base.json",
-  "compilerOptions": {
-    "outFile": "../../src/easel/themes/sorolla/static/javascript/bundle.js",
-  },
-  "include": ["../../src/easel/themes/sorolla/static/typescript/**/*"],
-}

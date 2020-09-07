@@ -1,105 +1,106 @@
-import os
 import logging
+import os
 import pathlib
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional
 
-from . import errors
+from . import errors, menus, pages
+from .helpers import Key, Utils
+from .paths import site_paths__
+from .theme import site_theme__
+
+
+if TYPE_CHECKING:
+    from .menus import MenuObj
+    from .pages import PageObj
 
 
 logger = logging.getLogger(__name__)
 
 
-class GlobalConfig:
+from .defaults import SiteDefaults
 
-    PATH_ROOT = pathlib.Path(__file__).parent.parent
 
-    DIRECTORY_NAME_PAGES: str = "pages"
-    DIRECTORY_NAME_THEMES: str = "themes"
-    DIRECTORY_NAME_TEMPLATES: str = "templates"
-    DIRECTORY_NAME_STATIC: str = "static"
-    DIRECTORY_NAME_CACHE: str = ".cache"
+class SiteConfig:
+    def __init__(self, site: "Site"):
 
-    FILENAME_SITE_YAML: str = "site.yaml"
-    FILENAME_PAGE_YAML: str = "page.yaml"
+        self._site = site
 
-    # https://pillow.readthedocs.io/en/5.1.x/handbook/image-file-formats.html#jpeg
-    PLACEHOLDER_FORMAT: str = "JPEG"
-    PLACEHOLDER_SIZE: Tuple[int, int] = (512, 512)
-    PLACEHOLDER_QUALITY: int = 95
+        self._data = Utils.load_config(
+            path=site_paths__.root / SiteDefaults.FILENAME_SITE_YAML
+        )
 
-    DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
-    DATE_FORMAT_PRETTY: str = "YYYY-MM-DD HH:MM:SS"
+        self._validate()
 
-    DEFAULT_THEME_NAME: str = "sargent"
-    VALID_THEME_NAMES: List[str] = [
-        DEFAULT_THEME_NAME,
-        "sorolla",
-    ]
+    def _validate(self) -> None:
 
-    DEFAULT_SIZE = "medium"
-    VALID_SIZES: Tuple[str, ...] = (
-        "small",
-        DEFAULT_SIZE,
-        "large",
-    )
+        menu: dict = self._data.get(Key.MENU, [])
 
-    VALID_ALIGNMENTS: Tuple[str, ...] = (
-        "left",
-        "center",
-        "right",
-        "justify",
-    )
+        if type(menu) is not list:
+            raise errors.SiteConfigError(
+                f"Expected type 'list' for '{Key.MENU}' got '{type(menu).__name__}'."
+            )
 
-    VALID_COLUMN_COUNT: Tuple[Union[str, int], ...] = (
-        "auto",
-        *range(2, 7),
-    )
+        header: dict = self._data.get(Key.HEADER, {})
 
-    VALID_IMAGE_EXTENSIONS: Tuple[str, ...] = (
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".gif",
-    )
-    VALID_VIDEO_EXTENSIONS: Tuple[str, ...] = (
-        ".mp4",
-        ".webm",
-        ".mov",
-    )
-    VALID_AUDIO_EXTENSIONS: Tuple[str, ...] = (
-        ".mp3",
-        ".wav",
-    )
-    VALID_TEXT_EXTENSIONS: Tuple[str, ...] = (
-        ".md",
-        ".txt",
-    )
+        if type(header) is not dict:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Key.HEADER}' got '{type(header).__name__}'."
+            )
 
-    VALID_YAML_EXTENSIONS: Tuple[str, ...] = (
-        ".yaml",
-        ".yml",
-    )
+        theme: dict = self._data.get(Key.THEME, {})
 
-    VALID_CONTENT_EXTENSIONS: Tuple[str, ...] = (
-        *VALID_IMAGE_EXTENSIONS,
-        *VALID_VIDEO_EXTENSIONS,
-        *VALID_AUDIO_EXTENSIONS,
-        *VALID_TEXT_EXTENSIONS,
-    )
+        if type(theme) is not dict:
+            raise errors.SiteConfigError(
+                f"Expected type 'dict' for '{Key.THEME}' got '{type(theme).__name__}'."
+            )
 
-    MIMETYPES = {
-        # Video
-        ".mp4": "video/mp4",
-        ".webm": "video/webm",
-        ".mov": "video/quicktime",
-        # Audio
-        ".mp3": "audio/mpeg",
-        ".wav": "audio/wav",
-    }
+    @property
+    def title(self) -> str:
+        return self._data.get(Key.TITLE, "")
 
-    _debug: bool = False
-    _path_site: Optional[pathlib.Path] = None
-    _theme_name: str = DEFAULT_THEME_NAME
+    @property
+    def author(self) -> str:
+        return self._data.get(Key.AUTHOR, "")
+
+    @property
+    def copyright(self) -> str:
+        return self._data.get(Key.COPYRIGHT, "")
+
+    @property
+    def description(self) -> str:
+        return self._data.get(Key.DESCRIPTION, "")
+
+    @property
+    def favicon(self) -> str:
+        return self._data.get(Key.FAVICON, "")
+
+    @property
+    def menu(self) -> list:
+        return self._data.get(Key.MENU, [])
+
+    @property
+    def header(self) -> dict:
+        # TODO: Re-implement SiteConfig.header after it's clearer how missing
+        # keys and values will handled. We're trying to avoid forcing the user
+        # to declare blank key-value pairs as well as avoid having to traverse
+        # dictionaries to provide fallback default values.
+        return self._data.get(Key.HEADER, {})
+
+    @property
+    def theme(self) -> dict:
+        # TODO: Re-implement SiteConfig.theme after it's clearer how themes
+        # will be configured.
+        return self._data.get(Key.THEME, {})
+
+
+class Site:
+
+    _config: "SiteConfig"
+
+    _pages: List["PageObj"] = []
+    _page_current: "PageObj"
+
+    _menu: List["MenuObj"] = []
 
     @property
     def debug(self) -> bool:
@@ -113,106 +114,139 @@ class GlobalConfig:
 
         self._debug = value
 
-    @property
-    def path_site(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site] """
+    def build(self) -> None:
 
-        if self._path_site is None:
-            raise errors.SiteConfigError("Site directory must be set before running.")
+        logger.info(f"Building Site from {site_paths__.root}.")
 
-        return self._path_site
+        self._config = SiteConfig(site=self)
 
-    @path_site.setter
-    def path_site(self, value: str) -> None:
-        """ Sets /absolute/path/to/[site] """
+        self._build_pages()
+        self._build_menu()
+        self._validate_build()
 
-        path_site = pathlib.Path(value)
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: {site_paths__.root}>"
 
-        try:
-            path_site = path_site.resolve(strict=True)
-        except FileNotFoundError as error:
-            raise errors.SiteConfigError(
-                f"Site directory {path_site} does not exist."
-            ) from error
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}: {self.config.title}"
 
-        self._path_site = path_site
+    def _build_pages(self) -> None:
 
-    @property
-    def file_site_yaml(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/site.yaml """
-        return self.path_site / self.FILENAME_SITE_YAML
+        for path in site_paths__.pages.iterdir():
 
-    @property
-    def path_site_pages(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/pages """
+            if not path.is_dir():
+                continue
 
-        path_site_pages = self.path_site / self.DIRECTORY_NAME_PAGES
+            if path.name.startswith("."):
+                continue
 
-        try:
-            return path_site_pages.resolve(strict=True)
-        except FileNotFoundError as error:
-            raise errors.SiteConfigError("Site missing 'pages' directory.") from error
+            if not list(path.glob(SiteDefaults.FILENAME_PAGE_YAML)):
+                logger.warning(
+                    f"Ignoring path {path}. Path contains no "
+                    f"'{SiteDefaults.FILENAME_PAGE_YAML}' file."
+                )
+                continue
 
-    @property
-    def path_site_cache(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/.cache """
-        return self.path_site / self.DIRECTORY_NAME_CACHE
+            page = pages.page_factory.build(site=self, path_absolute=path)
 
-    @property
-    def path_themes(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[application]/themes. """
-        return self.PATH_ROOT / self.DIRECTORY_NAME_THEMES
+            self._pages.append(page)
 
-    @property
-    def theme_name(self) -> str:
-        """ Returns current theme name. """
-        return self._theme_name
+    def _build_menu(self) -> None:
 
-    @theme_name.setter
-    def theme_name(self, value: Optional[str]) -> None:
-        """ Sets theme name. """
-
-        if not value:
+        if not self.config.menu:
+            logger.warn(
+                f"No menu will be generated. Key '{Key.MENU}' in "
+                f"{SiteDefaults.FILENAME_SITE_YAML} is empty."
+            )
             return
 
-        if value not in self.VALID_THEME_NAMES:
+        for menu_config in self.config.menu:
+
+            menu = menus.menu_factory.build(site=self, config=menu_config)
+
+            self._menu.append(menu)
+
+    def _validate_build(self) -> None:
+
+        # NOTE: Boolean types sum like integers!
+        index_pages = sum([page.config.is_index for page in self._pages])
+
+        if index_pages > 1 or index_pages < 1:
             raise errors.SiteConfigError(
-                f"Invalid theme '{value}'. Valid themes are: {self.VALID_THEME_NAMES}."
+                "Site must have one and only one 'index' page."
             )
 
-        self._theme_name = value
+    def rebuild_cache(self):
+
+        logger.info(f"Rebuilding Site cache to {site_paths__.cache}.")
+
+        for page in self.pages:
+            for content in page.contents:
+
+                try:
+                    content.placeholder.cache(force=True)  # type: ignore
+                except AttributeError:
+                    continue
 
     @property
-    def path_theme(self) -> pathlib.Path:
-        """ Returns the path to the current theme. """
-        return self.path_themes / self.theme_name
+    def config(self) -> "SiteConfig":
+        return self._config
 
     @property
-    def path_theme_static(self) -> pathlib.Path:
-        """ Returns the path to the current theme's static directory. """
-        return self.path_theme / self.DIRECTORY_NAME_STATIC
+    def pages(self) -> List["PageObj"]:
+        return self._pages
 
     @property
-    def path_theme_templates(self) -> pathlib.Path:
-        """ Returns the path to the current theme's templates directory. """
-        return self.path_theme / self.DIRECTORY_NAME_TEMPLATES
+    def menu(self) -> List["MenuObj"]:
+        return self._menu
+
+    @property
+    def index(self) -> Optional["PageObj"]:
+
+        for page in self._pages:
+
+            if not page.is_index:
+                continue
+
+            self._page_current = page
+
+            return page
+
+        return None
+
+    def get_page(self, page_url: str) -> Optional["PageObj"]:
+
+        for page in self._pages:
+
+            if page.url != page_url:
+                continue
+
+            self._page_current = page
+
+            return page
+
+        return None
+
+    @property
+    def page_current(self) -> "PageObj":
+        return self._page_current
 
     @property
     def _assets_theme(self) -> List[pathlib.Path]:
         """ TEMP: This might become obsolete with the future implementation of
-        themeing. Also see GlobalConfig.assets. """
-        return list(self.path_theme.glob("**/*"))
+        themeing. Also see SiteDefaults.assets. """
+        return list(site_theme__.root.glob("**/*"))
 
     @property
     def _assets_site(self) -> List[pathlib.Path]:
         """ TEMP: This might dramatically change with the future implementation
-        of themeing. Also see GlobalConfig.assets. """
+        of themeing. Also see SiteDefaults.assets. """
 
         assets_site = []
 
-        for item in self.path_site.glob("**/*"):
+        for item in site_paths__.root.glob("**/*"):
 
-            if item.name == self.DIRECTORY_NAME_CACHE:
+            if item.name == SiteDefaults.DIRECTORY_NAME_CACHE:
                 continue
 
             assets_site.append(item)
@@ -230,6 +264,3 @@ class GlobalConfig:
 
         via. https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
         return [*self._assets_theme, *self._assets_site]
-
-
-global_config = GlobalConfig()

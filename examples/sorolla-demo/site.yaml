@@ -1,0 +1,39 @@
+# sorolla-demo/site.yaml
+
+title: Joaquín Sorolla
+author: Full Name
+copyright: © 2020 Full Name
+description: A demo of the 'Sargent' theme for Easel.
+favicon:
+
+menu:
+- type: link-page
+  label: Nature
+  links-to: ./pages/nature
+
+- type: link-page
+  label: Patterns
+  links-to: ./pages/patterns
+
+- type: link-page
+  label: Places
+  links-to: ./pages/places
+
+- type: link-page
+  label: Food
+  links-to: ./pages/food
+
+- type: spacer
+  size: small
+
+- type: link-page
+  label: About
+  links-to: ./pages/about
+
+
+header:
+  title: Joaquín Sorolla
+  image:
+    path:
+    width:
+    height:

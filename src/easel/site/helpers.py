@@ -8,7 +8,8 @@ import markdown as _markdown
 import yaml
 
 from . import errors
-from . import global_config
+from .defaults import SiteDefaults
+from .paths import site_paths__
 
 
 if TYPE_CHECKING:
@@ -100,7 +101,7 @@ class Utils:
         if not extension.startswith("."):
             extension = f".{extension}"
 
-        mimetype = global_config.MIMETYPES.get(extension, None)
+        mimetype = SiteDefaults.MIMETYPES.get(extension, None)
 
         if mimetype is None:
             logger.warning(f"Unsupported MIME Type '{extension}' detected.")
@@ -167,7 +168,7 @@ class Markdown:
         # markdown files.
         #
         # via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
-        base_path = pathlib.Path(f"{global_config.path_site.name}/{page.path_relative}")
+        base_path = pathlib.Path(f"{site_paths__.root.name}/{page.path_relative}")
 
         with open(filepath, encoding="utf-8") as f:
             string = f.read()

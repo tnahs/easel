@@ -1,0 +1,6 @@
+# sorolla-demo/pages/places
+
+type: lazy-gallery
+title: Places
+cover: page-cover.jpg
+description: page-description.md

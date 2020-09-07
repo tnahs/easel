@@ -1,0 +1,8 @@
+# sorolla-demo/pages/nature
+
+is-index: true
+
+type: lazy-gallery
+title: Nature
+cover: page-cover.jpg
+description: page-description.md
