@@ -8,7 +8,7 @@
 
     {% if not page.is_gallery %}
 
-        <div id="page">
+        <div id="page" class="page--base">
 
             {% for content in page.contents %}
 
@@ -20,7 +20,7 @@
 
     {% else %}
 
-        <div id="page-gallery">
+        <div id="page" class="page--gallery">
 
             {% for content in page.contents %}
 

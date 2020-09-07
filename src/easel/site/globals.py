@@ -161,7 +161,7 @@ class SiteConfig:
 
 class SiteTheme:
 
-    _root_custom: Optional[pathlib.Path] = None
+    _root: Optional[pathlib.Path] = None
     _name: Optional[str] = None
 
     def __init__(self, root: "SiteGlobals"):
@@ -172,16 +172,20 @@ class SiteTheme:
     def root(self) -> pathlib.Path:
         """ Returns the path to the current theme. """
 
-        if self._root_custom is None:
+        if self._root is None:
             return (
                 SiteDefaults.APP_ROOT / SiteDefaults.DIRECTORY_NAME_THEMES / self.name
             )
 
-        return self._root_custom
+        return self._root
 
     @root.setter
     def root(self, value: Optional[Union[pathlib.Path, str]]) -> None:
-        """ Sets the theme path to a custom location. """
+        """ Sets the theme path to a location outside of the application.
+
+        NOTE:THEME Currently this only supports a custom theme that is local to
+        the user. However future implementations will allow user-created themes
+        to be shared and installed."""
 
         if not value:
             return
@@ -195,7 +199,7 @@ class SiteTheme:
                 f"Theme directory {value} not found."
             ) from error
 
-        self._root_custom = path_theme
+        self._root = path_theme
 
     @property
     def static(self) -> pathlib.Path:
@@ -225,6 +229,9 @@ class SiteTheme:
             return
 
         if value not in SiteDefaults.VALID_THEME_NAMES:
+
+            # NOTE:THEME This is where we'd attempt to load an installed theme.
+
             raise errors.SiteConfigError(
                 f"Invalid theme name '{value}'. Available themes are: "
                 f"{SiteDefaults.VALID_THEME_NAMES}"

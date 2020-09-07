@@ -1,6 +1,6 @@
 :root {
     /*
-     * base
+     * Base
      * --------------------------------------------------------------------- */
 
     --header__image--height: 40px;
@@ -11,14 +11,26 @@
     --header__title--color: hsla(0, 0%, 0%, 0.75);
 }
 
-#header__image {
-    /* TODO:LOW Test this on mobile. Make sure it's working as expected. */
+/* TODO:MED Header needs to styled. */
 
+/* Structure of #header
+
+    #header
+        .header__image
+        .header__title
+---------------------------------------------------------------------------- */
+
+#header {
+    /*  */
+}
+
+.header__image {
+    /* TODO:LOW Test this on mobile. Make sure it's working as expected. */
     height: var(--header__image--height);
     width: auto;
 }
 
-#header__title {
+.header__title {
     font-family: var(--header__title--font-family);
     font-weight: var(--header__title--font-weight);
     font-size: var(--header__title--font-size);
@@ -28,7 +40,7 @@
 @media only screen and (max-width: 736px) {
     :root {
         /*
-         * base
+         * Base
          * ----------------------------------------------------------------- */
 
         --header__title--font-size: 20pt;

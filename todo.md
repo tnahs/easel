@@ -2,37 +2,38 @@
 
 ## HIGH
 
-- Style 404
+- Style 404 Page
 - Style Markdown
-- Remove all `#ids` from styling.
-- Use gulp to copy/install `reset.css`, `normalize.css` and `hammmer.js` on dev/build
+- Setup `gulp` to:
+  - Copy/install `reset.css`, `normalize.css` and `hammmer.js` on dev/build
+  - Autoprefix with: `gulp-autoprefixer`
+  - Minify CSS/JS
+- Custom method to retrieve different assets e.g.:
+  - `{{ theme.menu_button | url_theme }}`
+  - `{{ site.config.favicon | url_site }}`
 
 ## MEDIUM
 
 - ImagePlaceholder > ImageProxies
   - Add support for 3 sizes: `small`, `medium`, `large`.
-- Set theme/custom-theme through 'site.yaml'
 
 ## LOW
 
+- Optimize fonts.
+- ThemeConfig class.
 - Convert CSS -> SASS
 - Convert Javascript -> Typescript
-- ThemeConfig class.
-- Check placeholder generation for all Easel supported filetypes.
 - Change `.cache` folder to `assets`.
-- Can we make all calls to `main.static` into `site.static`? Or a custom method to retrieve site assets e.g. `{{ site.config.favicon | url }}`
 - Lightbox
+  - Use `hammer.js` - <https://github.com/hammerjs/hammer.js>
   - Fix styling on both desktop and mobile.
-  - Use hammer.js - <https://github.com/hammerjs/hammer.js>
   - Documentation
-  - Ignore pinch/zoom when open.
-- Site ass Flask app.
-  - On Easel.run()
-    - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
-    - ...
+- Set theme/custom-theme through `site.yaml`
+- Site ass `Flask` app.
+  - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
+  - ...
 - Site as flattened html -> `easel build`
-  - On 'easel build'
-    - ...
+  - ...
 
 ## QUESTIONS
 
@@ -42,6 +43,8 @@
 - Print site map method.
 - Unified validation setup.
 - Sift through paths and URLs.
+- CSS variable naming convention needs some work.
+- Check placeholder generation for all Easel supported filetypes.
 
 ## FEATURES
 
@@ -53,9 +56,9 @@
 - Better way to find dominant/average color of an image.
 - Menu item icon
 - Custom Themes
-  - Theme configuration file `theme.yaml` for theme development.
   - READ: <https://www.mkdocs.org/user-guide/custom-themes/>
   - READ: <https://www.mkdocs.org/user-guide/custom-themes/#packaging-themes>
+  - Theme configuration file `theme.yaml` for theme development.
   - Repo for 'easel-basic-theme'
 
 ## MISC
@@ -66,6 +69,13 @@
   - <https://beaumont-demo.squarespace.com/>
   - <https://zion-demo.squarespace.com/>
   - <https://talva-demo.squarespace.com/?nochrome=true>
+- Different name?
+  - canvas
+  - beacon
+  - torch
+  - pigment
+  - mural
+  - vitrine
 
 ## DOCUMENTATION NOTES
 

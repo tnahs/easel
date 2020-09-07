@@ -1,29 +1,28 @@
 "use strict"
 
 class Lightbox {
-    /** Structure of #lightbox
-
-        #lightbox
-            .lightbox__container
-                .lightbox-item__image
-                .lightbox__caption
-                    .caption
-                        .caption__title
-                        .caption__description
-    ------------------------------------------------------------------------ */
-
-    CLASS_FADE_IN_OUT = "animation__fade-in-out"
-
-    main = document.querySelector("#lightbox")
-
-    buttonClose = document.querySelector("#lightbox__button-close")
-    buttonPrev = document.querySelector("#lightbox__button-prev")
-    buttonNext = document.querySelector("#lightbox__button-next")
-
-    lightboxContainers = document.querySelectorAll(".lightbox__container")
-    lightboxItems = document.querySelectorAll("[class^='lightbox-item__']")
+    /*
+     * See static/css/lightbox.css for structure.
+     * --------------------------------------------------------------------- */
 
     constructor() {
+        this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
+
+        this.main = document.querySelector("#lightbox")
+
+        this.buttonClose = document.querySelector(".lightbox__button--close")
+        this.buttonPrev = document.querySelector(".lightbox__button--prev")
+        this.buttonNext = document.querySelector(".lightbox__button--next")
+
+        this.lightboxContainers = document.querySelectorAll(
+            ".lightbox__container"
+        )
+        this.lightboxItems = document.querySelectorAll(".lightbox__item")
+
+        // TEMP: The above attributes are class-attributes. They are placed
+        // inside the constructor for Safari support. Re-work when converting
+        // to TypeScript.
+
         this.isVisible = false
         this.currentIndex = null
 
@@ -195,7 +194,7 @@ class LightboxKeyboardController {
 }
 
 class LightboxGestureController {
-    // TODO:LOW Ignore pinch/zoom.
+    // TODO:MED Implement 'hammer.js' instead.
     constructor(lightbox) {
         this._lightbox = lightbox
 

@@ -1,6 +1,6 @@
 :root {
     /*
-     * base
+     * Base
      * --------------------------------------------------------------------- */
 
     --lightbox--background-color: var(--body--background-color);
@@ -9,11 +9,14 @@
     --lightbox__buttons--opacity: 0.25;
 }
 
-/** Structure of #lightbox
+/* Structure of #lightbox
 
     #lightbox
+        .lightbox__button .lightbox__button--close
+        .lightbox__button .lightbox__button--prev
+        .lightbox__button .lightbox__button--next
         .lightbox__container
-            .lightbox-item__image
+            .lightbox__item .lightbox__item--image
             .lightbox__caption
                 .caption
                     .caption__title
@@ -57,9 +60,7 @@
     pointer-events: auto;
 }
 
-#lightbox__button-close,
-#lightbox__button-prev,
-#lightbox__button-next {
+.lightbox__button {
     cursor: pointer;
 
     width: var(--lightbox__buttons--size);
@@ -68,21 +69,21 @@
     opacity: var(--lightbox__buttons--opacity);
 }
 
-#lightbox__button-close {
+.lightbox__button--close {
     grid-area: close;
 
     justify-self: flex-end;
     align-self: flex-start;
 }
 
-#lightbox__button-prev {
+.lightbox__button--prev {
     grid-area: prev;
 
     align-self: center;
     justify-self: flex-start;
 }
 
-#lightbox__button-next {
+.lightbox__button--next {
     grid-area: next;
 
     align-self: center;
@@ -108,7 +109,11 @@
     display: block;
 }
 
-.lightbox-item__image {
+.lightbox__item {
+    /*  */
+}
+
+.lightbox__item--image {
     width: inherit;
     height: inherit;
 
@@ -119,6 +124,10 @@
     /* TODO:LOW Style captions for Lightbox items. */
 }
 
+/*
+ * Media Queries
+ * ------------------------------------------------------------------------- */
+
 @media only screen and (max-width: 736px) {
     #lightbox {
         grid-template-areas:
@@ -128,8 +137,7 @@
         grid-template-columns: auto auto;
     }
 
-    #lightbox__button-prev,
-    #lightbox__button-next {
+    .lightbox__button {
         display: none;
     }
 

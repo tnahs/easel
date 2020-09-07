@@ -6,15 +6,17 @@
 
             {% set current = "menu-item--current" if item.url == site.page_current.url else "" %}
 
-            <a class="menu-item__link-page" id="{{ current }}" href="{{ item.url }}">{{ item.label }}</a>
+            <a class="menu-item menu-item--link-page {{ current }}" href="{{ item.url }}">{{ item.label }}</a>
 
         {% elif item.is_link_url %}
 
-            <a class="menu-item__link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
+            <a class="menu-item menu-item--link-url" href="{{ item.url }}" target="_blank">{{ item.label }}</a>
 
         {% elif item.is_spacer %}
 
-            <span class="menu-item__spacer--{{ item.size }}">{{ item.label if item.label is not none }}</span>
+            {% set label = item.label if item.label is not none else "" %}
+
+            <span class="menu-item menu-item--spacer size--{{ item.size }}">{{ label }}</span>
 
         {% endif %}
 
@@ -29,7 +31,7 @@
 
         {% if content.is_image %}
 
-            <img class="content-item__image"
+            <img class="content__item content__item--image"
                 src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
                 data-src="{{ url_for('site.static', filename=content.path_relative) }}"
                 data-placeholder-color='{{ content.placeholder.color | tojson }}'>
@@ -40,7 +42,7 @@
 
         {% elif content.is_video %}
 
-            <video class="content-item__video" controls>
+            <video class="content__item content__item--video" controls>
                 <source
                     src="{{ url_for('site.static', filename=content.path_relative) }}"
                     type="{{ content.mimetype }}">
@@ -48,7 +50,7 @@
 
         {% elif content.is_audio %}
 
-            <audio class="content-item__audio" controls preload="metadata">
+            <audio class="content__item content__item--audio" controls preload="metadata">
                 <source
                     src="{{ url_for('site.static', filename=content.path_relative) }}"
                     type="{{ content.mimetype }}">
@@ -57,32 +59,32 @@
 
         {% elif content.is_embedded %}
 
-            <div class="content-item__embedded">{{ content.html | safe }}</div>
+            <div class="content__item content__item--embedded">{{ content.html | safe }}</div>
 
         {% elif content.is_text_block %}
 
             {% set align = content.align if content.align else "justify" %}
 
-            <div class="content-item__text-block align--{{ align }} markdown">{{ content.body | safe }}</div>
+            <div class="content__item content__item--text-block align--{{ align }} markdown">{{ content.body | safe }}</div>
 
         {% elif content.is_header %}
 
             {% set size = content.size if content.size else "medium" %}
             {% set align = content.align if content.align else "left" %}
 
-            <div class="content-item__header--{{ size }} align--{{ align }}">{{ content.text }}</div>
+            <div class="content__item content__item--header size--{{ size }} align--{{ align }}">{{ content.text }}</div>
 
         {% elif content.is_break %}
 
             {% set size = content.size if content.size else "medium" %}
 
-            <div class="content-item__break--{{ size }}"></div>
+            <div class="content__item content__item--break size--{{ size }}"></div>
 
         {% endif %}
 
         {% if page.show_captions %}
 
-            <div class="content-item__caption">
+            <div class="content__item content__item--caption">
 
                 {{ render_caption(page, content) }}
 
@@ -99,7 +101,7 @@
 
     <div class="content__container">
 
-        <img class="content-item__image"
+        <img class="content__item content__item--image"
             src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
             data-src="{{ url_for('site.static', filename=content.path_relative) }}"
             data-placeholder-color='{{ content.placeholder.color | tojson }}'>

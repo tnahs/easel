@@ -2,13 +2,18 @@
 
 
 <div id="menu-mobile-buttons">
-    <img id="menu-mobile-buttons__open" src="{{ url_for('main.static', filename='images/menu.png') }}">
-    <img id="menu-mobile-buttons__close" src="{{ url_for('main.static', filename='images/close.png') }}">
+
+    <img class="menu-mobile-button menu-mobile-button--open"
+        src="{{ url_for('main.static', filename='images/menu.png') }}">
+
+    <img class="menu-mobile-button menu-mobile-button--close"
+        src="{{ url_for('main.static', filename='images/close.png') }}">
+
 </div>
 
 <div id="menu-mobile">
-    <div id="menu-mobile__menu-items">{{ render_menu_items() }}</div>
-    <div id="menu-mobile__footer">
+    <div class="menu-mobile__menu-items">{{ render_menu_items() }}</div>
+    <div class="menu-mobile__footer">
         <div>Lorem ipsum dolor sit.</div>
         <div>Duis et felis.</div>
     </div>

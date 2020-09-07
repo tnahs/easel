@@ -28,7 +28,7 @@ class Easel(Flask):
     attributes, Easel._site and it's accessor Easel.site which returns a
     Site object.
 
-    TEMP:Both 'theme' and 'custom_theme' are temporary ways of setting and
+    TEMP: Both 'theme' and 'custom_theme' are temporary ways of setting and
     customizing the theme. Future implementations will use the 'site.yaml' to
     do this. See src.easel.site.GlobalConfig for more info. """
 

@@ -1,9 +1,17 @@
 "use strict"
 
 class ContentTools {
-    contentItems = document.querySelectorAll("[class^='content-item__']")
+    /*
+     * See static/css/page.css for structures.
+     * --------------------------------------------------------------------- */
 
     constructor() {
+        this.contentItems = document.querySelectorAll(".content__item")
+
+        // TEMP: The above attributes are class-attributes. They are placed
+        // inside the constructor for Safari support. Re-work when converting
+        // to TypeScript.
+
         this.contentItems__toLazyLoad = [...this.contentItems].filter((item) =>
             item.hasAttribute("data-src")
         )
@@ -13,7 +21,7 @@ class ContentTools {
         ].filter((item) => item.hasAttribute("data-placeholder-color"))
 
         this.contentItems__toResizeEmbedded = document.querySelectorAll(
-            ".content-item__embedded iframe"
+            ".content__item--embedded iframe"
         )
     }
 
@@ -134,7 +142,7 @@ class ContentTools {
 
         element.parentNode.insertBefore(wrapper, element)
 
-        wrapper.classList.add("placeholder-color")
+        wrapper.classList.add("content__placeholder--color")
         wrapper.style.backgroundColor = placeholderColor
         wrapper.appendChild(element)
     }

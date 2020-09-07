@@ -8,10 +8,15 @@
 
 :root {
     /*
-     * base
+     * NOTE: Naming scheme for variables is similar to BEM:
+     *
+     *      --[PARENT]__[CHILD]--[ATTRIBUTE]
+     *
      * --------------------------------------------------------------------- */
 
-    /* --[PARENT]__[CHILD]--[ATTRIBUTE] */
+    /*
+     * Base
+     * --------------------------------------------------------------------- */
 
     --body--background-color: hsla(0, 0%, 100%, 1);
 
@@ -35,18 +40,7 @@
     );
 
     /*
-     * shared
-     * --------------------------------------------------------------------- */
-
-    --transition--ease-out: cubic-bezier(0.2, 0.5, 0.3, 1);
-
-    --caption--font-family: var(--font-family--primary);
-    --caption--font-size: 9pt;
-    --caption__title--color: hsla(0, 0%, 0%, 0.75);
-    --caption__description--color: hsla(0, 0%, 0%, 0.5);
-
-    /*
-     * javascript
+     * Javascript
      * --------------------------------------------------------------------- */
 
     --placeholder-color--fallback: rgba(0, 0, 0, 0.075);
@@ -125,52 +119,13 @@ footer {
 }
 
 /*
- * common
+ * Media Queries
  * ------------------------------------------------------------------------- */
-
-/* Alignments */
-
-.align--left {
-    text-align: left;
-}
-
-.align--center {
-    text-align: center;
-}
-
-.align--right {
-    text-align: right;
-}
-
-.align--justify {
-    text-align: justify;
-}
-
-/* Captions */
-
-.caption {
-    font-family: var(--caption--font-family);
-    font-size: var(--caption--font-size);
-}
-
-.caption__title p,
-.caption__description p {
-    /* Prevents extra <p> tags created by Markdown from creating line-breaks */
-    display: inline;
-}
-
-.caption__title {
-    color: var(--caption__title--color);
-}
-
-.caption__description {
-    color: var(--caption__description--color);
-}
 
 @media only screen and (max-width: 736px) {
     :root {
         /*
-         * base
+         * Base
          * ----------------------------------------------------------------- */
 
         --body--padding-top: 30px;

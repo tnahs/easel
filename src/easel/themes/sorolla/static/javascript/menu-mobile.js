@@ -1,35 +1,25 @@
 "use strict"
 
 class MenuMobile {
-    /** Structure of #menu-mobile-buttons & #menu-mobile
-
-        #menu-mobile-buttons
-            #menu-mobile-buttons__open
-            #menu-mobile-buttons__close
-
-        #menu-mobile
-            #menu-mobile__menu-items
-                .menu-item__link-page
-                .menu-item__link-url
-                    .menu-item__spacer
-                    .menu-item__spacer--small
-                    .menu-item__spacer--medium
-                    .menu-item__spacer--large
-            #menu-mobile__footer
-    ------------------------------------------------------------------------ */
-
-    CLASS_FADE_IN_OUT = "animation__fade-in-out"
-
-    main = document.querySelector("#menu-mobile")
-
-    buttons = document.querySelector("#menu-mobile-buttons")
-    buttonOpen = document.querySelector("#menu-mobile-buttons__open")
-    buttonClose = document.querySelector("#menu-mobile-buttons__close")
-
-    menuItems = document.querySelector("#menu-mobile__menu-items")
-    footer = document.querySelector("#menu-mobile__footer")
+    /*
+     * See static/css/menu-mobile.css for structure.
+     * --------------------------------------------------------------------- */
 
     constructor() {
+        this.CLASS_FADE_IN_OUT = "animation__fade-in-out"
+
+        this.main = document.querySelector("#menu-mobile")
+        this.menuItems = document.querySelector(".menu-mobile__menu-items")
+        this.footer = document.querySelector(".menu-mobile__footer")
+
+        this.buttons = document.querySelector("#menu-mobile-buttons")
+        this.buttonOpen = document.querySelector(".menu-mobile-button--open")
+        this.buttonClose = document.querySelector(".menu-mobile-button--close")
+
+        // TEMP: The above attributes are class-attributes. They are placed
+        // inside the constructor for Safari support. Re-work when converting
+        // to TypeScript.
+
         this.isVisible = false
 
         this.menuElements__toFadeIn = [this.main, this.menuItems, this.footer]
@@ -37,8 +27,6 @@ class MenuMobile {
         this._uiButtonsController = new MenuMobileUIButtonsController(this)
         this._keyboardController = new MenuMobileKeyboardController(this)
     }
-
-    setup() {}
 
     open() {
         this.menuElements__toFadeIn.forEach((menuElement) => {
@@ -106,6 +94,4 @@ class MenuMobileKeyboardController {
 
 window.addEventListener("load", () => {
     const menuMobile = new MenuMobile()
-
-    menuMobile.setup()
 })

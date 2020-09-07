@@ -1,6 +1,6 @@
 :root {
     /*
-     * base
+     * Base
      * --------------------------------------------------------------------- */
 
     --footer--font-family: var(--font-family--primary);
@@ -9,7 +9,13 @@
     --footer--color: hsla(0, 0%, 0%, 0.6);
 }
 
-/* TODO:LOW Footer needs to styled. */
+/* TODO:MED Footer needs to styled. */
+
+/* Structure of #footer
+
+    #footer
+        .footer__copyright
+---------------------------------------------------------------------------- */
 
 #footer {
     font-family: var(--footer--font-family);
@@ -18,7 +24,7 @@
     color: var(--footer--color);
 }
 
-#footer__copyright {
+.footer__copyright {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;

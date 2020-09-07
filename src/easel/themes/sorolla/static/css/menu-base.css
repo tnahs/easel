@@ -1,12 +1,12 @@
 :root {
     /*
-     * menu-items
+     * Menu Item
      * --------------------------------------------------------------------- */
 
-    --menu-items--font-family: var(--font-family--primary);
-    --menu-items--font-weight: 400;
-    --menu-items--font-size: 11pt;
-    --menu-items--color: hsla(0, 0%, 0%, 0.75);
+    --menu-item--font-family: var(--font-family--primary);
+    --menu-item--font-weight: 400;
+    --menu-item--font-size: 11pt;
+    --menu-item--color: hsla(0, 0%, 0%, 0.75);
 
     --menu-item__spacer--small-width: 0;
     --menu-item__spacer--small-height: 0;
@@ -16,24 +16,23 @@
     --menu-item__spacer--large-height: 0;
 }
 
-/*
- * Structure of #menu-base
+/* Structure of #menu-base
 
     #menu-base
-        #menu-base__menu-items
-            .menu-item__link-page
-            .menu-item__link-url
-                .menu-item__spacer
-                    .menu-item__spacer--small
-                    .menu-item__spacer--medium
-                    .menu-item__spacer--large
- * ------------------------------------------------------------------------- */
+        .menu-base__menu-items
+            .menu-item .menu-item--link-page
+            .menu-item .menu-item--link-url
+            .menu-item .menu-item--spacer size--small
+            .menu-item .menu-item--spacer size--medium
+            .menu-item .menu-item--spacer size--large
+---------------------------------------------------------------------------- */
 
 #menu-base {
     /*  */
 }
 
-#menu-base__menu-items {
+.menu-base__menu-items {
+    /* FIXME: This isn't working properly in Safari. */
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -41,38 +40,36 @@
     gap: 20px;
 }
 
-/* Menu Items */
+.menu-item {
+    font-family: var(--menu-item--font-family);
+    font-weight: var(--menu-item--font-weight);
+    font-size: var(--menu-item--font-size);
+    color: var(--menu-item--color);
+}
 
-#menu-item--current {
+.menu-item--link-page.menu-item--current {
     /* TODO:LOW Style #menu-item--current. */
 
     text-decoration: underline;
 }
 
-[class^="menu-item__"] {
-    font-family: var(--menu-items--font-family);
-    font-weight: var(--menu-items--font-weight);
-    font-size: var(--menu-items--font-size);
-    color: var(--menu-items--color);
-}
-
-.menu-item__spacer--small {
+.menu-item--spacer.size--small {
     width: var(--menu-item__spacer--small-width);
     height: var(--menu-item__spacer--small-height);
 }
 
-.menu-item__spacer--medium {
+.menu-item--spacer.size--small {
     width: var(--menu-item__spacer--medium-width);
     height: var(--menu-item__spacer--medium-height);
 }
 
-.menu-item__spacer--large {
+.menu-item--spacer.size--small {
     width: var(--menu-item__spacer--large-width);
     height: var(--menu-item__spacer--large-height);
 }
 
 /*
- * media queries
+ * Media Queries
  * ------------------------------------------------------------------------- */
 
 @media only screen and (max-width: 736px) {
