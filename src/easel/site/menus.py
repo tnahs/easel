@@ -134,7 +134,7 @@ class LinkPage(MenuInterface):
             pages/page-000 --> page-000
             page-001       --> page-001
 
-        This allows users to use paths relative to the [site] or or 'pages'
+        This allows users to use paths relative to the [site-name] or or 'pages'
         directory. """
 
         links_to = self.config[Key.LINKS_TO]
@@ -146,10 +146,8 @@ class LinkPage(MenuInterface):
             # pathlib raises a ValueError if the path does not begin with the
             # value passed to Path.relative_to(). In this case 'pages'.
             pass
-        else:
-            links_to = str(links_to)
 
-        self.config[Key.LINKS_TO] = links_to
+        self.config[Key.LINKS_TO] = Utils.urlify(links_to)
 
     def _validate__links_to(self) -> None:
 
@@ -172,7 +170,7 @@ class LinkPage(MenuInterface):
 
     @property
     def url(self) -> str:
-        return Utils.slugify(self.links_to)
+        return Utils.urlify(self.links_to)
 
 
 class LinkURL(MenuInterface):

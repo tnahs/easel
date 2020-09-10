@@ -1,5 +1,5 @@
-import json
 import importlib
+import json
 import logging
 import os
 import pathlib
@@ -83,12 +83,12 @@ class _SitePaths(GlobalsBase):
 
     @property
     def root(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site] """
+        """ Returns /absolute/path/to/[site-name] """
         return self._root
 
     @root.setter
     def root(self, root: Optional[Union[pathlib.Path, str]]) -> None:
-        """ Sets /absolute/path/to/[site] """
+        """ Sets /absolute/path/to/[site-name] """
 
         # Sets the current directory as the root if no root is provided.
         root = pathlib.Path(root) if root else pathlib.Path()
@@ -104,7 +104,7 @@ class _SitePaths(GlobalsBase):
 
     @property
     def pages(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/pages """
+        """ Returns /absolute/path/to/[site-name]/pages """
 
         path_pages = self.root / Defaults.DIRECTORY_NAME_PAGES
 
@@ -123,14 +123,19 @@ class _SitePaths(GlobalsBase):
         return self._root
 
     @property
-    def static_url_path(self):
-        # TODO:MED Resarch and document this.
-        # https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
-        return f"/{self.root.name}/{Defaults.DIRECTORY_NAME_STATIC}"
+    def static_url_path(self) -> str:
+        """ Returns an absolute url to the site's static folder. Currently this
+        is the site's root directory:
+
+            /[site-name]
+
+        TODO:MED Resarch and document this.
+        https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files """
+        return Utils.urlify(self.static.relative_to(self.root.parent))
 
     @property
     def cache(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site]/.cache """
+        """ Returns /absolute/path/to/[site-name]/.cache """
         return self.root / Defaults.DIRECTORY_NAME_CACHE
 
 
@@ -145,18 +150,18 @@ class _SiteConfig(GlobalsBase):
 
         # fmt:off
         self._config_default = {
-            Key.TITLE: "",
-            Key.AUTHOR: "",
-            Key.COPYRIGHT: "",
-            Key.DESCRIPTION: "",
+            Key.TITLE: None,
+            Key.AUTHOR: None,
+            Key.COPYRIGHT: None,
+            Key.DESCRIPTION: None,
             Key.FAVICON: None,
             Key.MENU: [],
             Key.HEADER: {
-                Key.TITLE: "",
+                Key.TITLE: None,
                 Key.IMAGE: {
-                    Key.PATH: "",
-                    Key.WIDTH: "",
-                    Key.HEIGHT: "",
+                    Key.PATH: None,
+                    Key.WIDTH: None,
+                    Key.HEIGHT: None,
                 },
             },
             Key.THEME: {
@@ -176,9 +181,10 @@ class _SiteConfig(GlobalsBase):
         # Merge the 'site.yaml' with the default config dictionary and set
         # the combined dictionary as the site's config.
         self.__config = Utils.update_dict(
-            base=self._config_default, updates=self._config_user
+            original=self._config_default, updates=self._config_user
         )
 
+        # DEBUGGING
         # logger.debug(json.dumps(self.__config, indent=4))
 
     def _validate(self) -> None:
@@ -240,6 +246,14 @@ class _SiteConfig(GlobalsBase):
     def theme(self) -> dict:
         return self.__config[Key.THEME]
 
+    @property
+    def theme_name(self) -> Optional[str]:
+        return self.__config[Key.THEME][Key.NAME]
+
+    @property
+    def theme_custom_path(self) -> Optional[str]:
+        return self.__config[Key.THEME][Key.CUSTOM_PATH]
+
 
 class _ThemePaths(GlobalsBase):
 
@@ -251,11 +265,9 @@ class _ThemePaths(GlobalsBase):
 
     def _get_root_dispatcher(self) -> pathlib.Path:
 
-        # Grab the 'theme' entry from the 'site.yaml'.
-        theme_config = self.globals.site_config.theme
-
-        name = theme_config.get(Key.NAME, None)
-        custom_path = theme_config.get(Key.CUSTOM_PATH, None)
+        # Grab 'theme.name' and 'theme.custom-path' from the 'site.yaml'.
+        name = self.globals.site_config.theme_name
+        custom_path = self.globals.site_config.theme_custom_path
 
         if name is not None and custom_path is not None:
             logger.warning(
@@ -273,7 +285,7 @@ class _ThemePaths(GlobalsBase):
 
         return self._get_builtin_root(name=name)
 
-    def _get_custom_root(self, path: str):
+    def _get_custom_root(self, path: str) -> pathlib.Path:
 
         root = self.globals.site_paths.root / path
 
@@ -288,7 +300,9 @@ class _ThemePaths(GlobalsBase):
 
     def _get_default_builtin_root(self) -> pathlib.Path:
 
-        logger.info(f"Using default theme '{Defaults.DEFAULT_BUILTIN_THEME_NAME}'.")
+        logger.info(
+            f"Using default built-in theme '{Defaults.DEFAULT_BUILTIN_THEME_NAME}'."
+        )
 
         return (
             Defaults.APP_ROOT
@@ -335,10 +349,14 @@ class _ThemePaths(GlobalsBase):
         return self.root / Defaults.DIRECTORY_NAME_STATIC
 
     @property
-    def static_url_path(self):
-        # TODO:MED Resarch and document this.
-        # https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
-        return f"/{self.root.name}/{Defaults.DIRECTORY_NAME_STATIC}"
+    def static_url_path(self) -> str:
+        """ Returns an absolute url to the theme's static folder:
+
+            /theme-name/static
+
+        TODO:MED Resarch and document this.
+        https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files """
+        return Utils.urlify(self.static.relative_to(self.root.parent))
 
     @property
     def templates(self) -> pathlib.Path:
@@ -368,9 +386,10 @@ class _ThemeConfig(GlobalsBase):
         # Merge the 'theme' entry from the 'site.yaml' with the default
         # 'theme.yaml' and set the combined dictionary as the site's config.
         self.__config = Utils.update_dict(
-            base=self._config_default, updates=self._config_user
+            original=self._config_default, updates=self._config_user
         )
 
+        # DEBUGGING
         # logger.debug(json.dumps(self.__config, indent=4))
 
     def _validate(self) -> None:

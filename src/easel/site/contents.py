@@ -359,7 +359,7 @@ class FileContent(ContentInterface):
 
     @property
     def path_relative(self) -> pathlib.Path:
-        """ Returns a path relative to to /[site]. """
+        """ Returns a path relative to to /[site-name]. """
         return self.path_absolute.relative_to(Globals.site_paths.root)
 
     @property

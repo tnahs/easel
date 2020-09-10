@@ -6,8 +6,7 @@
   - Add support for 3 sizes: `small`, `medium`, `large`.
 - Change `.cache` folder to `assets`.
 - Revisit how theme and site config values are accessed in the template.
-- Replace `{{ url_for('theme.index') }}`
-- Better handling of non-existent 'page' objects in the template better. This typically occurs when a 404 error occurs.
+- Better handling of non-existent 'page' objects in the template. This typically occurs when a 404 error occurs.
 
 ## MEDIUM
 
@@ -217,3 +216,10 @@ theme:
 Note: If both `theme.custom-path` and `theme.name` are set, `theme.custom-path` will always trump `theme.name`. A warning will be logged as well.
 
 Note: The precedence order for setting a theme is: Custom > Installed > Built-in > Default i.e setting a custom theme trumps both setting an installed theme and setting an installed theme only trumps setting a built-in theme etc.
+
+## Accessing URLs in Templates
+
+``` jinja
+{{ site.index.url }}
+{{ site.get_page('page-name').url }}
+```

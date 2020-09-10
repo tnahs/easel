@@ -4,8 +4,8 @@ __version__ = "2.0.0-dev"
 import logging
 
 
-logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
+logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
 logging.getLogger("PIL").setLevel(logging.ERROR)
 
 logging.basicConfig(
@@ -71,17 +71,17 @@ class Easel(Flask):
         self._site.build()
 
         # Load blueprints.
-        from .theme.views import blueprint_theme
         from .site.views import blueprint_site
+        from .theme.views import blueprint_theme
 
         # Register blueprints.
-        self.register_blueprint(blueprint_theme)
         self.register_blueprint(blueprint_site)
+        self.register_blueprint(blueprint_theme)
 
         # Inject site into template context.
         self.context_processor(self._context__site)
 
-        # Register custom filters.
+        # Register custom static url filters.
         self.jinja_env.filters["static_site"] = self._filter__static_site
         self.jinja_env.filters["static_theme"] = self._filter__static_theme
 
@@ -92,17 +92,26 @@ class Easel(Flask):
         return f"{self.__class__.__name__}:{Globals.site_paths.root}"
 
     def _context__site(self) -> dict:
-        return dict(site=self.site)
+        return {"site": self._site}
+        # return dict(site=self._site)
 
     @staticmethod
     def _filter__static_site(path) -> str:
-        # TODO:MED Resarch and document this.
-        return f"{Globals.site_paths.static_url_path}/{path}"
+        """ Returns the path as absolute url to the site's static directory:
+
+            /[site-static]/path
+
+        See Globals.site_paths.static_url_path """
+        return Utils.urlify(f"{Globals.site_paths.static_url_path}{os.sep}{path}")
 
     @staticmethod
     def _filter__static_theme(path) -> str:
-        # TODO:MED Resarch and document this.
-        return f"{Globals.theme_paths.static_url_path}/{path}"
+        """ Returns the path as absolute url to the themes's static directory:
+
+            /[theme-name]/[theme-static]/path
+
+        See Globals.theme_paths.static_url_path """
+        return Utils.urlify(f"{Globals.theme_paths.static_url_path}{os.sep}{path}")
 
     @property
     def site(self) -> "Site":

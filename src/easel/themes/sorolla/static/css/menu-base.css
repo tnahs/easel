@@ -32,11 +32,11 @@
 }
 
 .menu-base__menu-items {
-    /* FIXME:MED This isn't working properly in Safari. */
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-items: center;
+    /* FIXME:MED This isn't working properly in Safari. */
     gap: 20px;
 }
 

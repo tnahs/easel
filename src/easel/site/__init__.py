@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional
 from . import errors, menus, pages
 from .defaults import Key
 from .globals import Globals
+from .helpers import Utils
 
 
 if TYPE_CHECKING:
@@ -89,7 +90,7 @@ class Site:
                 "Site must have one and only one 'index' page."
             )
 
-    def rebuild_cache(self):
+    def rebuild_cache(self) -> None:
 
         logger.info(f"Rebuilding Site cache to {Globals.site_paths.cache}.")
 
@@ -121,28 +122,22 @@ class Site:
             if not page.is_index:
                 continue
 
-            self._page_current = page
-
             return page
 
         return None
 
     def get_page(self, page_url: str) -> Optional["PageObj"]:
 
+        page_url = Utils.urlify(page_url)
+
         for page in self._pages:
 
             if page.url != page_url:
                 continue
 
-            self._page_current = page
-
             return page
 
         return None
-
-    @property
-    def page_current(self) -> "PageObj":
-        return self._page_current
 
     @property
     def _assets_theme(self) -> List[pathlib.Path]:
@@ -175,5 +170,5 @@ class Site:
         'extra_files' argument, allowing it to reload when any of the site
         files are modifed.
 
-        via. https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
+        via https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
         return [*self._assets_theme, *self._assets_site]

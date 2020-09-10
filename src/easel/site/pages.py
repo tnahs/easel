@@ -115,12 +115,12 @@ class PageInterface(abc.ABC):
 
     @property
     def path_relative(self) -> pathlib.Path:
-        """ Returns path relative to to /[site]. """
+        """ Returns path relative to to /[site-name]. """
         return self._path_absolute.relative_to(Globals.site_paths.root)
 
     @property
     def url(self) -> str:
-        return Utils.slugify(self.name)
+        return Utils.urlify(self.name)
 
     @property
     def is_index(self) -> bool:

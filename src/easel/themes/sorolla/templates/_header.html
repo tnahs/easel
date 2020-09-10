@@ -2,7 +2,7 @@
 
     {% if site.config.header.image.path %}
 
-        <a href="{{ url_for('theme.index') }}">
+        <a href="{{ site.index.url }}">
             <img class="header__image" src="{{ site.config.header.image.path | static_site }}">
         </a>
 
@@ -10,7 +10,7 @@
 
         {% set title = site.config.header.title if site.config.header.title else site.config.title %}
 
-        <a class="header__title" href="{{ url_for('theme.index') }}">{{ title | safe }}</a>
+        <a class="header__title" href="{{ site.index.url }}">{{ title | safe }}</a>
 
     {% endif %}
 
