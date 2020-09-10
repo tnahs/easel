@@ -2,12 +2,11 @@
 
 ## HIGH
 
-- Custom method to retrieve different assets e.g.:
-  - `{{ theme.menu_button | url_theme }}`
-  - `{{ site.config.favicon | url_site }}`
-- Change `.cache` folder to `assets`.
 - ImagePlaceholder > ImageProxies
   - Add support for 3 sizes: `small`, `medium`, `large`.
+- Change `.cache` folder to `assets`.
+- Revisit how theme and site config values are accessed in the template.
+- Replace `{{ url_for('theme.index') }}`
 - Better handling of non-existent 'page' objects in the template better. This typically occurs when a 404 error occurs.
 
 ## MEDIUM
@@ -61,19 +60,40 @@
 
 ## Documentation Notes
 
+- `Easel` refers to the Flask application that manages and runs the `Site` with it's `Theme`.
+- `Site` refers to all the content that belongs to the user. It contains the `Menu`, `Pages` and page `Contents`
+-`Theme` refers to all the content that is used to render the `Site`. This can be found in the site's directory if a custom theme is provided.
+
 - Galleries don't show captions on the page but rather in the lightbox view.
 
 ### Theme Structure
 
+Minimum requirements.
+
 ``` plaintext
-theme
-├── css
-├── javascript
-├── images
-├── fonts
+.
+├── static
 ├── templates
-│   ├── 404.jinja
-│   └── main.jinja2
+│   ├── 404.html
+│   └── main.html
+└── theme.yaml
+```
+
+Expanded example.
+
+``` plaintext
+.
+├── static
+│   ├── css
+│   │   └── main.css
+│   ├── javascript
+│   │   └── main.js
+│   ├── images
+│   └── fonts
+├── templates
+│   ├── 404.html
+│   ├── base.html
+│   └── main.html
 └── theme.yaml
 ```
 
@@ -82,7 +102,7 @@ theme
 Site structure when running as a Flask application:
 
 ``` plaintext
-site-name
+.
 ├── site.yaml
 ├── pages
 │   ├── page01

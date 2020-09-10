@@ -40,8 +40,8 @@
         {% if content.is_image %}
 
             <img class="content__item content__item--image"
-                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                data-src="{{ url_for('site.static', filename=content.path_relative) }}"
+                src="{{ content.placeholder.path_relative_image | static_site }}"
+                data-src="{{ content.path_relative | static_site }}"
                 data-placeholder-color='{{ content.placeholder.color | tojson }}'>
 
                 {# NOTE: This last attribute 'data-placeholder-color' *must* be
@@ -52,7 +52,7 @@
 
             <video class="content__item content__item--video" controls>
                 <source
-                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    src="{{ content.path_relative | static_site }}"
                     type="{{ content.mimetype }}">
             </video>
 
@@ -60,7 +60,7 @@
 
             <audio class="content__item content__item--audio" controls preload="metadata">
                 <source
-                    src="{{ url_for('site.static', filename=content.path_relative) }}"
+                    src="{{ content.path_relative | static_site }}"
                     type="{{ content.mimetype }}">
                 Your browser does not support the audio element.
             </audio>
@@ -110,15 +110,15 @@
     <div class="content__container">
 
         <img class="content__item content__item--image"
-            src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-            data-src="{{ url_for('site.static', filename=content.path_relative) }}"
+            src="{{ content.placeholder.path_relative_image | static_site }}"
+            data-src="{{ content.path_relative | static_site }}"
             data-placeholder-color='{{ content.placeholder.color | tojson }}'>
 
             {# NOTE: This last attribute 'data-placeholder-color' *must* be
             surrounded by single quotes. to properly render as JSON in the
             template. Its value is retrieved and parsed in Javascript. #}
 
-        {# Captions are rendered in the Lightbox. #}
+        {# NOTE: Captions are rendered in the Lightbox. #}
 
     </div>
 

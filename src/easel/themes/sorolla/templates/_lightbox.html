@@ -3,23 +3,17 @@
 
 <div id="lightbox">
 
-    <img class="lightbox__button lightbox__button--close"
-        src="{{ url_for('main.static', filename='images/close.png') }}">
-
-    <img class="lightbox__button lightbox__button--prev"
-        src="{{ url_for('main.static', filename='images/prev.png') }}">
-
-    <img class="lightbox__button lightbox__button--next"
-        src="{{ url_for('main.static', filename='images/next.png') }}">
-
+    <img class="lightbox__button lightbox__button--close" src="{{ 'images/close.png' | static_theme }}">
+    <img class="lightbox__button lightbox__button--prev" src="{{ 'images/prev.png' | static_theme }}">
+    <img class="lightbox__button lightbox__button--next" src="{{ 'images/next.png' | static_theme }}">
 
     {% for content in page.contents %}
 
         <div class="lightbox__container">
 
             <img class="lightbox__item lightbox__item--image"
-                src="{{ url_for('site.static', filename=content.placeholder.path_relative_image) }}"
-                data-src="{{ url_for('site.static', filename=content.path_relative) }}">
+                src="{{ content.placeholder.path_relative_image | static_site }}"
+                data-src="{{ content.path_relative | static_site }}">
 
             {% if page.show_captions %}
 

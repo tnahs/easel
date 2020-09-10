@@ -4,7 +4,6 @@ title: Joaquín Sorolla
 author: Full Name
 copyright: © 2020 Full Name
 description: A demo of the 'Sargent' theme for Easel.
-favicon:
 
 menu:
 - type: link-page
@@ -33,7 +32,3 @@ menu:
 
 header:
   title: Joaquín Sorolla
-  image:
-    path:
-    width:
-    height:

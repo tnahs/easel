@@ -31,11 +31,7 @@ from .site.helpers import Utils
 class Easel(Flask):
     """ Returns a thinly wrapped Flask application instance with two bound
     attributes, Easel._site and it's accessor Easel.site which returns a
-    Site object.
-
-    TEMP: Both 'theme' and 'custom_theme' are temporary ways of setting and
-    customizing the theme. Future implementations will use the 'site.yaml' to
-    do this. See src.easel.site.GlobalConfig for more info. """
+    Site object. """
 
     def __init__(
         self,
@@ -75,15 +71,19 @@ class Easel(Flask):
         self._site.build()
 
         # Load blueprints.
-        from .main.views import blueprint_main
+        from .theme.views import blueprint_theme
         from .site.views import blueprint_site
 
         # Register blueprints.
+        self.register_blueprint(blueprint_theme)
         self.register_blueprint(blueprint_site)
-        self.register_blueprint(blueprint_main)
 
         # Inject site into template context.
-        self.context_processor(self._inject_into_template)
+        self.context_processor(self._context__site)
+
+        # Register custom filters.
+        self.jinja_env.filters["static_site"] = self._filter__static_site
+        self.jinja_env.filters["static_theme"] = self._filter__static_theme
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{Globals.site_paths.root}>"
@@ -91,8 +91,18 @@ class Easel(Flask):
     def __str__(self) -> str:
         return f"{self.__class__.__name__}:{Globals.site_paths.root}"
 
-    def _inject_into_template(self) -> dict:
-        return {"site": self.site}
+    def _context__site(self) -> dict:
+        return dict(site=self.site)
+
+    @staticmethod
+    def _filter__static_site(path) -> str:
+        # TODO:MED Resarch and document this.
+        return f"{Globals.site_paths.static_url_path}/{path}"
+
+    @staticmethod
+    def _filter__static_theme(path) -> str:
+        # TODO:MED Resarch and document this.
+        return f"{Globals.theme_paths.static_url_path}/{path}"
 
     @property
     def site(self) -> "Site":

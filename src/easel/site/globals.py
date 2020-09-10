@@ -1,3 +1,4 @@
+import json
 import importlib
 import logging
 import os
@@ -117,6 +118,17 @@ class _SitePaths(GlobalsBase):
         return path_pages
 
     @property
+    def static(self) -> pathlib.Path:
+        """ Convenience attribute for serving static files. """
+        return self._root
+
+    @property
+    def static_url_path(self):
+        # TODO:MED Resarch and document this.
+        # https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
+        return f"/{self.root.name}/{Defaults.DIRECTORY_NAME_STATIC}"
+
+    @property
     def cache(self) -> pathlib.Path:
         """ Returns /absolute/path/to/[site]/.cache """
         return self.root / Defaults.DIRECTORY_NAME_CACHE
@@ -131,16 +143,28 @@ class _SiteConfig(GlobalsBase):
 
     def load(self) -> None:
 
+        # fmt:off
         self._config_default = {
             Key.TITLE: "",
             Key.AUTHOR: "",
             Key.COPYRIGHT: "",
             Key.DESCRIPTION: "",
-            Key.FAVICON: "",
+            Key.FAVICON: None,
             Key.MENU: [],
-            Key.HEADER: {},
-            Key.THEME: {},
+            Key.HEADER: {
+                Key.TITLE: "",
+                Key.IMAGE: {
+                    Key.PATH: "",
+                    Key.WIDTH: "",
+                    Key.HEIGHT: "",
+                },
+            },
+            Key.THEME: {
+                Key.NAME: None,
+                Key.CUSTOM_PATH: None,
+            },
         }
+        # fmt:on
 
         # Load the 'site.yaml' from the site's root.
         self._config_user = Utils.load_config(
@@ -151,7 +175,11 @@ class _SiteConfig(GlobalsBase):
 
         # Merge the 'site.yaml' with the default config dictionary and set
         # the combined dictionary as the site's config.
-        self.__config = {**self._config_default, **self._config_user}
+        self.__config = Utils.update_dict(
+            base=self._config_default, updates=self._config_user
+        )
+
+        # logger.debug(json.dumps(self.__config, indent=4))
 
     def _validate(self) -> None:
 
@@ -223,7 +251,7 @@ class _ThemePaths(GlobalsBase):
 
     def _get_root_dispatcher(self) -> pathlib.Path:
 
-        # Grab the theme config from the 'site.yaml'.
+        # Grab the 'theme' entry from the 'site.yaml'.
         theme_config = self.globals.site_config.theme
 
         name = theme_config.get(Key.NAME, None)
@@ -307,6 +335,12 @@ class _ThemePaths(GlobalsBase):
         return self.root / Defaults.DIRECTORY_NAME_STATIC
 
     @property
+    def static_url_path(self):
+        # TODO:MED Resarch and document this.
+        # https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
+        return f"/{self.root.name}/{Defaults.DIRECTORY_NAME_STATIC}"
+
+    @property
     def templates(self) -> pathlib.Path:
         """ Returns the path to the current theme's templates directory. """
         return self.root / Defaults.DIRECTORY_NAME_TEMPLATES
@@ -326,14 +360,18 @@ class _ThemeConfig(GlobalsBase):
             path=self.globals.theme_paths.root / Defaults.FILENAME_THEME_YAML
         )
 
-        # Grab the theme config from the 'site.yaml'.
+        # Grab the 'theme' entry from the 'site.yaml'.
         self._config_user = self.globals.site_config.theme
 
         self._validate()
 
         # Merge the 'theme' entry from the 'site.yaml' with the default
         # 'theme.yaml' and set the combined dictionary as the site's config.
-        self.__config = {**self._config_default, **self._config_user}
+        self.__config = Utils.update_dict(
+            base=self._config_default, updates=self._config_user
+        )
+
+        # logger.debug(json.dumps(self.__config, indent=4))
 
     def _validate(self) -> None:
         pass

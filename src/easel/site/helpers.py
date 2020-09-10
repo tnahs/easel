@@ -1,7 +1,10 @@
+import copy
+import collections
 import logging
 import pathlib
 import re
 import unicodedata
+from typing import Any
 
 import yaml
 
@@ -99,3 +102,24 @@ class Utils:
         string = re.sub(r"[-\s]+", delimiter, string)
 
         return string
+
+    @staticmethod
+    def update_dict(base: dict, updates: Any) -> dict:
+
+        updated = copy.deepcopy(base)
+
+        for key, value in updates.items():
+
+            if isinstance(value, collections.Mapping):
+
+                _updated = Utils.update_dict(base=updated.get(key, {}), updates=value)
+
+                updated[key] = _updated
+
+            elif isinstance(value, list):
+                updated[key] = updated.get(key, []) + value
+
+            else:
+                updated[key] = updates[key]
+
+        return updated

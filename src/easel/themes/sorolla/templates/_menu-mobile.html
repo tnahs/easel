@@ -2,13 +2,8 @@
 
 
 <div id="menu-mobile-buttons">
-
-    <img class="menu-mobile-button menu-mobile-button--open"
-        src="{{ url_for('main.static', filename='images/menu.png') }}">
-
-    <img class="menu-mobile-button menu-mobile-button--close"
-        src="{{ url_for('main.static', filename='images/close.png') }}">
-
+    <img class="menu-mobile-button menu-mobile-button--open" src="{{ 'images/menu.png' | static_theme }}">
+    <img class="menu-mobile-button menu-mobile-button--close" src="{{ 'images/close.png' | static_theme }}">
 </div>
 
 <div id="menu-mobile">

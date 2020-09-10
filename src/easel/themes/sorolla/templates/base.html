@@ -10,22 +10,22 @@
 
         {% if site.config.description and page and page.is_index %}<meta name="description" content="{{ site.config.description }}">{% endif %}
         {% if site.config.author %}<meta name="author" content="{{ site.config.author }}">{% endif %}
-        {% if site.config.favicon %}<link rel="shortcut icon" href="{{ url_for('site.static', filename=site.config.favicon) }}">{% endif %}
+        {% if site.config.favicon %}<link rel="shortcut icon" href="{{ site.config.favicon | static_site }}">{% endif %}
 
         <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ site.config.title }}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/common.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/base.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/header.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-base.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-mobile.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/page.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/contents.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/footer.css') }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/markdown.css') }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/common.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/base.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/header.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/menu-base.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/menu-mobile.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/page.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/contents.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/footer.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/markdown.css' | static_theme }}"/>
 
         {% if page and page.is_gallery %}
-            <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/lightbox.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ 'css/lightbox.css' | static_theme }}"/>
         {% endif %}
 
     </head>
@@ -47,11 +47,11 @@
             {% include "_lightbox.html" %}
         {% endif %}
 
-        <script src="{{ url_for('main.static', filename='javascript/base.js') }}"></script>
-        <script src="{{ url_for('main.static', filename='javascript/menu-mobile.js') }}"></script>
+        <script src="{{ 'javascript/base.js' | static_theme }}"></script>
+        <script src="{{ 'javascript/menu-mobile.js' | static_theme }}"></script>
 
         {% if page and page.is_gallery %}
-            <script src="{{ url_for('main.static', filename='javascript/lightbox.js') }}"></script>
+            <script src="{{ 'javascript/lightbox.js' | static_theme }}"></script>
         {% endif %}
 
     </body>
