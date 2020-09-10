@@ -4,7 +4,7 @@ import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
-from .defaults import Key, SiteDefaults
+from .defaults import Defaults, Key
 from .helpers import Utils
 
 
@@ -42,7 +42,7 @@ class _MenuFactory:
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.TYPE}' for Menu-like item in "
-                f"{SiteDefaults.FILENAME_SITE_YAML}."
+                f"{Defaults.FILENAME_SITE_YAML}."
             ) from error
 
         # Get Menu class based on 'menu_type'.
@@ -51,7 +51,7 @@ class _MenuFactory:
         if Menu is None:
             raise errors.MenuConfigError(
                 f"Unsupported value '{menu_type}' for '{Key.TYPE}' for "
-                f"Menu-like item in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"Menu-like item in {Defaults.FILENAME_SITE_YAML}."
             )
 
         return Menu(site=site, **config)
@@ -113,7 +113,7 @@ class LinkPage(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
-                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
         try:
@@ -121,7 +121,7 @@ class LinkPage(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LINKS_TO}' "
-                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
         self._normalize__links_to()
@@ -141,7 +141,7 @@ class LinkPage(MenuInterface):
 
         try:
             links_to = pathlib.Path(links_to)
-            links_to = links_to.relative_to(SiteDefaults.DIRECTORY_NAME_PAGES)
+            links_to = links_to.relative_to(Defaults.DIRECTORY_NAME_PAGES)
         except ValueError:
             # pathlib raises a ValueError if the path does not begin with the
             # value passed to Path.relative_to(). In this case 'pages'.
@@ -198,7 +198,7 @@ class LinkURL(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
-                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
         try:
@@ -206,7 +206,7 @@ class LinkURL(MenuInterface):
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.URL}' "
-                f"for {self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
     @property
@@ -236,10 +236,10 @@ class Spacer(MenuInterface):
 
     def validate__config(self) -> None:
 
-        if self.size is not None and self.size not in SiteDefaults.VALID_SIZES:
+        if self.size is not None and self.size not in Defaults.VALID_SIZES:
             raise errors.MenuConfigError(
                 f"Unsupported value '{self.size}' for {Key.SIZE} for "
-                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_SITE_YAML}."
+                f"{self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             )
 
     @property

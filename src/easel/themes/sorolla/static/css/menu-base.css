@@ -32,7 +32,7 @@
 }
 
 .menu-base__menu-items {
-    /* FIXME: This isn't working properly in Safari. */
+    /* FIXME:MED This isn't working properly in Safari. */
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;

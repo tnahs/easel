@@ -142,8 +142,7 @@
          * Menu Items
          * ----------------------------------------------------------------- */
 
-        /* FIXME: This isn't working. */
-        --menu-items--font-size: 20pt;
+        --menu-item--font-size: 20pt;
 
         --menu-item__spacer--small-width: 0;
         --menu-item__spacer--small-height: 0;

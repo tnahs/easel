@@ -6,7 +6,7 @@ from typing import Tuple, Union
 logger = logging.getLogger(__name__)
 
 
-class SiteDefaults:
+class Defaults:
     """ Primarily used to share the location of the site directory 'path_site'
     across modules as well as default/valid configuration values. """
 
@@ -22,6 +22,7 @@ class SiteDefaults:
 
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
+    FILENAME_THEME_YAML: str = "theme.yaml"
 
     # https://pillow.readthedocs.io/en/5.1.x/handbook/image-file-formats.html#jpeg
     PLACEHOLDER_FORMAT: str = "JPEG"
@@ -31,12 +32,14 @@ class SiteDefaults:
     DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
     DATE_FORMAT_PRETTY: str = "YYYY-MM-DD HH:MM:SS"
 
-    DEFAULT_THEME_NAME: str = "sorolla"
-    VALID_THEME_NAMES = [
+    DEFAULT_BUILTIN_THEME_NAME: str = "sorolla"
+    VALID_BUILTIN_THEME_NAMES = [
         item.name
         for item in (APP_ROOT / DIRECTORY_NAME_THEMES).iterdir()
         if item.is_dir() and not item.name.startswith(".")
     ]
+
+    INSTALLED_THEME_NAME_PREFIX: str = "easel-"
 
     DEFAULT_SIZE = "medium"
     VALID_SIZES: Tuple[str, ...] = (
@@ -107,6 +110,7 @@ class Key:
     CONTENTS: str = "contents"
     COVER: str = "cover"
     COPYRIGHT: str = "copyright"
+    CUSTOM_PATH: str = "custom-path"
     DATE: str = "date"
     DESCRIPTION: str = "description"
     EXTRAS: str = "extras"
@@ -124,6 +128,7 @@ class Key:
     OPTIONS: str = "options"
     PATH: str = "path"
     SHOW_CAPTIONS: str = "show-captions"
+    SITE_DEBUG: str = "SITE_DEBUG"
     SITE_ROOT: str = "SITE_ROOT"
     SIZE: str = "size"
     TEXT: str = "text"

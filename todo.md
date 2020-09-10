@@ -2,44 +2,42 @@
 
 ## HIGH
 
-- Style 404 Page
-- Style Markdown
-- Setup `gulp` to:
-  - Copy/install `reset.css`, `normalize.css` and `hammmer.js` on dev/build
-  - Autoprefix with: `gulp-autoprefixer`
-  - Minify CSS/JS
 - Custom method to retrieve different assets e.g.:
   - `{{ theme.menu_button | url_theme }}`
   - `{{ site.config.favicon | url_site }}`
+- Change `.cache` folder to `assets`.
+- ImagePlaceholder > ImageProxies
+  - Add support for 3 sizes: `small`, `medium`, `large`.
+- Better handling of non-existent 'page' objects in the template better. This typically occurs when a 404 error occurs.
 
 ## MEDIUM
 
-- ImagePlaceholder > ImageProxies
-  - Add support for 3 sizes: `small`, `medium`, `large`.
+- Style 404 Page
+- Style Markdown
+- Setup `gulp` to:
+  - Copy/install `reset.css`, `normalize.css` and `hammer.js` on dev/build
+  - Autoprefix with: `gulp-autoprefixer`
+  - Minify CSS/JS
+- Optimize fonts.
+- Fix Lightbox styling on both desktop and mobile.
 
 ## LOW
 
-- Optimize fonts.
-- ThemeConfig class.
 - Convert CSS -> SASS
 - Convert Javascript -> Typescript
-- Change `.cache` folder to `assets`.
-- Lightbox
-  - Use `hammer.js` - <https://github.com/hammerjs/hammer.js>
-  - Fix styling on both desktop and mobile.
-  - Documentation
-- Set theme/custom-theme through `site.yaml`
-- Site ass `Flask` app.
+- Use `hammer.js` - <https://github.com/hammerjs/hammer.js>
+- Site as a `Flask` app.
   - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
   - ...
 - Site as flattened html -> `easel build`
   - ...
+- Rename `site` to ...? and `easel` to ...?
 
 ## QUESTIONS
 
 ## HOUSEKEEPING
 
-- Documentation
+- Document Lightbox
 - Print site map method.
 - Unified validation setup.
 - Sift through paths and URLs.
@@ -48,11 +46,11 @@
 
 ## FEATURES
 
+- CLI Tools: <https://click.palletsprojects.com/en/7.x/>
 - 'Collection' Page (For relating other pages or a blog.)
   - A child of a 'Collection' Page would maintain a link to it's siblings allowing navigation between them.
 - 'Landing' Page
 - 'Grid' that holds Content types
-- CLI Tools: <https://click.palletsprojects.com/en/7.x/>
 - Better way to find dominant/average color of an image.
 - Menu item icon
 - Custom Themes
@@ -61,58 +59,141 @@
   - Theme configuration file `theme.yaml` for theme development.
   - Repo for 'easel-basic-theme'
 
-## MISC
-
-- Design Easel logo/icon.
-- Themes Inspiration
-  - <https://gates-demo.squarespace.com/>
-  - <https://beaumont-demo.squarespace.com/>
-  - <https://zion-demo.squarespace.com/>
-  - <https://talva-demo.squarespace.com/?nochrome=true>
-- Different name?
-  - canvas
-  - beacon
-  - torch
-  - pigment
-  - mural
-  - vitrine
-
-## DOCUMENTATION NOTES
+## Documentation Notes
 
 - Galleries don't show captions on the page but rather in the lightbox view.
 
-- Theme structure. All files and directories are copied to the Site directory except hidden folder i.e. `.images` which might hold source images unnecessary for rendering the theme.
+### Theme Structure
 
-    ``` plaintext
-    theme
-    ├── css
-    ├── javascript
-    ├── images
-    ├── fonts
-    ├── templates
-    │   ├── 404.jinja
-    │   └── main.jinja2
-    └── .images
-    ```
+``` plaintext
+theme
+├── css
+├── javascript
+├── images
+├── fonts
+├── templates
+│   ├── 404.jinja
+│   └── main.jinja2
+└── theme.yaml
+```
 
-- Site structure when running as a Flask application:
+### Site Structure
 
-    ``` plaintext
-    site-name
-    ├── site.yaml
-    ├── pages
+Site structure when running as a Flask application:
+
+``` plaintext
+site-name
+├── site.yaml
+├── pages
+│   ├── page01
+│   │   └── image001.jpg
+│   └── page02
+│       └──...
+└── assets
+    ├── placeholders
     │   ├── page01
-    │   │   └── image001.jpg
-    │   └── page02
-    │       └──...
-    └── assets
-        ├── placeholders
-        │   ├── page01
-        │   │   └── image001
-        │   │       ├── image.jpg
-        │   │       └── color.json
-        │   ├── page02
-        │   │   └──...
-        │   └──...
-        └──...
-    ```
+    │   │   └── image001
+    │   │       ├── image.jpg
+    │   │       └── color.json
+    │   ├── page02
+    │   │   └──...
+    │   └──...
+    └──...
+```
+
+### Creating an Easel instance
+
+Setting site-root as environment variable.
+
+``` console
+$ export SITE_ROOT=./sorolla-demo
+```
+
+``` python
+from easel import Easel
+
+easel = Easel()
+easel.run()
+```
+
+Setting site-root in Python.
+
+``` python
+from easel import Easel
+
+easel = Easel("./sorolla-demo")
+easel.run()
+```
+
+Implying the site-root is the current directory.
+
+``` python
+from easel import Easel
+
+easel = Easel()
+easel.run()
+```
+
+### Using the CLI
+
+Setting site-root as environment variable.
+
+``` console
+$ export SITE_ROOT=./sorolla-demo
+$ easel serve
+```
+
+Setting site-root in as an optional argument.
+
+``` console
+$ easel serve --site-root=./sorolla-demo
+```
+
+Implying the site-root is the current directory.
+
+``` console
+$ easel serve
+```
+
+## Setting a Theme
+
+Using a build-in theme.
+
+``` yaml
+# site.yaml
+
+# ...
+
+theme:
+  name: sorolla
+```
+
+Using an installed theme.
+
+Note: All installed themes start with `easel-`.
+
+``` yaml
+# site.yaml
+
+# ...
+
+theme:
+  name: easel-[theme-name]
+```
+
+Using an custom theme.
+
+The value for `custom-path` is relative to the site-root i.e. the directory that contains the `site.yaml`
+
+``` yaml
+# site.yaml
+
+# ...
+
+theme:
+  custom-path: ./custom-theme
+```
+
+Note: If both `theme.custom-path` and `theme.name` are set, `theme.custom-path` will always trump `theme.name`. A warning will be logged as well.
+
+Note: The precedence order for setting a theme is: Custom > Installed > Built-in > Default i.e setting a custom theme trumps both setting an installed theme and setting an installed theme only trumps setting a built-in theme etc.

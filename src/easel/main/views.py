@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from flask import Blueprint, abort, current_app, render_template
 
-from ..site.globals import site_globals
+from ..site.globals import Globals
 
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 blueprint_main = Blueprint(
     name="main",
     import_name=__name__,
-    template_folder=str(site_globals.theme.templates),
+    template_folder=str(Globals.theme_paths.templates),
     # Explicitly setting 'url_prefix' to an emptry string to set this
     # blueprint to be served when accesting the base url i.e. 'www.site.com'.
     url_prefix="",
@@ -23,8 +23,8 @@ blueprint_main = Blueprint(
     # searched if the file does not exist in the application static folder.
     #
     # via https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files
-    static_url_path=str(site_globals.theme.static),
-    static_folder=str(site_globals.theme.static),
+    static_url_path=str(Globals.theme_paths.static),
+    static_folder=str(Globals.theme_paths.static),
 )
 
 

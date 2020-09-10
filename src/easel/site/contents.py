@@ -8,9 +8,9 @@ import PIL.Image
 import PIL.ImageFilter
 
 from . import errors
-from .defaults import Key, SiteDefaults
+from .defaults import Defaults, Key
+from .globals import Globals
 from .helpers import Utils
-from .globals import site_globals
 from .markdown import markdown
 
 
@@ -63,7 +63,7 @@ class _ContentFactory:
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{page}: Missing required key '{Key.TYPE}' for Content-like "
-                f"item in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"item in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
         # Get Content class based on 'content_type'.
@@ -72,7 +72,7 @@ class _ContentFactory:
         if Content is None:
             raise errors.ContentConfigError(
                 f"{page}: Unsupported value '{content_type}' for "
-                f"'{Key.TYPE}' for Content-like item in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"'{Key.TYPE}' for Content-like item in {Defaults.FILENAME_PAGE_YAML}."
             )
 
         return Content(page=page, **config)
@@ -133,7 +133,7 @@ class CaptionMixin(abc.ABC):
 
         if (
             self.caption_align is not None
-            and self.caption_align not in SiteDefaults.VALID_ALIGNMENTS
+            and self.caption_align not in Defaults.VALID_ALIGNMENTS
         ):
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
@@ -156,7 +156,7 @@ class Placeholder:
     def _create_cache_directory(self) -> None:
         self._cache_directory.mkdir(parents=True, exist_ok=True)
 
-    def _cache_or_load(self, force: bool) -> None:
+    def _cache_or_load(self, force: bool = False) -> None:
 
         if self._has_cache is False or force is True:
             self._cache()
@@ -211,11 +211,11 @@ class Placeholder:
         https://pillow.readthedocs.io/en/5.1.x/reference/Image.html#PIL.Image.Image.save
         """
 
-        image.thumbnail(SiteDefaults.PLACEHOLDER_SIZE)
+        image.thumbnail(Defaults.PLACEHOLDER_SIZE)
         image.save(
             self.path_absolute_image,
-            format=SiteDefaults.PLACEHOLDER_FORMAT,
-            quality=SiteDefaults.PLACEHOLDER_QUALITY,
+            format=Defaults.PLACEHOLDER_FORMAT,
+            quality=Defaults.PLACEHOLDER_QUALITY,
         )
 
     def _save_color(self, image: PIL.Image.Image) -> None:
@@ -241,7 +241,7 @@ class Placeholder:
             /site/.cache/page-name/image-name
         """
         return (
-            site_globals.paths.cache
+            Globals.site_paths.cache
             / self._original_image.path_relative.parent
             / self._original_image.name
         )
@@ -260,7 +260,7 @@ class Placeholder:
 
             .cache/page-name/image-name/image.ext
         """
-        return self.path_absolute_image.relative_to(site_globals.paths.root)
+        return self.path_absolute_image.relative_to(Globals.site_paths.root)
 
     @property
     def path_absolute_color(self) -> pathlib.Path:
@@ -317,7 +317,7 @@ class FileContent(ContentInterface):
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.PATH}' for "
-                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
         # TODO:LOW Check type of self.config[Key.PATH]
@@ -360,7 +360,7 @@ class FileContent(ContentInterface):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns a path relative to to /[site]. """
-        return self.path_absolute.relative_to(site_globals.paths.root)
+        return self.path_absolute.relative_to(Globals.site_paths.root)
 
     @property
     def mimetype(self) -> str:
@@ -389,7 +389,7 @@ class Image(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in SiteDefaults.VALID_IMAGE_EXTENSIONS:
+        if self.extension not in Defaults.VALID_IMAGE_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -417,7 +417,7 @@ class Video(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in SiteDefaults.VALID_VIDEO_EXTENSIONS:
+        if self.extension not in Defaults.VALID_VIDEO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -441,7 +441,7 @@ class Audio(FileContent, CaptionMixin):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in SiteDefaults.VALID_AUDIO_EXTENSIONS:
+        if self.extension not in Defaults.VALID_AUDIO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
@@ -466,13 +466,13 @@ class TextBlock(FileContent):
     def validate__config(self) -> None:
         super().validate__config()
 
-        if self.extension not in SiteDefaults.VALID_TEXT_EXTENSIONS:
+        if self.extension not in Defaults.VALID_TEXT_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path_absolute}."
             )
 
-        if self.align is not None and self.align not in SiteDefaults.VALID_ALIGNMENTS:
+        if self.align is not None and self.align not in Defaults.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
@@ -512,7 +512,7 @@ class Embedded(ContentInterface, CaptionMixin):
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.HTML}' for "
-                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
         self.validate__caption_config()
@@ -549,15 +549,15 @@ class Header(ContentInterface):
         except KeyError as error:
             raise errors.ContentConfigError(
                 f"{self.page}: Missing required key '{Key.TEXT}' for "
-                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
-        if self.size is not None and self.size not in SiteDefaults.VALID_SIZES:
+        if self.size is not None and self.size not in Defaults.VALID_SIZES:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
-        if self.align is not None and self.align not in SiteDefaults.VALID_ALIGNMENTS:
+        if self.align is not None and self.align not in Defaults.VALID_ALIGNMENTS:
             raise errors.ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
@@ -592,7 +592,7 @@ class Break(ContentInterface):
 
     def validate__config(self) -> None:
 
-        if self.size is not None and self.size not in SiteDefaults.VALID_SIZES:
+        if self.size is not None and self.size not in Defaults.VALID_SIZES:
             raise errors.ContentConfigError(
                 f"{self.page} Unsupported value '{self.size}' for '{Key.SIZE}'."
             )

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 import markdown as _markdown
 
-from .globals import site_globals
+from .globals import Globals
 
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ class Markdown:
         # markdown files.
         #
         # via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
-        base_path = pathlib.Path(f"{site_globals.paths.root.name}/{page.path_relative}")
+        base_path = pathlib.Path(f"{Globals.site_paths.root.name}/{page.path_relative}")
 
         with open(filepath, encoding="utf-8") as f:
             string = f.read()

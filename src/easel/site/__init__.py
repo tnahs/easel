@@ -1,15 +1,14 @@
 import logging
-import os
 import pathlib
 from typing import TYPE_CHECKING, List, Optional
 
 from . import errors, menus, pages
 from .defaults import Key
-from .globals import site_globals
+from .globals import Globals
 
 
 if TYPE_CHECKING:
-    from .globals import SiteConfig
+    from .globals import _SiteConfig
     from .menus import MenuObj
     from .pages import PageObj
 
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-from .defaults import SiteDefaults
+from .defaults import Defaults
 
 
 class Site:
@@ -27,35 +26,26 @@ class Site:
 
     _menu: List["MenuObj"] = []
 
-    @property
-    def debug(self) -> bool:
-        return self._debug
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: {Globals.site_paths.root}>"
 
-    @debug.setter
-    def debug(self, value: bool) -> None:
-
-        if value is True:
-            os.environ["FLASK_ENV"] = "development"
-
-        self._debug = value
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}: {self.config.title}"
 
     def build(self) -> None:
 
-        logger.info(f"Building Site from {site_globals.paths.root}.")
+        logger.info(f"Building Site from {Globals.site_paths.root}.")
+
+        if logger.getEffectiveLevel() > logging.DEBUG:
+            logger.info("Set 'loglevel' to 'DEBUG' for more information.")
 
         self._build_pages()
         self._build_menu()
         self._validate_build()
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {site_globals.paths.root}>"
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}: {self.config.title}"
-
     def _build_pages(self) -> None:
 
-        for path in site_globals.paths.pages.iterdir():
+        for path in Globals.site_paths.pages.iterdir():
 
             if not path.is_dir():
                 continue
@@ -63,10 +53,10 @@ class Site:
             if path.name.startswith("."):
                 continue
 
-            if not list(path.glob(SiteDefaults.FILENAME_PAGE_YAML)):
+            if not list(path.glob(Defaults.FILENAME_PAGE_YAML)):
                 logger.warning(
                     f"Ignoring path {path}. Path contains no "
-                    f"'{SiteDefaults.FILENAME_PAGE_YAML}' file."
+                    f"'{Defaults.FILENAME_PAGE_YAML}' file."
                 )
                 continue
 
@@ -79,7 +69,7 @@ class Site:
         if not self.config.menu:
             logger.warn(
                 f"No menu will be generated. Key '{Key.MENU}' in "
-                f"{SiteDefaults.FILENAME_SITE_YAML} is empty."
+                f"{Defaults.FILENAME_SITE_YAML} is empty."
             )
             return
 
@@ -101,7 +91,7 @@ class Site:
 
     def rebuild_cache(self):
 
-        logger.info(f"Rebuilding Site cache to {site_globals.paths.cache}.")
+        logger.info(f"Rebuilding Site cache to {Globals.site_paths.cache}.")
 
         for page in self.pages:
             for content in page.contents:
@@ -112,8 +102,8 @@ class Site:
                     continue
 
     @property
-    def config(self) -> "SiteConfig":
-        return site_globals.config
+    def config(self) -> "_SiteConfig":
+        return Globals.site_config
 
     @property
     def pages(self) -> List["PageObj"]:
@@ -157,19 +147,19 @@ class Site:
     @property
     def _assets_theme(self) -> List[pathlib.Path]:
         """ TEMP: This might become obsolete with the future implementation of
-        themeing. Also see SiteDefaults.assets. """
-        return list(site_globals.theme.root.glob("**/*"))
+        themeing. Also see Site.assets. """
+        return list(Globals.theme_paths.root.glob("**/*"))
 
     @property
     def _assets_site(self) -> List[pathlib.Path]:
         """ TEMP: This might dramatically change with the future implementation
-        of themeing. Also see SiteDefaults.assets. """
+        of themeing. Also see Site.assets. """
 
         assets_site = []
 
-        for item in site_globals.paths.root.glob("**/*"):
+        for item in Globals.site_paths.root.glob("**/*"):
 
-            if item.name == SiteDefaults.DIRECTORY_NAME_CACHE:
+            if item.name == Defaults.DIRECTORY_NAME_CACHE:
                 continue
 
             assets_site.append(item)

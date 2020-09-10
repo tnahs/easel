@@ -4,7 +4,15 @@
 
         {% if item.is_link_page %}
 
-            {% set current = "menu-item--current" if item.url == site.page_current.url else "" %}
+            {% if page %}
+
+                {% set current = "menu-item--current" if item.url == site.page_current.url else "" %}
+
+            {% else %}
+
+                {% set current = "" %}
+
+            {% endif %}
 
             <a class="menu-item menu-item--link-page {{ current }}" href="{{ item.url }}">{{ item.label }}</a>
 

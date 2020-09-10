@@ -6,8 +6,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        {# TODO:LOW Need to check for "page" in case we hit a 404 error. Is there
-        a clearer way to do this? #}
+        {# TODO:LOW Need to check for "page" in case we hit a 404 error. Is there a clearer way to do this? #}
 
         {% if site.config.description and page and page.is_index %}<meta name="description" content="{{ site.config.description }}">{% endif %}
         {% if site.config.author %}<meta name="author" content="{{ site.config.author }}">{% endif %}
@@ -15,6 +14,7 @@
 
         <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ site.config.title }}</title>
 
+        <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/common.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/base.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/header.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/menu-base.css') }}"/>
@@ -24,7 +24,7 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/footer.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/markdown.css') }}"/>
 
-        {% if page.is_gallery %}
+        {% if page and page.is_gallery %}
             <link rel="stylesheet" type="text/css" href="{{ url_for('main.static', filename='css/lightbox.css') }}"/>
         {% endif %}
 
@@ -43,14 +43,14 @@
 
         <footer>{% include "_footer.html" %}</footer>
 
-        {% if page.is_gallery %}
+        {% if page and page.is_gallery %}
             {% include "_lightbox.html" %}
         {% endif %}
 
         <script src="{{ url_for('main.static', filename='javascript/base.js') }}"></script>
         <script src="{{ url_for('main.static', filename='javascript/menu-mobile.js') }}"></script>
 
-        {% if page.is_gallery %}
+        {% if page and page.is_gallery %}
             <script src="{{ url_for('main.static', filename='javascript/lightbox.js') }}"></script>
         {% endif %}
 

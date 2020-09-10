@@ -5,8 +5,8 @@ import pathlib
 from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
 from . import contents, errors
-from .defaults import Key, SiteDefaults
-from .globals import site_globals
+from .defaults import Defaults, Key
+from .globals import Globals
 from .helpers import Utils
 
 
@@ -40,7 +40,7 @@ class _PageFactory:
     def build(self, site: "Site", path_absolute: pathlib.Path) -> PageObj:
         """ Builds Page-like object from a path. """
 
-        path_page_config: pathlib.Path = path_absolute / SiteDefaults.FILENAME_PAGE_YAML
+        path_page_config: pathlib.Path = path_absolute / Defaults.FILENAME_PAGE_YAML
 
         page_config: dict = Utils.load_config(path=path_page_config)
 
@@ -80,7 +80,7 @@ class PageInterface(abc.ABC):
 
         self.validate__config()
 
-        """ TEMP/NOTE/FIXME: To properly validate and generate placeholder
+        """ TEMP/NOTE/FIXME:LOW To properly validate and generate placeholder
         images for Gallery Pages, self.contents needs to be called before the
         site is run. It would probably a good idea to cache the contents to
         reduce overhead on a page refresh. This needs a slight redesign. """
@@ -116,7 +116,7 @@ class PageInterface(abc.ABC):
     @property
     def path_relative(self) -> pathlib.Path:
         """ Returns path relative to to /[site]. """
-        return self._path_absolute.relative_to(site_globals.paths.root)
+        return self._path_absolute.relative_to(Globals.site_paths.root)
 
     @property
     def url(self) -> str:
@@ -198,11 +198,11 @@ class PageConfig:
         date = self._data.get(Key.DATE, "")
 
         try:
-            return datetime.datetime.strptime(date, SiteDefaults.DATE_FORMAT)
+            return datetime.datetime.strptime(date, Defaults.DATE_FORMAT)
         except ValueError as error:
             raise errors.PageConfigError(
                 f"Unsupported value '{date}' for {Key.DATE}. Dates must be"
-                f"be formatted as '{SiteDefaults.DATE_FORMAT_PRETTY}'."
+                f"be formatted as '{Defaults.DATE_FORMAT_PRETTY}'."
             ) from error
 
     @property
@@ -247,7 +247,7 @@ class LazyMixin(abc.ABC):
             if path.name.startswith("."):
                 continue
 
-            if path.name == SiteDefaults.FILENAME_PAGE_YAML:
+            if path.name == Defaults.FILENAME_PAGE_YAML:
                 continue
 
             if path.name == self.config.cover.name:
@@ -256,11 +256,11 @@ class LazyMixin(abc.ABC):
             if path.name == self.config.description.name:
                 continue
 
-            if path.suffix not in SiteDefaults.VALID_CONTENT_EXTENSIONS:
+            if path.suffix not in Defaults.VALID_CONTENT_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 
-            if path.suffix in SiteDefaults.VALID_YAML_EXTENSIONS:
+            if path.suffix in Defaults.VALID_YAML_EXTENSIONS:
                 logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
                 continue
 
@@ -280,7 +280,7 @@ class LayoutMixin(abc.ABC):
         except KeyError as error:
             raise errors.PageConfigError(
                 f"Missing required key '{Key.CONTENTS}' in for "
-                f"{self.__class__.__name__} in {SiteDefaults.FILENAME_PAGE_YAML}."
+                f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
         else:
             if type(contents) is not list:
@@ -311,7 +311,7 @@ class GalleryMixin(abc.ABC):
 
         if (
             self.column_count is not None
-            and self.column_count not in SiteDefaults.VALID_COLUMN_COUNT
+            and self.column_count not in Defaults.VALID_COLUMN_COUNT
         ):
             raise errors.PageConfigError(
                 f"{self}: Unsupported value '{self.column_count}' for "
@@ -370,22 +370,22 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
 
         for path in self._contents:
 
-            if path.suffix in SiteDefaults.VALID_IMAGE_EXTENSIONS:
+            if path.suffix in Defaults.VALID_IMAGE_EXTENSIONS:
                 item = contents.Image(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in SiteDefaults.VALID_VIDEO_EXTENSIONS:
+            elif path.suffix in Defaults.VALID_VIDEO_EXTENSIONS:
                 item = contents.Video(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in SiteDefaults.VALID_AUDIO_EXTENSIONS:
+            elif path.suffix in Defaults.VALID_AUDIO_EXTENSIONS:
                 item = contents.Audio(
                     page=self, path=path, caption={Key.TITLE: path.stem}
                 )
 
-            elif path.suffix in SiteDefaults.VALID_TEXT_EXTENSIONS:
+            elif path.suffix in Defaults.VALID_TEXT_EXTENSIONS:
                 item = contents.TextBlock(page=self, path=path)
 
             else:
@@ -423,7 +423,7 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
 
         for path in self._contents:
 
-            if path.suffix not in SiteDefaults.VALID_IMAGE_EXTENSIONS:
+            if path.suffix not in Defaults.VALID_IMAGE_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 

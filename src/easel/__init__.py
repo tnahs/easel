@@ -5,7 +5,9 @@ import logging
 
 
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 logging.getLogger("PIL").setLevel(logging.ERROR)
+
 logging.basicConfig(
     level=logging.INFO,
     format="{asctime} {name} {levelname}: {message}",
@@ -14,13 +16,16 @@ logging.basicConfig(
 )
 
 
+import os
 import pathlib
 from typing import Optional, Union
 
 from flask import Flask
 
 from .site import Site
-from .site.globals import site_globals
+from .site.defaults import Key
+from .site.globals import Globals
+from .site.helpers import Utils
 
 
 class Easel(Flask):
@@ -34,34 +39,39 @@ class Easel(Flask):
 
     def __init__(
         self,
-        root: Union[pathlib.Path, str],
+        root: Optional[Union[pathlib.Path, str]] = None,
         /,
-        theme_name: Optional[str] = None,
-        theme_root: Optional[Union[pathlib.Path, str]] = None,
-        loglevel: Optional[Union[str, int]] = None,
-        debug: bool = False,
+        loglevel: Optional[str] = None,
+        debug: Optional[bool] = None,
     ):
         super().__init__(__name__)
+
+        ENV_SITE_ROOT: Optional[str] = os.environ.get(Key.SITE_ROOT, None)
+        ENV_SITE_DEBUG: str = os.environ.get(Key.SITE_DEBUG, "FALSE")
+
+        root = root if root is not None else ENV_SITE_ROOT
+        debug = debug if debug is not None else Utils.str_to_bool(ENV_SITE_DEBUG)
 
         logger = logging.getLogger()
 
         if loglevel is not None:
-            logger.setLevel(loglevel)
 
-        if theme_name and theme_root:
-            logger.warning(
-                "Setting both 'theme_name' and 'theme_root' might result in unexpected behavior."
-            )
+            # Convert loglevel to an integer for setting numeric levels.
+            loglevel_parsed: Union[str, int] = int(
+                loglevel
+            ) if loglevel.isnumeric() else loglevel
 
-        site_globals.paths.root = root
-        site_globals.theme.name = theme_name
-        site_globals.theme.root = theme_root
+            logger.setLevel(loglevel_parsed)
 
-        site_globals.config.load()
+            # Also set Flask's 'werkzeug' the Easel's loglevel.
+            logging.getLogger("werkzeug").setLevel(loglevel_parsed)
+
+        # Setup/Load Globals object.
+        Globals.debug = debug
+        Globals.init(root=root)
 
         # Create and bind Site.
         self._site = Site()
-        self._site.debug = debug
         self._site.build()
 
         # Load blueprints.
@@ -72,19 +82,21 @@ class Easel(Flask):
         self.register_blueprint(blueprint_site)
         self.register_blueprint(blueprint_main)
 
-        @self.context_processor
-        def inject_site() -> dict:
-            return {"site": self._site}
+        # Inject site into template context.
+        self.context_processor(self._inject_into_template)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}:{site_globals.paths.root}>"
+        return f"<{self.__class__.__name__}:{Globals.site_paths.root}>"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}:{site_globals.paths.root}"
+        return f"{self.__class__.__name__}:{Globals.site_paths.root}"
+
+    def _inject_into_template(self) -> dict:
+        return {"site": self.site}
 
     @property
     def site(self) -> "Site":
         return self._site
 
     def run(self, **kwargs) -> None:
-        super().run(debug=self._site.debug, extra_files=self._site.assets, **kwargs)
+        super().run(debug=Globals.debug, extra_files=self.site.assets, **kwargs)

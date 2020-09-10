@@ -6,7 +6,7 @@ import unicodedata
 import yaml
 
 from . import errors
-from .defaults import SiteDefaults
+from .defaults import Defaults
 
 
 logger = logging.getLogger(__name__)
@@ -56,13 +56,17 @@ class Utils:
         return data
 
     @staticmethod
+    def str_to_bool(value: str) -> bool:
+        return value.upper() in ["TRUE", "ENABLED", "YES", "1"]
+
+    @staticmethod
     def get_mimetype(extension: str) -> str:
         """ Returns appropriate MIME Type for a file extension. """
 
         if not extension.startswith("."):
             extension = f".{extension}"
 
-        mimetype = SiteDefaults.MIMETYPES.get(extension, None)
+        mimetype = Defaults.MIMETYPES.get(extension, None)
 
         if mimetype is None:
             logger.warning(f"Unsupported MIME Type '{extension}' detected.")
