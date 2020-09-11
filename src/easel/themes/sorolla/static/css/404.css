@@ -1,0 +1,24 @@
+.error-404 {
+    padding-top: 10%;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+
+    font-family: var(--font-family--primary);
+    font-weight: 400;
+    font-size: 11pt;
+    color: hsla(0, 0%, 0%, 0.75);
+}
+.error-404 a {
+    text-decoration: underline;
+}
+
+.error-404__header {
+    font-size: 20pt;
+}
+
+.error-404__message {
+    font-size: 11pt;
+}

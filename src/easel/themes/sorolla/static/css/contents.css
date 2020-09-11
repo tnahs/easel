@@ -44,8 +44,8 @@
     attribute.
 ---------------------------------------------------------------------------- */
 
-.page--gallery .content__container {
-    margin-bottom: var(--page--gallery--column-gap);
+.page__contents--gallery .content__container {
+    margin-bottom: var(--gallery--column-gap);
 
     cursor: pointer;
 }

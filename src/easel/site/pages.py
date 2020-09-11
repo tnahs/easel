@@ -8,7 +8,7 @@ from . import contents, errors
 from .defaults import Defaults, Key
 from .globals import Globals
 from .helpers import Utils
-
+from .markdown import markdown
 
 if TYPE_CHECKING:
     from . import Site
@@ -51,7 +51,7 @@ class _PageFactory:
                 f"Missing required key '{Key.TYPE}' for Page-like item in {path_absolute}."
             ) from error
 
-        # Get Menu class based on 'menu_type'.
+        # Get Page class based on 'page_type'.
         Page: Optional[PageClass] = self.page_types(page_type=page_type)
 
         if Page is None:
@@ -76,14 +76,14 @@ class PageInterface(abc.ABC):
         self._site: "Site" = site
         self._path_absolute: pathlib.Path = path_absolute
 
-        self._config = PageConfig(page=self, data=config)
+        self._config = PageConfig(page=self, config=config)
 
         self.validate__config()
 
-        """ TEMP/NOTE/FIXME:LOW To properly validate and generate placeholder
-        images for Gallery Pages, self.contents needs to be called before the
-        site is run. It would probably a good idea to cache the contents to
-        reduce overhead on a page refresh. This needs a slight redesign. """
+        """ FIXME:LOW To properly validate and generate placeholder images for
+        Gallery Pages, self.contents needs to be called before the site is run.
+        It would probably a good idea to cache the contents to reduce overhead
+        on a page refresh. This needs a slight re-design. """
         self.contents
 
     def __repr__(self):
@@ -124,8 +124,59 @@ class PageInterface(abc.ABC):
 
     @property
     def is_index(self) -> bool:
-        """ Convenience method to access the 'is_index' configuration. """
         return self.config.is_index
+
+    @property
+    def title(self) -> Optional[str]:
+        return self.config.title
+
+    @property
+    def date(self) -> Optional[datetime.datetime]:
+
+        if self.config.date is None:
+            return
+
+        try:
+            date = datetime.datetime.strptime(self.config.date, Defaults.DATE_FORMAT)
+        except ValueError as error:
+            raise errors.PageConfigError(
+                f"Unsupported value '{self.config.date}' for {Key.DATE}. "
+                f"Dates must be formatted as '{Defaults.DATE_FORMAT_PRETTY}'."
+            ) from error
+
+        return date
+
+    @property
+    def description(self) -> Optional[str]:
+
+        if self.config.description is None:
+            return
+
+        path = self.path_absolute / self.config.description
+
+        try:
+            path = path.resolve(strict=True)
+        except FileNotFoundError as error:
+            raise errors.MissingContent(
+                f"Missing description {path} for {self}."
+            ) from error
+
+        return markdown.from_file(filepath=path, page=self)  # type:ignore
+
+    @property
+    def cover(self) -> Optional[pathlib.Path]:
+
+        if self.config.cover is None:
+            return
+
+        path = self.path_absolute / self.config.cover
+
+        try:
+            path = path.resolve(strict=True)
+        except FileNotFoundError as error:
+            raise errors.MissingContent(f"Missing cover {path} for {self}.") from error
+
+        return path
 
 
 class PageConfig:
@@ -133,25 +184,51 @@ class PageConfig:
     attributes:
 
         {
-            "is-index": [bool: false],
-            "type": [str: page-type],  // See _PageFactory.page_types
-            "title": [str: title],
-            "cover": [str: path/to/cover],
-            "description": [str: path/to/description],
-            "options: [dict: options],
+            "is-index": [bool: False],
+            "type": [str?: None],
+            "title": [str?: None],
+            "date": [str?: None],
+            "description": [str?: None],
+            "cover": [str?: None],
+            "contents": [list: []],
+            "options: {
+                "show-captions": [bool: False],
+                "column-count": [str?|int?: None],
+            },
+
         }
 
     All page configuration is accessed through this class. The reason being
     that it's easier to implement mixins by declaring one abstract method
-    'config' that returns a 'PageConfig' object. Otherwise every mixin would
-    have to ask for different sets of configurations. """
+    'config' that returns a 'PageConfig' object rather than a bunch of
+    different attributes. """
 
-    def __init__(self, page: "PageInterface", data: dict):
+    # fmt:off
+    _config_default: dict = {
+        Key.IS_INDEX: False,
+        Key.TYPE: None,
+        Key.TITLE: None,
+        Key.DATE: None,
+        Key.COVER: None,
+        Key.DESCRIPTION: None,
+        Key.CONTENTS: [],
+        Key.OPTIONS: {
+            Key.SHOW_CAPTIONS: False,
+            Key.COLUMN_COUNT: None,
+        },
+    }
+    # fmt:on
+
+    def __init__(self, page: "PageInterface", config: dict):
 
         self._page = page
-        self._data: dict = data
+        self._config_user: dict = config
 
         self._validate()
+
+        self.__config = Utils.update_dict(
+            original=self._config_default, updates=self._config_user
+        )
 
     def _validate(self) -> None:
         self._validate__options()
@@ -159,7 +236,7 @@ class PageConfig:
     def _validate__options(self) -> None:
 
         try:
-            options = self._data[Key.OPTIONS]
+            options = self._config_user[Key.OPTIONS]
         except KeyError:
             return
 
@@ -170,52 +247,51 @@ class PageConfig:
             )
 
     @property
-    def data(self) -> dict:
-        """ Returns the raw config data dict. Used to access configurations
-        not common to all Pages. For example: LayoutMixin._contents """
-        return self._data
-
-    @property
     def type(self) -> bool:
-        return self._data[Key.TYPE]
+        return self.__config[Key.TYPE]
 
     @property
     def is_index(self) -> bool:
-        return self._data.get(Key.IS_INDEX, False)
+        return self.__config[Key.IS_INDEX]
 
     @property
-    def title(self) -> str:
-        return self._data.get(Key.TITLE, "")
+    def title(self) -> Optional[str]:
+        return self.__config[Key.TITLE]
 
     @property
-    def cover(self) -> pathlib.Path:
-        # TODO:LOW Implement 'Page.cover'.
-        return pathlib.Path(self._data.get(Key.COVER, ""))
+    def date(self) -> str:
+        return self.__config[Key.DATE]
 
     @property
-    def date(self) -> datetime.datetime:
+    def description(self) -> Optional[pathlib.Path]:
 
-        date = self._data.get(Key.DATE, "")
+        description = self.__config[Key.DESCRIPTION]
 
         try:
-            return datetime.datetime.strptime(date, Defaults.DATE_FORMAT)
-        except ValueError as error:
-            raise errors.PageConfigError(
-                f"Unsupported value '{date}' for {Key.DATE}. Dates must be"
-                f"be formatted as '{Defaults.DATE_FORMAT_PRETTY}'."
-            ) from error
+            return pathlib.Path(description)
+        except TypeError:
+            return None
 
     @property
-    def description(self) -> pathlib.Path:
-        # TODO:HIGH Implement 'Page.description'.
-        return pathlib.Path(self._data.get(Key.DESCRIPTION, ""))
+    def cover(self) -> Optional[pathlib.Path]:
+
+        cover = self.__config[Key.COVER]
+
+        try:
+            return pathlib.Path(cover)
+        except TypeError:
+            return None
+
+    @property
+    def contents(self) -> list:
+        return self.__config[Key.CONTENTS]
 
     @property
     def options(self) -> dict:
         """ Returns a dictionary of optional attributes declared in Page's
         config file. See PageInterface subclasses Lazy LazyGallery Layout
         LayoutGallery for specifics. """
-        return self._data.get(Key.OPTIONS, {})
+        return self.__config[Key.OPTIONS]
 
 
 class LazyMixin(abc.ABC):
@@ -230,10 +306,12 @@ class LazyMixin(abc.ABC):
         pass
 
     def validate__lazy_config(self) -> None:
-        pass
+
+        if not len(list(self._directory_contents)):
+            logger.warning(f"{self}: Page has no contents.")
 
     @property
-    def _contents(self) -> Generator[pathlib.Path, None, None]:
+    def _directory_contents(self) -> Generator[pathlib.Path, None, None]:
         """ Returns the contents of the Page's root directory. Primarily used
         for creating Content objects to populate the Page. """
 
@@ -250,11 +328,13 @@ class LazyMixin(abc.ABC):
             if path.name == Defaults.FILENAME_PAGE_YAML:
                 continue
 
-            if path.name == self.config.cover.name:
-                continue
+            if self.config.cover is not None:
+                if path.name == self.config.cover.name:
+                    continue
 
-            if path.name == self.config.description.name:
-                continue
+            if self.config.description is not None:
+                if path.name == self.config.description.name:
+                    continue
 
             if path.suffix not in Defaults.VALID_CONTENT_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
@@ -275,32 +355,21 @@ class LayoutMixin(abc.ABC):
 
     def validate__layout_config(self) -> None:
 
-        try:
-            contents = self.config.data[Key.CONTENTS]
-        except KeyError as error:
-            raise errors.PageConfigError(
-                f"Missing required key '{Key.CONTENTS}' in for "
-                f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
-            ) from error
-        else:
-            if type(contents) is not list:
-                raise errors.PageConfigError(
-                    f"{self}: Expected type 'list' for '{Key.CONTENTS}' got "
-                    f"'{type(contents).__name__}'."
-                )
-            if not len(contents):
-                logger.warning(f"{self}: Page has no contents.")
+        contents = self.config.contents
 
-    @property
-    def _contents(self) -> List[dict]:
-        """ Returns the content items declared in the Page's config file.
-        Primarily used for creating Content objects to populate the Page. """
-        return self.config.data[Key.CONTENTS]
+        if type(contents) is not list:
+            raise errors.PageConfigError(
+                f"{self}: Expected type 'list' for '{Key.CONTENTS}' got "
+                f"'{type(contents).__name__}'."
+            )
+
+        if not len(contents):
+            logger.warning(f"{self}: Page has no contents.")
 
 
 class GalleryMixin(abc.ABC):
 
-    is_gallery = True  # QUESTION: Is there a better way to do this?
+    is_gallery: bool = True
 
     @property
     @abc.abstractmethod
@@ -320,7 +389,7 @@ class GalleryMixin(abc.ABC):
 
     @property
     def column_count(self) -> bool:
-        return self.config.options.get(Key.COLUMN_COUNT, None)
+        return self.config.options[Key.COLUMN_COUNT]
 
 
 class ShowCaptionsMixin(abc.ABC):
@@ -331,10 +400,7 @@ class ShowCaptionsMixin(abc.ABC):
 
     def validate__show_captions_config(self) -> None:
 
-        try:
-            show_captions = self.config.options[Key.SHOW_CAPTIONS]
-        except KeyError:
-            return
+        show_captions = self.config.options[Key.SHOW_CAPTIONS]
 
         if type(show_captions) is not bool:
             raise errors.PageConfigError(
@@ -354,7 +420,7 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
         {
             "type": "lazy",
             "options: {
-                "show-captions": [bool: false],
+                "show-captions": [bool: False],
             }
         }
     """
@@ -368,7 +434,7 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
 
         items: List[Union["Image", "Video", "Audio", "TextBlock"]] = []
 
-        for path in self._contents:
+        for path in self._directory_contents:
 
             if path.suffix in Defaults.VALID_IMAGE_EXTENSIONS:
                 item = contents.Image(
@@ -405,8 +471,8 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
         {
             "type": "lazy-gallery",
             "options": {
-                "column-count": [str|int: auto],
-                "show-captions": [bool: false],
+                "show-captions": [bool: False],
+                "column-count": [str?|int?: None],
             }
         }
     """
@@ -421,7 +487,7 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
 
         images: List["Image"] = []
 
-        for path in self._contents:
+        for path in self._directory_contents:
 
             if path.suffix not in Defaults.VALID_IMAGE_EXTENSIONS:
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
@@ -442,9 +508,9 @@ class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
 
         {
             "type": "layout",
-            "contents": [list<ContentObj>: []],
+            "contents": [list: []],
             "options: {
-                "show-captions": [bool: false],
+                "show-captions": [bool: False],
             }
         }
     """
@@ -458,7 +524,7 @@ class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
 
         items: List["ContentObj"] = []
 
-        for config in self._contents:
+        for config in self.config.contents:
 
             # fmt:off
             item: "ContentObj" = contents.content_factory.build(page=self, config=config)
@@ -475,10 +541,10 @@ class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin, ShowCaptionsMixin)
 
         {
             "type": "layout-gallery",
-            "contents": [list<Images>: []],
+            "contents": [list: []],
             "options": {
-                "column-count": [str|int: auto],
-                "show-captions": [bool: false],
+                "show-captions": [bool: False],
+                "column-count": [str?|int?: None],
             }
         }
     """
@@ -493,7 +559,7 @@ class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin, ShowCaptionsMixin)
 
         images: List["Image"] = []
 
-        for config in self._contents:
+        for config in self.config.contents:
 
             image: "Image" = contents.Image(page=self, config=config)
 

@@ -143,33 +143,31 @@ class _SiteConfig(GlobalsBase):
 
     __config: dict
 
-    _config_default: dict
+    # fmt:off
+    _config_default: dict = {
+        Key.TITLE: None,
+        Key.AUTHOR: None,
+        Key.COPYRIGHT: None,
+        Key.DESCRIPTION: None,
+        Key.FAVICON: None,
+        Key.MENU: [],
+        Key.HEADER: {
+            Key.TITLE: None,
+            Key.IMAGE: {
+                Key.PATH: None,
+                Key.WIDTH: None,
+                Key.HEIGHT: None,
+            },
+        },
+        Key.THEME: {
+            Key.NAME: None,
+            Key.CUSTOM_PATH: None,
+        },
+    }
+    # fmt:on
     _config_user: dict
 
     def load(self) -> None:
-
-        # fmt:off
-        self._config_default = {
-            Key.TITLE: None,
-            Key.AUTHOR: None,
-            Key.COPYRIGHT: None,
-            Key.DESCRIPTION: None,
-            Key.FAVICON: None,
-            Key.MENU: [],
-            Key.HEADER: {
-                Key.TITLE: None,
-                Key.IMAGE: {
-                    Key.PATH: None,
-                    Key.WIDTH: None,
-                    Key.HEIGHT: None,
-                },
-            },
-            Key.THEME: {
-                Key.NAME: None,
-                Key.CUSTOM_PATH: None,
-            },
-        }
-        # fmt:on
 
         # Load the 'site.yaml' from the site's root.
         self._config_user = Utils.load_config(
@@ -211,23 +209,23 @@ class _SiteConfig(GlobalsBase):
             )
 
     @property
-    def title(self) -> str:
+    def title(self) -> Optional[str]:
         return self.__config[Key.TITLE]
 
     @property
-    def author(self) -> str:
+    def author(self) -> Optional[str]:
         return self.__config[Key.AUTHOR]
 
     @property
-    def copyright(self) -> str:
+    def copyright(self) -> Optional[str]:
         return self.__config[Key.COPYRIGHT]
 
     @property
-    def description(self) -> str:
+    def description(self) -> Optional[str]:
         return self.__config[Key.DESCRIPTION]
 
     @property
-    def favicon(self) -> str:
+    def favicon(self) -> Optional[str]:
         return self.__config[Key.FAVICON]
 
     @property
@@ -236,10 +234,6 @@ class _SiteConfig(GlobalsBase):
 
     @property
     def header(self) -> dict:
-        # TODO:LOW Re-implement _SiteConfig.header after it's clearer how
-        # missing keys and values will handled. We're trying to avoid forcing
-        # the user to declare blank key-value pairs as well as avoid having to
-        # traverse dictionaries to provide fallback default values.
         return self.__config[Key.HEADER]
 
     @property

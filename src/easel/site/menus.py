@@ -86,13 +86,13 @@ class MenuInterface(abc.ABC):
 
 
 class LinkPage(MenuInterface):
-    """ Creates an Menu-like object from a dictionary with the following
+    """ Creates a LinkPage Menu object from a dictionary with the following
         attributes:
 
         {
             "type": "link-page",
-            "label": [str: label],
-            "links-to": [str: path/to/page],
+            "label": [str: None],
+            "links-to": [str: None],
         }
     """
 
@@ -174,13 +174,13 @@ class LinkPage(MenuInterface):
 
 
 class LinkURL(MenuInterface):
-    """ Creates an Menu-like object from a dictionary with the following
+    """ Creates an LinkURL Menu object from a dictionary with the following
         attributes:
 
         {
             "type": "link-url",
-            "label": [str: label],
-            "url": [str: url],
+            "label": [str: None],
+            "url": [str: None],
         }
     """
 
@@ -217,13 +217,13 @@ class LinkURL(MenuInterface):
 
 
 class Spacer(MenuInterface):
-    """ Creates an Menu-like object from a dictionary with the following
+    """ Creates an Spacer Menu object from a dictionary with the following
         attributes:
 
         {
             "type": "spacer",
-            "label": [str: label],
-            "size": [str: size], // See easel.site.config.VALID_SIZES
+            "label": [str?: None],
+            "size": [str?: None]
         }
     """
 

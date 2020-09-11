@@ -82,7 +82,9 @@
 
         {% endif %}
 
-        {% if page.show_captions %}
+        {# NOTE: Captions for galleries are rendered in the Lightbox. #}
+
+        {% if page.show_captions and not page.is_gallery %}
 
             <div class="content__item content__item--caption">
 
@@ -91,26 +93,6 @@
             </div>
 
         {% endif %}
-
-    </div>
-
-{% endmacro %}
-
-
-{% macro render_gallery_content(page, content) %}
-
-    <div class="content__container">
-
-        <img class="content__item content__item--image"
-            src="{{ content.placeholder.path_relative_image | static_site }}"
-            data-src="{{ content.path_relative | static_site }}"
-            data-placeholder-color='{{ content.placeholder.color | tojson }}'>
-
-            {# NOTE: This last attribute 'data-placeholder-color' *must* be
-            surrounded by single quotes. to properly render as JSON in the
-            template. Its value is retrieved and parsed in Javascript. #}
-
-        {# NOTE: Captions are rendered in the Lightbox. #}
 
     </div>
 
@@ -140,12 +122,5 @@
         </div>
 
     {% endif %}
-
-{% endmacro %}
-
-
-{% macro render_css(name, value) %}
-
-    {% if value is not none %}{{ name }}: {{ value }};{% endif %}
 
 {% endmacro %}

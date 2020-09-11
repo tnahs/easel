@@ -1,6 +1,6 @@
 # sorolla-demo/pages/food
 
-type: lazy-gallery
+type: lazy
 title: Food
 cover: page-cover.jpg
 description: page-description.md

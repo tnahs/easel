@@ -1,6 +1,6 @@
 import logging
 import pathlib
-from typing import Tuple, Union
+from typing import Dict, Tuple, Union
 
 
 logger = logging.getLogger(__name__)
@@ -19,15 +19,26 @@ class Defaults:
     DIRECTORY_NAME_THEMES: str = "themes"
     DIRECTORY_NAME_STATIC: str = "static"
     DIRECTORY_NAME_CACHE: str = ".cache"
+    DIRECTORY_NAME_BUILD: str = "build"
 
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
     FILENAME_THEME_YAML: str = "theme.yaml"
 
+    # TEMP
     # https://pillow.readthedocs.io/en/5.1.x/handbook/image-file-formats.html#jpeg
     PLACEHOLDER_FORMAT: str = "JPEG"
     PLACEHOLDER_SIZE: Tuple[int, int] = (512, 512)
     PLACEHOLDER_QUALITY: int = 95
+
+    # https://pillow.readthedocs.io/en/5.1.x/handbook/image-file-formats.html#jpeg
+    PROXY_IMAGE_FORMAT: str = "JPEG"
+    PROXY_IMAGE_SIZES: Dict[str, int] = {
+        "small": 256,
+        "medium": 512,
+        "large": 1024,
+    }
+    PROXY_IMAGE_QUALITY: int = 95
 
     DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
     DATE_FORMAT_PRETTY: str = "YYYY-MM-DD HH:MM:SS"

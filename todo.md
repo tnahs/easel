@@ -11,6 +11,7 @@
 ## MEDIUM
 
 - Style 404 Page
+- Style Page Description
 - Style Markdown
 - Setup `gulp` to:
   - Copy/install `reset.css`, `normalize.css` and `hammer.js` on dev/build
@@ -18,6 +19,8 @@
   - Minify CSS/JS
 - Optimize fonts.
 - Fix Lightbox styling on both desktop and mobile.
+- Need different values for IntersectionalObserver when dealing with large images.
+- Implement default-dictionary/updating with `Menu` and `Content` types.
 
 ## LOW
 
@@ -27,7 +30,7 @@
 - Site as a `Flask` app.
   - Placeholders are generated and placed in site-name/assets/placeholders in the same way it's currently done. However let's remove the 'pages' folder and just place the individual page directories instead.
   - ...
-- Site as flattened html -> `easel build`
+- Site as a static site -> `easel build`
   - ...
 - Rename `site` to ...? and `easel` to ...?
 
@@ -108,12 +111,38 @@ Site structure when running as a Flask application:
 │   │   └── image001.jpg
 │   └── page02
 │       └──...
-└── assets
-    ├── placeholders
+└── site-assets
+    ├── pages
     │   ├── page01
-    │   │   └── image001
-    │   │       ├── image.jpg
+    │   │   └── image001-proxies
+    │   │       ├── small.jpg
+    │   │       ├── medium.jpg
+    │   │       ├── large.jpg
     │   │       └── color.json
+    │   ├── page02
+    │   │   └──...
+    │   └──...
+    └──...
+```
+
+Site structure when running as a static site:
+
+``` plaintext
+build
+├── index.html
+├── 404.html
+├── page01
+│   └── index.html
+├── page02
+│   └── index.html
+└── static
+    ├── pages
+    │   ├── page01
+    │   │   ├── image001.jpg
+    │   │   └── image001-proxies
+    │   │       ├── small.jpg
+    │   │       ├── medium.jpg
+    │   │       └── large.jpg
     │   ├── page02
     │   │   └──...
     │   └──...

@@ -15,6 +15,7 @@
         <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ site.config.title }}</title>
 
         <link rel="stylesheet" type="text/css" href="{{ 'css/common.css' | static_theme }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/markdown.css' | static_theme }}"/>
         <link rel="stylesheet" type="text/css" href="{{ 'css/base.css' | static_theme }}"/>
         <link rel="stylesheet" type="text/css" href="{{ 'css/header.css' | static_theme }}"/>
         <link rel="stylesheet" type="text/css" href="{{ 'css/menu-base.css' | static_theme }}"/>
@@ -22,7 +23,6 @@
         <link rel="stylesheet" type="text/css" href="{{ 'css/page.css' | static_theme }}"/>
         <link rel="stylesheet" type="text/css" href="{{ 'css/contents.css' | static_theme }}"/>
         <link rel="stylesheet" type="text/css" href="{{ 'css/footer.css' | static_theme }}"/>
-        <link rel="stylesheet" type="text/css" href="{{ 'css/markdown.css' | static_theme }}"/>
 
         {% if page and page.is_gallery %}
             <link rel="stylesheet" type="text/css" href="{{ 'css/lightbox.css' | static_theme }}"/>

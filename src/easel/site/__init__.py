@@ -141,20 +141,22 @@ class Site:
 
     @property
     def _assets_theme(self) -> List[pathlib.Path]:
-        """ TEMP: This might become obsolete with the future implementation of
-        themeing. Also see Site.assets. """
+        """ See Site.assets. """
         return list(Globals.theme_paths.root.glob("**/*"))
 
     @property
     def _assets_site(self) -> List[pathlib.Path]:
-        """ TEMP: This might dramatically change with the future implementation
-        of themeing. Also see Site.assets. """
+        """ See Site.assets. """
 
         assets_site = []
 
         for item in Globals.site_paths.root.glob("**/*"):
 
+            # TEMP
             if item.name == Defaults.DIRECTORY_NAME_CACHE:
+                continue
+
+            if item.name == Defaults.DIRECTORY_NAME_BUILD:
                 continue
 
             assets_site.append(item)

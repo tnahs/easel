@@ -1,4 +1,9 @@
 :root {
+    --page__description--font-family: var(--font-family--primary);
+    --page__description--font-weight: 400;
+    --page__description--font-size: 13pt;
+    --page__description--color: hsla(0, 0%, 0%, 0.75);
+
     /*
      * Page Gallery
      * --------------------------------------------------------------------- */
@@ -7,22 +12,40 @@
      declared, 'column-count' is the maximum number of columns and
      'column-width' is the minimum width for those columns. */
 
-    --page--gallery--column-width: 250px;
-    --page--gallery--column-count: auto;
-    --page--gallery--column-gap: 10px;
+    --gallery--column-width: 250px;
+    --gallery--column-count: auto;
+    --gallery--column-gap: 10px;
 }
 
 /* Structure of #page
 
     #page
-        .page--base / .page--gallery
+        .page__contents--base / .page__contents--gallery
 ---------------------------------------------------------------------------- */
 
 #page {
     /*  */
 }
 
-.page--base {
+.page__description {
+    width: 75%;
+
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 35px;
+}
+
+.page__description.markdown p {
+    font-family: var(--page__description--font-family);
+    font-weight: var(--page__description--font-weight);
+    font-size: var(--page__description--font-size);
+    color: var(--page__description--color);
+
+    line-height: 1.5;
+}
+
+.page__contents--base {
     /* TODO:HIGH Implement page-width with grid columns. This will mainly be
     used to prevent the text content on the page from spanning 100%. */
 
@@ -31,35 +54,10 @@
     row-gap: 25px;
 }
 
-.page--gallery {
-    column-width: var(--page--gallery--column-width);
-    column-count: var(--page--gallery--column-count);
-    column-gap: var(--page--gallery--column-gap);
-}
-
-.page--error-404 {
-    padding-top: 10%;
-
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    gap: 10px;
-
-    font-family: var(--font-family--primary);
-    font-weight: 400;
-    font-size: 11pt;
-    color: hsla(0, 0%, 0%, 0.75);
-}
-.page--error-404 a {
-    text-decoration: underline;
-}
-
-.error-404__header {
-    font-size: 20pt;
-}
-
-.error-404__message {
-    font-size: 11pt;
+.page__contents--gallery {
+    column-width: var(--gallery--column-width);
+    column-count: var(--gallery--column-count);
+    column-gap: var(--gallery--column-gap);
 }
 
 /*
@@ -71,8 +69,12 @@
         /*
          * Page Gallery
          * ----------------------------------------------------------------- */
-        --page--gallery--column-width: auto;
-        --page--gallery--column-count: 2;
-        --page--gallery--column-gap: 5px;
+        --gallery--column-width: auto;
+        --gallery--column-count: 2;
+        --gallery--column-gap: 5px;
+    }
+
+    .page__description {
+        width: 100%;
     }
 }

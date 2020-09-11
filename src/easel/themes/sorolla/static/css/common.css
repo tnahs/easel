@@ -1,7 +1,19 @@
+@import "libs/normalize.css";
+@import "libs/reset.css";
+
+@import "fonts/cormorant-garamond.css";
+@import "fonts/fira-code.css";
+@import "fonts/montserrat.css";
+@import "fonts/pt-sans.css";
+
 :root {
     /*
      * Base
      * --------------------------------------------------------------------- */
+
+    --font-family--primary: "Montserrat", sans-serif;
+    --font-family--secondary: "Cormorant Garamond", serif;
+    --font-family--monospace: "Fira Code", monospace;
 
     --transition--ease-out: cubic-bezier(0.2, 0.5, 0.3, 1);
 
