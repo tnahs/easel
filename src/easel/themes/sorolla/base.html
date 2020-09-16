@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        {# TODO:LOW Need to check for "page" in case we hit a 404 error. Is there a clearer way to do this? #}
+
+        {% if config.site.description and page and page.is_index %}<meta name="description" content="{{ config.site.description }}">{% endif %}
+        {% if config.site.author %}<meta name="author" content="{{ config.site.author }}">{% endif %}
+        {% if config.site.favicon %}<link rel="shortcut icon" href="{{ config.site.favicon | site_url }}">{% endif %}
+
+        <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ config.site.title }}</title>
+
+        <link rel="stylesheet" type="text/css" href="{{ 'css/common.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/markdown.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/base.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/header.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/menu-base.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/menu-mobile.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/page.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/contents.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/footer.css' | theme_url }}"/>
+
+        {% if page and page.is_gallery %}
+            <link rel="stylesheet" type="text/css" href="{{ 'css/lightbox.css' | theme_url }}"/>
+        {% endif %}
+
+    </head>
+
+    <body>
+
+        <header>{% include "_header.html" %}</header>
+
+        <menu>
+            {% include "_menu.html" %}
+            {% include "_menu-mobile.html" %}
+        </menu>
+
+        <main>{% block main %}{% endblock %}</main>
+
+        <footer>{% include "_footer.html" %}</footer>
+
+        {% if page and page.is_gallery %}
+            {% include "_lightbox.html" %}
+        {% endif %}
+
+        <script src="{{ 'javascript/base.js' | theme_url }}"></script>
+        <script src="{{ 'javascript/menu-mobile.js' | theme_url }}"></script>
+
+        {% if page and page.is_gallery %}
+            <script src="{{ 'javascript/lightbox.js' | theme_url }}"></script>
+        {% endif %}
+
+    </body>
+
+</html>

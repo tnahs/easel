@@ -1,17 +1,14 @@
 import abc
-import json
 import logging
 import pathlib
-from typing import TYPE_CHECKING, Any, Optional, Tuple, Type, Union
-
-import PIL.Image
-import PIL.ImageFilter
+from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
 from .defaults import Defaults, Key
 from .globals import Globals
 from .helpers import Utils
 from .markdown import markdown
+from .proxies import ProxyColorManager, ProxyImageManager
 
 
 if TYPE_CHECKING:
@@ -45,13 +42,13 @@ ContentObj = Union[
 class _ContentFactory:
     def __init__(self):
         self._content_types = {
-            "image": Image,
-            "video": Video,
-            "audio": Audio,
-            "text-block": TextBlock,
-            "embedded": Embedded,
-            "header": Header,
-            "break": Break,
+            Key.IMAGE: Image,
+            Key.VIDEO: Video,
+            Key.AUDIO: Audio,
+            Key.TEXT_BLOCK: TextBlock,
+            Key.EMBEDDED: Embedded,
+            Key.HEADER: Header,
+            Key.BREAK: Break,
         }
 
     def build(self, page: "PageObj", config: dict) -> ContentObj:
@@ -67,7 +64,9 @@ class _ContentFactory:
             ) from error
 
         # Get Content class based on 'content_type'.
-        Content: Optional[ContentClass] = self.content_types(content_type=content_type)
+        Content: Optional["ContentClass"] = self.content_types(
+            content_type=content_type
+        )
 
         if Content is None:
             raise errors.ContentConfigError(
@@ -77,7 +76,7 @@ class _ContentFactory:
 
         return Content(page=page, **config)
 
-    def content_types(self, content_type: str) -> Optional[ContentClass]:
+    def content_types(self, content_type: str) -> Optional["ContentClass"]:
         return self._content_types.get(content_type, None)
 
     def register_content_type(self, name: str, content: Any) -> None:
@@ -143,7 +142,7 @@ class CaptionMixin(abc.ABC):
 class ContentInterface(abc.ABC):
     def __init__(self, page: "PageObj", **config):
 
-        self._page: "PageObj" = page
+        self._page = page
         self._config = config
 
         self.validate__config()
@@ -172,7 +171,10 @@ class FileContent(ContentInterface):
     """
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} filename:{self.filename}>"
+        return (
+            f"<{self.__class__.__name__}: page:{self.page.directory_name} "
+            f"filename:{self.filename}>"
+        )
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.filename}"
@@ -189,28 +191,26 @@ class FileContent(ContentInterface):
 
         # TODO:LOW Check type of self.config[Key.PATH]
 
-        if not self.path_absolute.exists():
-            raise errors.MissingContent(
-                f"Missing '{self.filename}' in {self.path_absolute}."
-            )
+        if not self.path.exists():
+            raise errors.MissingContent(f"Missing '{self.filename}' in {self.path}.")
 
     @property
     def name(self) -> str:
         """ Returns the filename without the extension. """
-        return self.path_absolute.stem
+        return self.path.stem
 
     @property
     def filename(self) -> str:
         """ Returns the whole filename. """
-        return self.path_absolute.name
+        return self.path.name
 
     @property
     def extension(self) -> str:
         """ Returns the filename's extension. """
-        return self.path_absolute.suffix
+        return self.path.suffix
 
     @property
-    def path_absolute(self) -> pathlib.Path:
+    def path(self) -> pathlib.Path:
         """ Returns an absolute path to the FileContent. """
 
         path = self.config[Key.PATH]
@@ -218,16 +218,16 @@ class FileContent(ContentInterface):
         # For Layout/LayoutGallery Pages, 'path' is passed as a string-type
         # containing a path to the file relative to the Page's root directory.
         if not isinstance(path, pathlib.Path):
-            return self.page.path_absolute / path
+            return self.page.path / path
 
         # For Lazy/LazyGallery Pages, 'path' is passed as a pathlib.Path object
         # containing an absolute path to the file.
         return path
 
     @property
-    def path_relative(self) -> pathlib.Path:
-        """ Returns a path relative to to /[site-name]. """
-        return self.path_absolute.relative_to(Globals.site_paths.root)
+    def src(self) -> pathlib.Path:
+        """ Returns a path relative to to /site-name. """
+        return self.path.relative_to(Globals.site_paths.root)
 
     @property
     def mimetype(self) -> str:
@@ -246,12 +246,11 @@ class Image(FileContent, CaptionMixin):
 
     is_image: bool = True
 
-    _placeholder: Optional["Placeholder"] = None
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._placeholder = Placeholder(image=self)
+        self._proxy_images = ProxyImageManager(image=self)
+        self._proxy_colors = ProxyColorManager(image=self)
 
     def validate__config(self) -> None:
         super().validate__config()
@@ -259,14 +258,18 @@ class Image(FileContent, CaptionMixin):
         if self.extension not in Defaults.VALID_IMAGE_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
-                f"'{self.filename}' in {self.path_absolute}."
+                f"'{self.filename}' in {self.path}."
             )
 
         self.validate__caption_config()
 
     @property
-    def placeholder(self) -> Optional["Placeholder"]:
-        return self._placeholder
+    def proxy_images(self) -> ProxyImageManager:
+        return self._proxy_images
+
+    @property
+    def proxy_colors(self) -> ProxyColorManager:
+        return self._proxy_colors
 
 
 class Video(FileContent, CaptionMixin):
@@ -287,7 +290,7 @@ class Video(FileContent, CaptionMixin):
         if self.extension not in Defaults.VALID_VIDEO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
-                f"'{self.filename}' in {self.path_absolute}."
+                f"'{self.filename}' in {self.path}."
             )
 
         self.validate__caption_config()
@@ -311,7 +314,7 @@ class Audio(FileContent, CaptionMixin):
         if self.extension not in Defaults.VALID_AUDIO_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
-                f"'{self.filename}' in {self.path_absolute}."
+                f"'{self.filename}' in {self.path}."
             )
 
         self.validate__caption_config()
@@ -336,7 +339,7 @@ class TextBlock(FileContent):
         if self.extension not in Defaults.VALID_TEXT_EXTENSIONS:
             raise errors.UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
-                f"'{self.filename}' in {self.path_absolute}."
+                f"'{self.filename}' in {self.path}."
             )
 
         if self.align is not None and self.align not in Defaults.VALID_ALIGNMENTS:
@@ -346,7 +349,7 @@ class TextBlock(FileContent):
 
     @property
     def body(self) -> str:
-        return markdown.from_file(filepath=self.path_absolute, page=self.page)
+        return markdown.from_file(filepath=self.path)
 
     @property
     def align(self) -> dict:
@@ -366,7 +369,10 @@ class Embedded(ContentInterface, CaptionMixin):
     is_embedded: bool = True
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} html:{self.html[:32].strip()}...>"
+        return (
+            f"<{self.__class__.__name__}: page:{self.page.directory_name} "
+            f"html:{self.html[:32].strip()}...>"
+        )
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.html[:32].strip()}..."
@@ -404,7 +410,10 @@ class Header(ContentInterface):
     is_header: bool = True
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} text:{self.text[:32].strip()}...>"
+        return (
+            f"<{self.__class__.__name__}: page:{self.page.directory_name} "
+            f"text:{self.text[:32].strip()}...>"
+        )
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.text[:32].strip()}..."
@@ -455,7 +464,10 @@ class Break(ContentInterface):
     is_break: bool = True
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: page:{self.page.name} size:{self.size}>"
+        return (
+            f"<{self.__class__.__name__}: page:{self.page.directory_name} "
+            f"size:{self.size}>"
+        )
 
     def validate__config(self) -> None:
 
@@ -467,148 +479,6 @@ class Break(ContentInterface):
     @property
     def size(self) -> str:
         return self.config.get(Key.SIZE, None)
-
-
-class Placeholder:
-    def __init__(self, image: "Image"):
-
-        self._original_image = image
-
-        self._color: Tuple[int, int, int]
-
-        self.cache()
-
-    def cache(self, force: bool = False) -> None:
-        self._create_cache_directory()
-        self._cache_or_load(force=force)
-
-    def _create_cache_directory(self) -> None:
-        self._cache_directory.mkdir(parents=True, exist_ok=True)
-
-    def _cache_or_load(self, force: bool = False) -> None:
-
-        if self._has_cache is False or force is True:
-            self._cache()
-
-        try:
-            with open(self.path_absolute_color, "r") as f:
-                self._color = json.load(f)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            logger.warning(
-                f"Error reading '{self._original_image.name}' cache. Re-caching."
-            )
-            self._cache()
-
-        if type(self._color) is not list:
-            logger.warning(
-                f"Invalid color data for '{self._original_image.filename}'. Re-caching."
-            )
-            self._cache()
-
-    def _cache(self) -> None:
-        """ PIL Exceptions Reference
-
-        Image.open Exceptions:
-
-            IOError
-                If the file cannot be found, or the image cannot be opened and
-                identified.
-
-        https://pillow.readthedocs.io/en/5.1.x/reference/Image.html#PIL.Image.open
-        """
-
-        logger.debug(f"Caching color and image for '{self._original_image.filename}'.")
-
-        with PIL.Image.open(self._original_image.path_absolute) as image:
-
-            image = image.convert("RGB")
-
-            self._save_image(image=image)
-            self._save_color(image=image)
-
-    def _save_image(self, image: PIL.Image.Image) -> None:
-        """ Image.save Exceptions:
-
-            KeyError
-                If the output format could not be determined from the file
-                name. Use the format option to solve this.
-
-            IOError
-                If the file could not be written. The file may have been
-                created, and may contain partial data.
-
-        https://pillow.readthedocs.io/en/5.1.x/reference/Image.html#PIL.Image.Image.save
-        """
-
-        image.thumbnail(Defaults.PLACEHOLDER_SIZE)
-        image.save(
-            self.path_absolute_image,
-            format=Defaults.PLACEHOLDER_FORMAT,
-            quality=Defaults.PLACEHOLDER_QUALITY,
-        )
-
-    def _save_color(self, image: PIL.Image.Image) -> None:
-
-        image = image.resize((1, 1))
-        color = image.getpixel((0, 0))
-
-        with open(self.path_absolute_color, "w") as f:
-            json.dump(color, f)
-
-        self._color = color  # type: ignore
-
-    @property
-    def _has_cache(self) -> bool:
-        return self.path_absolute_image.exists() and self.path_absolute_color.exists()
-
-    @property
-    def _cache_directory(self) -> pathlib.Path:
-        """ Returns an absolute path to the cache directory. Transforms the
-        original image path to the cache path:
-
-            /[site-name]/pages/page-name/image-name.jpg
-            /[site-name]/.cache/pages/page-name/image-name
-        """
-        return (
-            Globals.site_paths.cache
-            / self._original_image.path_relative.parent
-            / self._original_image.name
-        )
-
-    @property
-    def path_absolute_image(self) -> pathlib.Path:
-        """ Returns a absolute path to the cached image:
-
-            /[site-name]/.cache/page/page-name/image-name/image.ext
-        """
-        return self._cache_directory / f"image{self._original_image.extension}"
-
-    @property
-    def path_relative_image(self) -> pathlib.Path:
-        """ Returns a relative path to the cached image:
-
-            .cache/page/page-name/image-name/image.ext
-        """
-        return self.path_absolute_image.relative_to(Globals.site_paths.root)
-
-    @property
-    def path_absolute_color(self) -> pathlib.Path:
-        """ Returns a absolute path to the cached image:
-
-            /[site-name]/.cache/page/page-name/image-name/color.json
-        """
-        return self._cache_directory / "color.json"
-
-    @property
-    def color(self) -> dict:
-        """ Returns the color as a dictionary. This is because this value needs
-        to be passed to HTML then Javascript. It's easier to parse a dictionary
-        in Javascript than a Tuple. """
-        return {
-            "r": self._color[0],
-            "g": self._color[1],
-            "b": self._color[2],
-        }
 
 
 content_factory = _ContentFactory()

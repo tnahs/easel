@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 blueprint_theme = Blueprint(
     name="theme",
     import_name=__name__,
-    template_folder=str(Globals.theme_paths.templates),
-    static_folder=str(Globals.theme_paths.static),
+    template_folder=str(Globals.theme_paths.root),
+    static_folder=str(Globals.theme_paths.root),
     static_url_path=Globals.theme_paths.static_url_path,
 )
 

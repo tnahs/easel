@@ -1,0 +1,14 @@
+# testing-demo/site.yaml
+
+title: Testing Demo
+author: Testing Full Name
+copyright: © 2020 Testing Full Name
+description: A demo for Testing Easel.
+
+menu:
+- type: link-page
+  label: Nature
+  links-to: ./pages/testing-nature
+
+header:
+  title: Testing Demo

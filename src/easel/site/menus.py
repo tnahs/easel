@@ -1,6 +1,5 @@
 import abc
 import logging
-import pathlib
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
 from . import errors
@@ -28,9 +27,9 @@ MenuObj = Union[
 class _MenuFactory:
     def __init__(self):
         self._menu_types = {
-            "link-page": LinkPage,
-            "link-url": LinkURL,
-            "spacer": Spacer,
+            Key.LINK_PAGE: LinkPage,
+            Key.LINK_URL: LinkURL,
+            Key.SPACER: Spacer,
         }
 
     def build(self, site: "Site", config: dict) -> MenuObj:
@@ -46,7 +45,7 @@ class _MenuFactory:
             ) from error
 
         # Get Menu class based on 'menu_type'.
-        Menu: Optional[MenuClass] = self.menu_types(menu_type=menu_type)
+        Menu: Optional["MenuClass"] = self.menu_types(menu_type=menu_type)
 
         if Menu is None:
             raise errors.MenuConfigError(
@@ -56,7 +55,7 @@ class _MenuFactory:
 
         return Menu(site=site, **config)
 
-    def menu_types(self, menu_type: str) -> Optional[MenuClass]:
+    def menu_types(self, menu_type: str) -> Optional["MenuClass"]:
         return self._menu_types.get(menu_type, None)
 
     def register_menu_type(self, name: str, menu: Any) -> None:
@@ -67,7 +66,7 @@ class _MenuFactory:
 class MenuInterface(abc.ABC):
     def __init__(self, site: "Site", **config):
 
-        self._site: "Site" = site
+        self._site = site
         self._config = config
 
         self.validate__config()
@@ -98,9 +97,6 @@ class LinkPage(MenuInterface):
 
     is_link_page: bool = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def __repr__(self) -> str:
         return (
             f"<{self.__class__.__name__}: label:{self.label} links_to:{self.links_to}>"
@@ -117,37 +113,16 @@ class LinkPage(MenuInterface):
             ) from error
 
         try:
-            self.config[Key.LINKS_TO]
+            links_to = self.config[Key.LINKS_TO]
         except KeyError as error:
             raise errors.MenuConfigError(
                 f"Missing required key '{Key.LINKS_TO}' "
                 f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
-        self._normalize__links_to()
+        self.config[Key.LINKS_TO] = Utils.normalize_page_path(path=links_to)
+
         self._validate__links_to()
-
-    def _normalize__links_to(self) -> None:
-        """ Ensures the 'links-to' attribute from 'config' is always a path
-        relative to the 'config.path_pages' directory.
-
-            pages/page-000 --> page-000
-            page-001       --> page-001
-
-        This allows users to use paths relative to the [site-name] or or 'pages'
-        directory. """
-
-        links_to = self.config[Key.LINKS_TO]
-
-        try:
-            links_to = pathlib.Path(links_to)
-            links_to = links_to.relative_to(Defaults.DIRECTORY_NAME_PAGES)
-        except ValueError:
-            # pathlib raises a ValueError if the path does not begin with the
-            # value passed to Path.relative_to(). In this case 'pages'.
-            pass
-
-        self.config[Key.LINKS_TO] = Utils.urlify(links_to)
 
     def _validate__links_to(self) -> None:
 

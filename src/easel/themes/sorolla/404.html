@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+
+    <div id="page" class="page--error-404">
+        <div class="error-404__header">
+            Page not found.
+        </div>
+        <div class="error-404__message">
+            If you entered the URL manually please check your spelling and try again.
+        </div>
+        <div>Or click here to return <a href="{{ index.url }}">home</a>.</div>
+    </div>
+
+{% endblock %}

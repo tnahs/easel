@@ -3,11 +3,11 @@ import json
 import logging
 import os
 import pathlib
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from . import errors
 from .defaults import Defaults, Key
-from .helpers import Utils
+from .helpers import SafeDict, Utils
 
 
 logger = logging.getLogger(__name__)
@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 class _Globals:
     def __init__(self):
 
-        self._site_paths = _SitePaths(self)
-        self._site_config = _SiteConfig(self)
-        self._theme_paths = _ThemePaths(self)
-        self._theme_config = _ThemeConfig(self)
+        self._site_paths = SitePaths(self)
+        self._site_config = SiteConfig(self)
+        self._theme_paths = ThemePaths(self)
+        self._theme_config = ThemeConfig(self)
 
     def init(self, root: Optional[Union[pathlib.Path, str]]):
 
@@ -40,19 +40,19 @@ class _Globals:
         self.theme_config.load()
 
     @property
-    def site_paths(self) -> "_SitePaths":
+    def site_paths(self) -> "SitePaths":
         return self._site_paths
 
     @property
-    def site_config(self) -> "_SiteConfig":
+    def site_config(self) -> "SiteConfig":
         return self._site_config
 
     @property
-    def theme_paths(self) -> "_ThemePaths":
+    def theme_paths(self) -> "ThemePaths":
         return self._theme_paths
 
     @property
-    def theme_config(self) -> "_ThemeConfig":
+    def theme_config(self) -> "ThemeConfig":
         return self._theme_config
 
     @property
@@ -77,21 +77,21 @@ class GlobalsBase:
         return self.__globals
 
 
-class _SitePaths(GlobalsBase):
+class SitePaths(GlobalsBase):
 
     _root: pathlib.Path
 
     @property
     def root(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site-name] """
+        """ Returns /absolute/path/to/site-name """
         return self._root
 
     @root.setter
-    def root(self, root: Optional[Union[pathlib.Path, str]]) -> None:
-        """ Sets /absolute/path/to/[site-name] """
+    def root(self, value: Optional[Union[pathlib.Path, str]]) -> None:  # type:ignore
+        """ Sets /absolute/path/to/site-name """
 
         # Sets the current directory as the root if no root is provided.
-        root = pathlib.Path(root) if root else pathlib.Path()
+        root = pathlib.Path(value) if value is not None else pathlib.Path()
 
         try:
             root = root.resolve(strict=True)
@@ -104,9 +104,11 @@ class _SitePaths(GlobalsBase):
 
     @property
     def pages(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site-name]/pages """
+        """ Returns /absolute/path/to/site-name/pages """
 
-        path_pages = self.root / Defaults.DIRECTORY_NAME_PAGES
+        path_pages = (
+            self.root / Defaults.DIRECTORY_NAME_CONTENTS / Defaults.DIRECTORY_NAME_PAGES
+        )
 
         try:
             path_pages = path_pages.resolve(strict=True)
@@ -118,28 +120,17 @@ class _SitePaths(GlobalsBase):
         return path_pages
 
     @property
-    def static(self) -> pathlib.Path:
-        """ Convenience attribute for serving static files. """
-        return self._root
+    def cache(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name/site-cache """
+        return self.root / Defaults.DIRECTORY_NAME_SITE_CACHE
 
     @property
     def static_url_path(self) -> str:
-        """ Returns an absolute url to the site's static folder. Currently this
-        is the site's root directory:
-
-            /[site-name]
-
-        TODO:MED Resarch and document this.
-        https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files """
-        return Utils.urlify(self.static.relative_to(self.root.parent))
-
-    @property
-    def cache(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/[site-name]/.cache """
-        return self.root / Defaults.DIRECTORY_NAME_CACHE
+        """ Returns an absolute url: /site """
+        return Utils.urlify("site")
 
 
-class _SiteConfig(GlobalsBase):
+class SiteConfig(GlobalsBase):
 
     __config: dict
 
@@ -249,7 +240,7 @@ class _SiteConfig(GlobalsBase):
         return self.__config[Key.THEME][Key.CUSTOM_PATH]
 
 
-class _ThemePaths(GlobalsBase):
+class ThemePaths(GlobalsBase):
 
     _root: pathlib.Path
 
@@ -338,27 +329,12 @@ class _ThemePaths(GlobalsBase):
         return self._root
 
     @property
-    def static(self) -> pathlib.Path:
-        """ Returns the path to the current theme's static directory. """
-        return self.root / Defaults.DIRECTORY_NAME_STATIC
-
-    @property
     def static_url_path(self) -> str:
-        """ Returns an absolute url to the theme's static folder:
-
-            /theme-name/static
-
-        TODO:MED Resarch and document this.
-        https://flask.palletsprojects.com/en/1.1.x/blueprints/#static-files """
-        return Utils.urlify(self.static.relative_to(self.root.parent))
-
-    @property
-    def templates(self) -> pathlib.Path:
-        """ Returns the path to the current theme's templates directory. """
-        return self.root / Defaults.DIRECTORY_NAME_TEMPLATES
+        """ Returns an absolute url: /theme """
+        return Utils.urlify("theme")
 
 
-class _ThemeConfig(GlobalsBase):
+class ThemeConfig(GlobalsBase):
 
     __config: dict
 
@@ -388,6 +364,28 @@ class _ThemeConfig(GlobalsBase):
 
     def _validate(self) -> None:
         pass
+
+    def __getitem__(self, key: str) -> Any:
+        try:
+            return self.__config[key]
+        except KeyError:
+            logger.warning(
+                f"{self.__class__.__name__} received a request for a missing "
+                f"key '{key}'. Subsequent accesses have been suppressed."
+            )
+
+        return SafeDict()
+
+    def __getattr__(self, key: str) -> Any:
+        try:
+            return self.__config[key]
+        except KeyError:
+            logger.warning(
+                f"{self.__class__.__name__} received a request for a missing "
+                f"key '{key}'. Subsequent accesses have been suppressed."
+            )
+
+        return SafeDict()
 
 
 Globals = _Globals()

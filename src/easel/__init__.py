@@ -28,6 +28,9 @@ from .site.globals import Globals
 from .site.helpers import Utils
 
 
+logger = logging.getLogger()
+
+
 class Easel(Flask):
     """ Returns a thinly wrapped Flask application instance with two bound
     attributes, Easel._site and it's accessor Easel.site which returns a
@@ -48,8 +51,6 @@ class Easel(Flask):
         root = root if root is not None else ENV_SITE_ROOT
         debug = debug if debug is not None else Utils.str_to_bool(ENV_SITE_DEBUG)
 
-        logger = logging.getLogger()
-
         if loglevel is not None:
 
             # Convert loglevel to an integer for setting numeric levels.
@@ -59,10 +60,10 @@ class Easel(Flask):
 
             logger.setLevel(loglevel_parsed)
 
-            # Also set Flask's 'werkzeug' the Easel's loglevel.
+            # Also set Flask's 'werkzeug' to Easel's loglevel.
             logging.getLogger("werkzeug").setLevel(loglevel_parsed)
 
-        # Setup/Load Globals object.
+        # Setup Globals object.
         Globals.debug = debug
         Globals.init(root=root)
 
@@ -78,12 +79,32 @@ class Easel(Flask):
         self.register_blueprint(blueprint_site)
         self.register_blueprint(blueprint_theme)
 
-        # Inject site into template context.
-        self.context_processor(self._context__site)
+        # Inject site and theme into template context.
+        self.context_processor(self._context)
 
-        # Register custom static url filters.
-        self.jinja_env.filters["static_site"] = self._filter__static_site
-        self.jinja_env.filters["static_theme"] = self._filter__static_theme
+        # Register custom url filters.
+        self.jinja_env.filters["site_url"] = self._filter__site_url
+        self.jinja_env.filters["theme_url"] = self._filter__theme_url
+
+        """ Remove the root static URL rule. Leaving the following URL map:
+
+        >>> self.url_map
+
+            [
+                <Rule '/' (OPTIONS, GET, HEAD) -> theme.index>,
+                <Rule '/<page_url>' (OPTIONS, GET, HEAD) -> theme.render_page>
+                <Rule '/theme/<filename>' (OPTIONS, GET, HEAD) -> theme.static>,
+                <Rule '/site/<filename>' (OPTIONS, GET, HEAD) -> site.static>,
+            ]
+
+        https://stackoverflow.com/a/55909279
+        https://www.pythonanywhere.com/forums/topic/12195/#id_post_46324
+        """
+
+        for rule in self.url_map.iter_rules("static"):
+            self.url_map._rules.remove(rule)
+
+        self.url_map._rules_by_endpoint["static"] = []
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{Globals.site_paths.root}>"
@@ -91,31 +112,52 @@ class Easel(Flask):
     def __str__(self) -> str:
         return f"{self.__class__.__name__}:{Globals.site_paths.root}"
 
-    def _context__site(self) -> dict:
-        return {"site": self._site}
-        # return dict(site=self._site)
+    def _context(self) -> dict:
+        # fmt:off
+        return {
+            "config": {
+                "site": Globals.site_config,
+                "theme": Globals.theme_config,
+            },
+            "index": self.site.index,
+            "menu": self.site.menu,
+            "pages": self.site.pages,
+        }
+        # fmt:on
 
     @staticmethod
-    def _filter__static_site(path) -> str:
-        """ Returns the path as absolute url to the site's static directory:
+    def _filter__site_url(path) -> str:
+        """ Returns the path as absolute url to the site's static url '/site':
 
-            /[site-static]/path
+            path -> /site/path
 
-        See Globals.site_paths.static_url_path """
+        See Easel.__inti__() and Globals.site_paths.static_url_path. """
         return Utils.urlify(f"{Globals.site_paths.static_url_path}{os.sep}{path}")
 
     @staticmethod
-    def _filter__static_theme(path) -> str:
-        """ Returns the path as absolute url to the themes's static directory:
+    def _filter__theme_url(path) -> str:
+        """ Returns the path as absolute url to the themes's static url:
 
-            /[theme-name]/[theme-static]/path
+            path -> /theme/path
 
-        See Globals.theme_paths.static_url_path """
+        See Easel.__inti__() and Globals.theme_paths.static_url_path. """
         return Utils.urlify(f"{Globals.theme_paths.static_url_path}{os.sep}{path}")
 
     @property
     def site(self) -> "Site":
         return self._site
 
-    def run(self, **kwargs) -> None:
-        super().run(debug=Globals.debug, extra_files=self.site.assets, **kwargs)
+    def run(self, watch: bool = False, **kwargs) -> None:
+
+        extra_files = self.site.assets if watch is True else []
+
+        if watch is True:
+            # TODO:LOW Once we're fully decoupled from Flask, re-assess how
+            # watching/live-reloading will work along with what assets will be
+            # watched. Both site and theme? Or just site?
+            logger.info(
+                f"Watching {Globals.site_paths.root} and "
+                f"{Globals.theme_paths.root} for changes."
+            )
+
+        super().run(debug=Globals.debug, extra_files=extra_files, **kwargs)

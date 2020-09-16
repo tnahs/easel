@@ -84,9 +84,52 @@ class Utils:
             )
 
         string = re.sub(r"[^\w\s-]", "", string).strip().lower()
-        string = re.sub(r"[-\s]+", delimiter, string)
+        string = re.sub(r"[\s-]+", delimiter, string)
 
         return string
+
+    @staticmethod
+    def normalize_page_path(path: Union[str, pathlib.Path]) -> str:
+        """ Ensures path is relative to the 'Globals.site_paths.pages' directory.
+
+            ./contents/pages/page-name --> page-name
+            /contents/pages/page-name  --> page-name
+            contents/pages/page-name   --> page-name
+
+            ./pages/page-name          --> page-name
+            /pages/page-name           --> page-name
+            pages/page-name            --> page-name
+
+            ./page-name                --> page-name
+            /page-name                 --> page-name
+            page-name                  --> page-name
+
+        This allows users to use paths relative to the site-name or or 'pages'
+        directory. """
+
+        # Starting with: ./contents/pages/page-name
+
+        # Returns: contents/pages/page-name
+        path = Utils.urlify(path, leading_slash=False)
+
+        path = pathlib.Path(path)
+
+        try:
+            # Returns: pages/page-name
+            path = path.relative_to(Defaults.DIRECTORY_NAME_CONTENTS)
+        except ValueError:
+            # pathlib raises a ValueError if the path does not begin with the
+            # value passed to Path.relative_to(). In this case 'contents'.
+            pass
+
+        try:
+            # Returns: page-name
+            path = path.relative_to(Defaults.DIRECTORY_NAME_PAGES)
+        except ValueError:
+            pass
+
+        # Returns: /page-name
+        return Utils.urlify(path)
 
     @staticmethod
     def urlify(
@@ -105,6 +148,7 @@ class Utils:
 
         path = str(path)
 
+        # Normalize leading slash.
         while path.startswith(os.sep):
             path = path[1:]
 
@@ -138,3 +182,26 @@ class Utils:
                 updated[key] = copy.deepcopy(updates[key])
 
         return updated
+
+
+class SafeDict(dict):
+    """ Creates a dictionary that never raises a KeyError but rather returns a
+    new dictionary of its own kind (i.e. a SafeDict) as the value of the
+    missing key. This is primarily used for optional nested configurations
+    where a missing key is okay.
+
+    https://stackoverflow.com/a/25840834 """
+
+    def __getitem__(self, key):
+
+        if key not in self:
+            return self.setdefault(key, type(self)())
+
+        return super().__getitem__(key)
+
+    def __getattr__(self, key):
+
+        if key not in self:
+            return self.setdefault(key, type(self)())
+
+        return super().__getitem__(key)

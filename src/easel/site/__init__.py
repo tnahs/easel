@@ -9,7 +9,7 @@ from .helpers import Utils
 
 
 if TYPE_CHECKING:
-    from .globals import _SiteConfig
+    from .globals import SiteConfig
     from .menus import MenuObj
     from .pages import PageObj
 
@@ -23,8 +23,6 @@ from .defaults import Defaults
 class Site:
 
     _pages: List["PageObj"] = []
-    _page_current: "PageObj"
-
     _menu: List["MenuObj"] = []
 
     def __repr__(self) -> str:
@@ -42,6 +40,7 @@ class Site:
 
         self._build_pages()
         self._build_menu()
+
         self._validate_build()
 
     def _build_pages(self) -> None:
@@ -51,7 +50,7 @@ class Site:
             if not path.is_dir():
                 continue
 
-            if path.name.startswith("."):
+            if path.name.startswith(".") or path.name.startswith("_"):
                 continue
 
             if not list(path.glob(Defaults.FILENAME_PAGE_YAML)):
@@ -61,7 +60,7 @@ class Site:
                 )
                 continue
 
-            page = pages.page_factory.build(site=self, path_absolute=path)
+            page = pages.page_factory.build(site=self, path=path)
 
             self._pages.append(page)
 
@@ -83,7 +82,7 @@ class Site:
     def _validate_build(self) -> None:
 
         # NOTE: Boolean types sum like integers!
-        index_pages = sum([page.config.is_index for page in self._pages])
+        index_pages = sum([page.is_index for page in self._pages])
 
         if index_pages > 1 or index_pages < 1:
             raise errors.SiteConfigError(
@@ -91,19 +90,21 @@ class Site:
             )
 
     def rebuild_cache(self) -> None:
+        # TODO:LOW This method might have room for some optimization.
 
-        logger.info(f"Rebuilding Site cache to {Globals.site_paths.cache}.")
+        logger.info(f"Rebuilding site-cache to {Globals.site_paths.cache}.")
 
         for page in self.pages:
             for content in page.contents:
 
                 try:
-                    content.placeholder.cache(force=True)  # type: ignore
+                    content.proxy_images.cache(force=True)  # type: ignore
+                    content.proxy_colors.cache(force=True)  # type: ignore
                 except AttributeError:
                     continue
 
     @property
-    def config(self) -> "_SiteConfig":
+    def config(self) -> "SiteConfig":
         return Globals.site_config
 
     @property
@@ -128,7 +129,7 @@ class Site:
 
     def get_page(self, page_url: str) -> Optional["PageObj"]:
 
-        page_url = Utils.urlify(page_url)
+        page_url = Utils.normalize_page_path(path=page_url)
 
         for page in self._pages:
 
@@ -152,11 +153,10 @@ class Site:
 
         for item in Globals.site_paths.root.glob("**/*"):
 
-            # TEMP
-            if item.name == Defaults.DIRECTORY_NAME_CACHE:
-                continue
-
-            if item.name == Defaults.DIRECTORY_NAME_BUILD:
+            if item.name in [
+                Defaults.DIRECTORY_NAME_SITE_CACHE,
+                Defaults.DIRECTORY_NAME_BUILD,
+            ]:
                 continue
 
             assets_site.append(item)
@@ -173,4 +173,4 @@ class Site:
         files are modifed.
 
         via https://werkzeug.palletsprojects.com/en/1.0.x/serving/ """
-        return [*self._assets_theme, *self._assets_site]
+        return [*self._assets_site, *self._assets_theme]
