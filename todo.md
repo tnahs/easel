@@ -2,6 +2,10 @@
 
 ## HIGH
 
+- Test:
+  - 'page.date'
+  - 'page.cover'
+
 ## MEDIUM
 
 ## LOW
@@ -10,6 +14,8 @@
 
 ## THEME:SOROLLA
 
+- Convert CSS -> SASS
+- Convert Javascript -> Typescript
 - Style 404 Page
 - Style Page Description
 - Style Markdown
@@ -19,8 +25,6 @@
 - Autoprefix CSS
 - Minify CSS/JS
 - Optimize fonts
-- Convert CSS -> SASS
-- Convert Javascript -> Typescript
 
 ## NEXT VERSION
 

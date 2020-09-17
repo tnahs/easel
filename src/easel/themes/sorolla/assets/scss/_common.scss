@@ -1,0 +1,95 @@
+:root {
+    /*
+     * Base
+     * --------------------------------------------------------------------- */
+
+    --font-family--primary: "Montserrat", sans-serif;
+    --font-family--secondary: "Cormorant Garamond", serif;
+    --font-family--monospace: "Fira Code", monospace;
+
+    /*
+     * Javascript
+     * --------------------------------------------------------------------- */
+
+    --proxy-color--fallback: rgba(0, 0, 0, 0.075);
+    --proxy-color--alpha: 0.75;
+
+    /*
+     * Animations
+     * --------------------------------------------------------------------- */
+
+    --transition--ease-out: cubic-bezier(0.2, 0.5, 0.3, 1);
+
+    /*
+     * Captions
+     * --------------------------------------------------------------------- */
+
+    --caption--font-family: var(--font-family--primary);
+    --caption--font-size: 9pt;
+    --caption__title--color: hsla(0, 0%, 0%, 0.75);
+    --caption__description--color: hsla(0, 0%, 0%, 0.5);
+}
+
+/* *:not(path):not(g) {
+    background: hsla(0, 0%, 0%, 0.5) !important;
+    outline: solid 1px hsla(0, 100%, 50%, 0.5) !important;
+    color: hsla(0, 0%, 100%, 0.9) !important;
+} */
+
+/* Reset */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+header,
+menu,
+main,
+footer {
+    margin: 0;
+    padding: 0;
+}
+
+/* Alignments */
+
+.align {
+    &--left {
+        text-align: left;
+    }
+
+    &--center {
+        text-align: center;
+    }
+
+    &--right {
+        text-align: right;
+    }
+
+    &--justify {
+        text-align: justify;
+    }
+}
+
+/* Captions */
+
+.caption {
+    font-family: var(--caption--font-family);
+    font-size: var(--caption--font-size);
+
+    &__title p,
+    &__description p {
+        /* Prevents extra <p> tags created by Markdown from creating line-breaks */
+        display: inline;
+    }
+
+    &__title {
+        color: var(--caption__title--color);
+    }
+
+    &__description {
+        color: var(--caption__description--color);
+    }
+}

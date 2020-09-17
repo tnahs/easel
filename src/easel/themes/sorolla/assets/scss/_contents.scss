@@ -1,0 +1,131 @@
+:root {
+    /*
+     * Content Item
+     * --------------------------------------------------------------------- */
+
+    --content-item__text-block--font-family: var(--font-family--primary);
+    --content-item__text-block--font-weight: 400;
+    --content-item__text-block--font-size: 11pt;
+    --content-item__text-block--font-color: hsla(0, 0%, 0%, 0.75);
+
+    --content-item__header--font-family: var(--font-family--primary);
+    --content-item__header--font-weight: 400;
+    --content-item__header--font-size__small: 14pt;
+    --content-item__header--font-size__medium: 18pt;
+    --content-item__header--font-size__large: 24pt;
+    --content-item__header--font-color: hsla(0, 0%, 0%, 0.75);
+
+    --content-item__break__size--small: 0px;
+    --content-item__break__size--medium: 50px;
+    --content-item__break__size--large: 100px;
+}
+
+/* Structure of .content__container
+
+    .content__container
+        .content__item .content__item--image
+        .content__item .content__item--video
+        .content__item .content__item--audio
+        .content__item .content__item--embedded
+        .content__item .content__item--text-block
+        .content__item .content__item--header size--small
+        .content__item .content__item--header size--medium
+        .content__item .content__item--header size--large
+        .content__item .content__item--break size--small
+        .content__item .content__item--break size--medium
+        .content__item .content__item--break size--large
+        .content__caption
+            .caption
+            .caption__title
+            .caption__description
+
+    NOTE: Some .content__item(s) are wrapped with a div with the class
+    .proxy-color-wrapper if they possess the data-proxy-color attribute.
+---------------------------------------------------------------------------- */
+
+.page__contents--gallery .content__container {
+    margin-bottom: var(--gallery--column-gap);
+
+    cursor: pointer;
+}
+
+.content {
+    &__item,
+    &__caption {
+        // See below: .animation--fade-in
+        opacity: 0;
+        transition: opacity 0.5s var(--transition--ease-out);
+
+        &.animation--fade-in {
+            opacity: 1;
+        }
+    }
+
+    &__item--image {
+        display: block;
+
+        width: 100%;
+        height: auto;
+    }
+
+    &__item--video {
+        display: block;
+
+        max-width: 100%;
+        height: auto;
+    }
+
+    &__item--audio {
+        width: 100%;
+    }
+
+    &__item--embedded {
+        // See assets/typescript/contents.ts
+    }
+
+    &__item--text-block {
+        font-family: var(--content-item__text-block--font-family);
+        font-weight: var(--content-item__text-block--font-weight);
+        font-size: var(--content-item__text-block--font-size);
+        color: var(--content-item__text-block--font-color);
+    }
+
+    &__item--header {
+        font-family: var(--content-item__header--font-family);
+        font-weight: var(--content-item__header--font-weight);
+        color: var(--content-item__header--font-color);
+
+        &.size--small {
+            font-size: var(--content-item__header--font-size__small);
+        }
+
+        &.size--medium {
+            font-size: var(--content-item__header--font-size__medium);
+        }
+
+        &.size--large {
+            font-size: var(--content-item__header--font-size__large);
+        }
+    }
+
+    &__item--break {
+        &.size--small {
+            height: var(--content-item__break__size--small);
+        }
+
+        &.size--medium {
+            height: var(--content-item__break__size--medium);
+        }
+
+        &.size--large {
+            height: var(--content-item__break__size--large);
+        }
+    }
+
+    &__caption {
+        padding-top: 5px;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 0;
+    }
+}

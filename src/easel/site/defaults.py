@@ -15,6 +15,7 @@ class Defaults:
 
     DIRECTORY_NAME_BUILD: str = "build"
     DIRECTORY_NAME_CONTENTS: str = "contents"
+    DIRECTORY_NAME_SRC: str = "src"
     DIRECTORY_NAME_PAGES: str = "pages"
     DIRECTORY_NAME_SITE_CACHE: str = "site-cache"
     DIRECTORY_NAME_STATIC: str = "static"

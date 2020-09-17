@@ -263,7 +263,7 @@ class ThemePaths(GlobalsBase):
             return self._get_custom_root(path=custom_path)
 
         if name is None:
-            return self._get_default_builtin_root()
+            return self._get_builtin_root(name=Defaults.DEFAULT_BUILTIN_THEME_NAME)
 
         if name.startswith(Defaults.INSTALLED_THEME_NAME_PREFIX):
             return self._get_installed_root(name=name)
@@ -283,19 +283,8 @@ class ThemePaths(GlobalsBase):
 
         return root
 
-    def _get_default_builtin_root(self) -> pathlib.Path:
-
-        logger.info(
-            f"Using default built-in theme '{Defaults.DEFAULT_BUILTIN_THEME_NAME}'."
-        )
-
-        return (
-            Defaults.APP_ROOT
-            / Defaults.DIRECTORY_NAME_THEMES
-            / Defaults.DEFAULT_BUILTIN_THEME_NAME
-        )
-
-    def _get_installed_root(self, name: str) -> pathlib.Path:
+    @staticmethod
+    def _get_installed_root(name: str) -> pathlib.Path:
 
         # TODO:LOW It would be nice if this didn't need to happen.
         module_name = name.replace("-", "_")
@@ -311,7 +300,28 @@ class ThemePaths(GlobalsBase):
 
         return pathlib.Path(installed_theme.__file__).parent
 
-    def _get_builtin_root(self, name: str) -> pathlib.Path:
+    @staticmethod
+    def _get_builtin_root(name: str) -> pathlib.Path:
+        """ Returns the root directory of a built-in theme. Built-in themes
+        are found in the 'themes' directory and conform to the following
+        structure:
+
+            src
+            └── easel
+                ├── ...
+                └── themes
+                    ├── ...
+                    └── [NAME]
+                        ├── assets
+                        ├── src
+                        │   ├── main.html
+                        │   ├── 404.html
+                        │   └── theme.yaml
+                        └── package.json
+
+        The 'src' directory is where the actual theme is located. The 'assets'
+        directory contain the assets used to compile the theme i.e. SCSS and
+        TypeScript files. """
 
         if name not in Defaults.VALID_BUILTIN_THEME_NAMES:
             raise errors.SiteConfigError(
@@ -321,7 +331,12 @@ class ThemePaths(GlobalsBase):
 
         logger.info(f"Using built-in theme '{name}'.")
 
-        return Defaults.APP_ROOT / Defaults.DIRECTORY_NAME_THEMES / name
+        return (
+            Defaults.APP_ROOT
+            / Defaults.DIRECTORY_NAME_THEMES
+            / name
+            / Defaults.DIRECTORY_NAME_SRC
+        )
 
     @property
     def root(self) -> pathlib.Path:

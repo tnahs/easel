@@ -6,9 +6,13 @@ copyright: © 2020 Testing Full Name
 description: A demo for Testing Easel.
 
 menu:
-- type: link-page
-  label: Nature
-  links-to: ./pages/testing-nature
+  - type: link-page
+    label: Nature
+    links-to: ./contents/pages/testing-nature
+
+  - type: link-page
+    label: Embedded
+    links-to: ./contents/pages/testing-embedded
 
 header:
   title: Testing Demo

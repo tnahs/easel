@@ -1,0 +1,178 @@
+:root {
+    /*
+    * Buttons
+    * --------------------------------------------------------------------- */
+
+    --menu-mobile-buttons--size: 32px;
+    --menu-mobile-buttons--opacity: 0.75;
+
+    /*
+    * Footer
+    * --------------------------------------------------------------------- */
+
+    --header-menu--offset: calc(
+        var(--header-and-menu--height) + var(--body--padding-top)
+    );
+
+    --menu-mobile__footer--font-family: var(--font-family--primary);
+    --menu-mobile__footer--font-weight: 400;
+    --menu-mobile__footer--font-size: 12pt;
+    --menu-mobile__footer--color: hsla(0, 0%, 0%, 0.5);
+}
+
+/* Structure of #menu-mobile-buttons
+
+    #menu-mobile-buttons
+        .menu-mobile-button &__button--open
+        .menu-mobile-button &__button--close
+---------------------------------------------------------------------------- */
+
+#menu-mobile-buttons {
+    display: none;
+}
+
+.menu-mobile-button {
+    width: var(--menu-mobile-buttons--size);
+    height: auto;
+
+    opacity: var(--menu-mobile-buttons--opacity);
+
+    cursor: pointer;
+
+    &--close {
+        display: none;
+    }
+}
+
+/* Structure of #menu-mobile
+
+    #menu-mobile
+        .menu-mobile__menu-items
+            .menu-item .menu-item--link-page
+            .menu-item .menu-item--link-url
+            .menu-item .menu-item--spacer size--small
+            .menu-item .menu-item--spacer size--medium
+            .menu-item .menu-item--spacer size--large
+        .menu-mobile__footer
+---------------------------------------------------------------------------- */
+
+#menu-mobile {
+    position: fixed;
+    left: 0;
+    top: var(--header-menu--offset);
+    width: 100%;
+    height: 100vh;
+    z-index: 999;
+
+    background-color: var(--body--background-color);
+
+    display: grid;
+    grid-template-areas:
+        "buttons"
+        "footer";
+
+    // See below: .animation--fade-in-out
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.75s var(--transition--ease-out);
+
+    &.animation--fade-in-out {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.menu-mobile {
+    &__menu-items {
+        grid-area: buttons;
+
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+
+        padding-top: 50px;
+        padding-left: 50px;
+        padding-right: 50px;
+        padding-bottom: 50px;
+
+        & .menu-item {
+            // See below: .animation--fade-in-out
+            transition: transform 0.75s var(--transition--ease-out);
+            transform: translateY(20px);
+
+            &.animation--fade-in-out {
+                transform: translateY(0);
+            }
+
+            // NOTE: The flexbox 'gap' property isn't yet supported in Safari.
+            &:not(:last-child) {
+                padding-top: 0;
+                padding-left: 0;
+                padding-right: 0;
+                padding-bottom: 15px;
+            }
+        }
+    }
+}
+.menu-mobile__footer {
+    grid-area: footer;
+    align-self: flex-end;
+
+    padding-bottom: calc(
+        var(--header-menu--offset) + var(--body--padding-bottom)
+    );
+
+    font-family: var(--menu-mobile__footer--font-family);
+    font-weight: var(--menu-mobile__footer--font-weight);
+    font-size: var(--menu-mobile__footer--font-size);
+    color: var(--menu-mobile__footer--color);
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    // NOTE: The flexbox 'gap' property isn't yet supported in Safari.
+    & > :not(:last-child) {
+        padding-top: 0;
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 5px;
+    }
+
+    // See below: .animation--fade-in-out
+    transition: transform 0.75s var(--transition--ease-out);
+    transform: translateY(20px);
+
+    &.animation--fade-in-out {
+        transform: translateY(0);
+    }
+}
+
+/*
+ * Media Queries
+ * ------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 736px) {
+    :root {
+        /*
+         * Menu Items
+         * ----------------------------------------------------------------- */
+
+        --menu-item--font-size: 20pt;
+
+        --menu-item__spacer--small-width: 0;
+        --menu-item__spacer--small-height: 0;
+        --menu-item__spacer--medium-width: 0;
+        --menu-item__spacer--medium-height: 15px;
+        --menu-item__spacer--large-width: 0;
+        --menu-item__spacer--large-height: 30px;
+    }
+
+    #menu-mobile-buttons {
+        display: block;
+    }
+}

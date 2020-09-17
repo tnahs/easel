@@ -17,6 +17,13 @@ Minimum requirements.
 └── theme.yaml
 ```
 
+``` yaml
+# theme.yaml
+
+_name: easel-theme-name
+_version: 0.1.0
+```
+
 Expanded example.
 
 ``` plaintext
@@ -184,7 +191,7 @@ Note: All installed themes start with `easel-`.
 # ...
 
 theme:
-  name: easel-[theme-name]
+  name: easel-theme-name
 ```
 
 Using an custom theme.
