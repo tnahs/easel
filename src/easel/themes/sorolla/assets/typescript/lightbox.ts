@@ -1,51 +1,33 @@
-"use strict"
-
 class Lightbox {
     /*
      * See ./assets/scss/_lightbox.scss for structure.
      * --------------------------------------------------------------------- */
 
-    private CLASS_FADE_IN_OUT = "animation--fade-in-out"
+    readonly CLASS_FADE_IN_OUT = "animation--fade-in-out"
 
-    main = document.querySelector<HTMLElement>("#lightbox")
+    public main = document.querySelector<HTMLDivElement>("#lightbox")!
 
-    buttonClose = this.main.querySelector<HTMLElement>(
-        ".lightbox__button--close"
-    )
-    buttonPrev = this.main.querySelector<HTMLElement>(".lightbox__button--prev")
-    buttonNext = this.main.querySelector<HTMLElement>(".lightbox__button--next")
+    public buttonClose = this.main.querySelector<HTMLImageElement>(".lightbox__button--close")!
+    public buttonPrev = this.main.querySelector<HTMLImageElement>(".lightbox__button--prev")!
+    public buttonNext = this.main.querySelector<HTMLImageElement>(".lightbox__button--next")!
 
-    private containers = this.main.querySelectorAll<HTMLElement>(
-        ".lightbox__container"
-    )
+    private containers = this.main.querySelectorAll<HTMLDivElement>(".lightbox__container")
+    private items = this.main.querySelectorAll<HTMLImageElement>(".lightbox__item")
 
-    private items = this.main.querySelectorAll<HTMLElement>(".lightbox__item")
-    private items__toLazyLoad = [...this.items].filter((item) =>
-        item.hasAttribute("data-src")
-    )
-
-    isVisible: boolean
-
-    private currentIndex: number | null
+    public isVisible: boolean = false
+    private currentContainerIndex: number = 0
 
     private gestureController = new LightboxGestureController(this)
     private uiButtonsController = new LightboxUIButtonsController(this)
     private keyboardController = new LightboxKeyboardController(this)
 
-    constructor() {
-        this.isVisible = false
-        this.currentIndex = null
-    }
-
     setup(): void {
         this.setupEventListeners()
-        this.setupLazyLoadObserver()
+        this.setupLazyLoadImageObserver()
     }
 
     private setupEventListeners(): void {
-        const contentContainers = [
-            ...document.querySelectorAll(".content__container"),
-        ]
+        const contentContainers = [...document.querySelectorAll(".content__container")]
 
         contentContainers.forEach((contentContainer) => {
             contentContainer.addEventListener("click", () => {
@@ -54,8 +36,8 @@ class Lightbox {
         })
     }
 
-    private setupLazyLoadObserver(): void {
-        const lazyLoadCallback = (
+    private setupLazyLoadImageObserver(): void {
+        const lazyLoadImageCallback = (
             entries: IntersectionObserverEntry[],
             observer: IntersectionObserver
         ) => {
@@ -64,22 +46,27 @@ class Lightbox {
                     return
                 }
 
-                this.triggerLazyLoad(<HTMLImageElement>entry.target)
+                // TODO:LOW Is there a way to not have to re-cast this?
+                this.triggerLazyLoadImage(<HTMLImageElement>entry.target)
 
                 observer.unobserve(entry.target)
             })
         }
 
-        const lazyLoadObserver = new IntersectionObserver(lazyLoadCallback)
+        const lazyLoadImageObserver = new IntersectionObserver(lazyLoadImageCallback, {
+            root: null, // Observe entire viewport.
+            rootMargin: "0px 0px 0px 0px", // Trigger inside the viewport.
+            threshold: 0, // Trigger immediately on viewport enter.
+        })
 
-        this.items__toLazyLoad.forEach((lightboxItem) => {
-            lazyLoadObserver.observe(lightboxItem)
+        this.items.forEach((item) => {
+            lazyLoadImageObserver.observe(item)
         })
     }
 
     show(index: number): void {
         this.showContainer(index)
-        this.currentIndex = index
+        this.currentContainerIndex = index
 
         this.isVisible = true
         this.main.classList.add(this.CLASS_FADE_IN_OUT)
@@ -89,8 +76,7 @@ class Lightbox {
     }
 
     close(): void {
-        this.hideContainer(this.currentIndex)
-        this.currentIndex = null
+        this.hideContainer(this.currentContainerIndex)
 
         this.isVisible = false
         this.main.classList.remove(this.CLASS_FADE_IN_OUT)
@@ -100,13 +86,13 @@ class Lightbox {
     }
 
     next(): void {
-        this.hideContainer(this.currentIndex)
-        this.showContainer(this.nextIndex)
+        this.hideContainer(this.currentContainerIndex)
+        this.showContainer(this.nextContainerIndex)
     }
 
     prev(): void {
-        this.hideContainer(this.currentIndex)
-        this.showContainer(this.prevIndex)
+        this.hideContainer(this.currentContainerIndex)
+        this.showContainer(this.prevContainerIndex)
     }
 
     private showContainer(index: number): void {
@@ -117,28 +103,32 @@ class Lightbox {
         this.containers[index].classList.remove("show")
     }
 
-    private triggerLazyLoad(element: HTMLImageElement): void {
+    private triggerLazyLoadImage(element: HTMLImageElement): void {
+        if (!element.dataset.src) {
+            return
+        }
+
         element.src = element.dataset.src
     }
 
-    private get nextIndex(): number {
-        if (this.currentIndex >= this.containers.length - 1) {
-            this.currentIndex = 0
+    private get nextContainerIndex(): number {
+        if (this.currentContainerIndex >= this.containers.length - 1) {
+            this.currentContainerIndex = 0
         } else {
-            this.currentIndex++
+            this.currentContainerIndex++
         }
 
-        return this.currentIndex
+        return this.currentContainerIndex
     }
 
-    private get prevIndex(): number {
-        if (this.currentIndex == 0) {
-            this.currentIndex = this.containers.length - 1
+    private get prevContainerIndex(): number {
+        if (this.currentContainerIndex == 0) {
+            this.currentContainerIndex = this.containers.length - 1
         } else {
-            this.currentIndex--
+            this.currentContainerIndex--
         }
 
-        return this.currentIndex
+        return this.currentContainerIndex
     }
 }
 
@@ -227,10 +217,7 @@ class LightboxGestureController extends LightboxController {
         const touchDiffRatio_xy = Math.abs(touchDiff_x / touchDiff_y)
         const touchDiffRatio_yx = Math.abs(touchDiff_y / touchDiff_x)
 
-        if (
-            Math.abs(touchDiff_x) > this.threshold ||
-            Math.abs(touchDiff_y) > this.threshold
-        ) {
+        if (Math.abs(touchDiff_x) > this.threshold || Math.abs(touchDiff_y) > this.threshold) {
             if (touchDiffRatio_yx <= this.limit) {
                 if (touchDiff_x < 0) {
                     // Gesture: Swipe Left
@@ -255,7 +242,7 @@ class LightboxGestureController extends LightboxController {
 }
 
 window.addEventListener("load", () => {
-    if (document.querySelector("#lightbox") === null) {
+    if (!document.querySelector("#lightbox")) {
         return
     }
 

@@ -1457,7 +1457,7 @@ footer {
   .lightbox__container.show {
     display: block; }
 
-.lightbox__item--image {
+.lightbox__item {
   width: inherit;
   height: inherit;
   object-fit: contain; }

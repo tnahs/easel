@@ -1,28 +1,18 @@
-"use strict"
-
 class MenuMobile {
     /*
      * See ./assets/scss/_menu-mobile.scss for structure.
      * --------------------------------------------------------------------- */
 
-    private FADE_IN_OUT_CLASS = "animation--fade-in-out"
-    private FADE_IN_OUT_DELAY: number = 25
+    readonly FADE_IN_OUT_CLASS = "animation--fade-in-out"
+    readonly FADE_IN_OUT_DELAY: number = 25
 
-    private buttons = document.querySelector<HTMLElement>(
-        "#menu-mobile-buttons"
-    )
-    buttonOpen = this.buttons.querySelector<HTMLElement>(
-        ".menu-mobile-button--open"
-    )
-    buttonClose = this.buttons.querySelector<HTMLElement>(
-        ".menu-mobile-button--close"
-    )
+    private buttons = document.querySelector<HTMLElement>("#menu-mobile-buttons")!
+    buttonOpen = this.buttons.querySelector<HTMLElement>(".menu-mobile-button--open")!
+    buttonClose = this.buttons.querySelector<HTMLElement>(".menu-mobile-button--close")!
 
-    private main = document.querySelector<HTMLElement>("#menu-mobile")
-    private menuItems = this.main.querySelectorAll<HTMLElement>(".menu-item")
-    private footer = this.main.querySelector<HTMLElement>(
-        ".menu-mobile__footer"
-    )
+    private main = document.querySelector<HTMLElement>("#menu-mobile")!
+    private menuItems = this.main.querySelectorAll<HTMLElement>(".menu-item")!
+    private footer = this.main.querySelector<HTMLElement>(".menu-mobile__footer")!
 
     private elements__toFadeIn = [this.main, ...this.menuItems, this.footer]
     private elements__toFadeOut = [...this.elements__toFadeIn].reverse()
@@ -30,7 +20,7 @@ class MenuMobile {
     private keyboardController = new MenuMobileKeyboardController(this)
     private uiButtonsController = new MenuMobileUIButtonsController(this)
 
-    isVisible: boolean
+    isVisible: boolean = false
 
     setup(): void {
         this.close()

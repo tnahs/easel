@@ -2643,6 +2643,9 @@ if (typeof define === 'function' && define.amd) {
 })(window, document, 'Hammer');
 
 "use strict";
+/*
+ * See ./assets/scss/_contents.scss for structure.
+ * ------------------------------------------------------------------------- */
 class AllContentItems {
     constructor() {
         this.FADE_IN_CLASS = "animation--fade-in";
@@ -2679,64 +2682,78 @@ class AllContentItems {
 }
 class ImageContentItems {
     constructor() {
-        this.items = document.querySelectorAll(".content__item--image");
-        this.items__toLazyLoad = [...this.items].filter((item) => item.hasAttribute("data-src"));
-        this.items__toWrapWithProxyColor = [...this.items].filter((item) => item.hasAttribute("data-proxy-color"));
         this.style = getComputedStyle(document.documentElement);
-        this.proxyColorFallback = this.style.getPropertyValue("--proxy-color--fallback");
-        this.proxyAlpha = this.style.getPropertyValue("--proxy-color--alpha");
+        this.PROXY_COLOR_FALLBACK = this.style.getPropertyValue("--proxy-color--fallback");
+        this.PROXY_ALPHA = this.style.getPropertyValue("--proxy-color--alpha");
+        this.items = document.querySelectorAll(".content__item--image");
     }
     setup() {
         this.setupProxyColors();
-        this.setupLazyLoadObserver();
+        this.setupLazyLoadImageObserver();
     }
     setupProxyColors() {
-        this.items__toWrapWithProxyColor.forEach((item) => {
+        this.items.forEach((item) => {
             this.wrapWithProxyColor(item);
         });
     }
-    setupLazyLoadObserver() {
-        const lazyLoadCallback = (entries, observer) => {
+    setupLazyLoadImageObserver() {
+        const lazyLoadImageCallback = (entries, observer) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) {
                     return;
                 }
-                this.triggerLazyLoad(entry.target);
+                // TODO:LOW Is there a way to not have to re-cast this?
+                this.triggerLazyLoadImage(entry.target);
                 observer.unobserve(entry.target);
             });
         };
-        const lazyLoadObserver = new IntersectionObserver(lazyLoadCallback, {
+        const lazyLoadImageObserver = new IntersectionObserver(lazyLoadImageCallback, {
             root: null,
             rootMargin: "0px 0px 25% 0px",
             threshold: 0,
         });
-        this.items__toLazyLoad.forEach((item) => {
-            lazyLoadObserver.observe(item);
+        this.items.forEach((item) => {
+            lazyLoadImageObserver.observe(item);
         });
     }
     wrapWithProxyColor(element) {
-        const proxyColor = this.getProxyColor(element);
+        /* Wraps an image element with a div that contains the image's proxy
+         * color as the background color.
+         *
+         * .content__container       --> .content__container
+         *                           -->     .content__proxy-color-wrapper
+         *     .content__item--image -->         .content__item--image
+         */
+        if (!element.hasAttribute("data-proxy-color")) {
+            return;
+        }
         const wrapper = document.createElement("div");
         element.parentNode.insertBefore(wrapper, element);
-        wrapper.classList.add("proxy-color-wrapper");
-        wrapper.style.backgroundColor = proxyColor;
+        wrapper.classList.add("content__proxy-color-wrapper");
+        wrapper.style.backgroundColor = this.getProxyColor(element);
         wrapper.appendChild(element);
     }
     getProxyColor(element) {
+        if (!element.dataset.proxyColor) {
+            return this.PROXY_COLOR_FALLBACK;
+        }
         let color;
         try {
             color = JSON.parse(element.dataset.proxyColor);
         }
         catch (_a) {
-            return this.proxyColorFallback;
+            return this.PROXY_COLOR_FALLBACK;
         }
         // Check that color object has "R", "G" and "B" keys.
         if (!("R" in color) || !("G" in color) || !("B" in color)) {
-            return this.proxyColorFallback;
+            return this.PROXY_COLOR_FALLBACK;
         }
-        return `rgba(${color.R}, ${color.G}, ${color.B}, ${this.proxyAlpha})`;
+        return `rgba(${color.R}, ${color.G}, ${color.B}, ${this.PROXY_ALPHA})`;
     }
-    triggerLazyLoad(element) {
+    triggerLazyLoadImage(element) {
+        if (!element.dataset.src) {
+            return;
+        }
         element.src = element.dataset.src;
     }
 }
@@ -2756,18 +2773,15 @@ class EmbeddedContentItems {
          * values, otherwise fallback on using scrollHeight/scrollWidth.
          */
         const iframe = element.querySelector("iframe");
-        if (iframe === null) {
-            return;
-        }
-        const sizeRatio_ = Number(iframe.height) / Number(iframe.width);
-        const sizeRatioScroll_ = iframe.scrollHeight / iframe.scrollWidth;
-        const sizeRatio = (sizeRatio_ || sizeRatioScroll_ || 0) * 100;
+        const iframeSizeRatio = Number(iframe.height) / Number(iframe.width);
+        const iframeSizeRatioScroll = iframe.scrollHeight / iframe.scrollWidth;
+        const sizeRatio = (iframeSizeRatio || iframeSizeRatioScroll) * 100;
         if (!sizeRatio) {
             return;
         }
-        iframe.parentElement.style.width = "100%";
-        iframe.parentElement.style.position = "relative";
-        iframe.parentElement.style.paddingBottom = `${sizeRatio}%`;
+        element.style.width = "100%";
+        element.style.position = "relative";
+        element.style.paddingBottom = `${sizeRatio}%`;
         iframe.style.top = "0";
         iframe.style.left = "0";
         iframe.style.width = "100%";
@@ -2794,65 +2808,66 @@ class Lightbox {
         this.buttonNext = this.main.querySelector(".lightbox__button--next");
         this.containers = this.main.querySelectorAll(".lightbox__container");
         this.items = this.main.querySelectorAll(".lightbox__item");
-        this.items__toLazyLoad = [...this.items].filter((item) => item.hasAttribute("data-src"));
+        this.isVisible = false;
+        this.currentContainerIndex = 0;
         this.gestureController = new LightboxGestureController(this);
         this.uiButtonsController = new LightboxUIButtonsController(this);
         this.keyboardController = new LightboxKeyboardController(this);
-        this.isVisible = false;
-        this.currentIndex = null;
     }
     setup() {
         this.setupEventListeners();
-        this.setupLazyLoadObserver();
+        this.setupLazyLoadImageObserver();
     }
     setupEventListeners() {
-        const contentContainers = [
-            ...document.querySelectorAll(".content__container"),
-        ];
+        const contentContainers = [...document.querySelectorAll(".content__container")];
         contentContainers.forEach((contentContainer) => {
             contentContainer.addEventListener("click", () => {
                 this.show(contentContainers.indexOf(contentContainer));
             });
         });
     }
-    setupLazyLoadObserver() {
-        const lazyLoadCallback = (entries, observer) => {
+    setupLazyLoadImageObserver() {
+        const lazyLoadImageCallback = (entries, observer) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) {
                     return;
                 }
-                this.triggerLazyLoad(entry.target);
+                // TODO:LOW Is there a way to not have to re-cast this?
+                this.triggerLazyLoadImage(entry.target);
                 observer.unobserve(entry.target);
             });
         };
-        const lazyLoadObserver = new IntersectionObserver(lazyLoadCallback);
-        this.items__toLazyLoad.forEach((lightboxItem) => {
-            lazyLoadObserver.observe(lightboxItem);
+        const lazyLoadImageObserver = new IntersectionObserver(lazyLoadImageCallback, {
+            root: null,
+            rootMargin: "0px 0px 0px 0px",
+            threshold: 0,
+        });
+        this.items.forEach((item) => {
+            lazyLoadImageObserver.observe(item);
         });
     }
     show(index) {
         this.showContainer(index);
-        this.currentIndex = index;
+        this.currentContainerIndex = index;
         this.isVisible = true;
         this.main.classList.add(this.CLASS_FADE_IN_OUT);
         // Prevent body scrolling.
         document.body.style.overflow = "hidden";
     }
     close() {
-        this.hideContainer(this.currentIndex);
-        this.currentIndex = null;
+        this.hideContainer(this.currentContainerIndex);
         this.isVisible = false;
         this.main.classList.remove(this.CLASS_FADE_IN_OUT);
         // Re-enable body scrolling.
         document.body.style.overflow = "auto";
     }
     next() {
-        this.hideContainer(this.currentIndex);
-        this.showContainer(this.nextIndex);
+        this.hideContainer(this.currentContainerIndex);
+        this.showContainer(this.nextContainerIndex);
     }
     prev() {
-        this.hideContainer(this.currentIndex);
-        this.showContainer(this.prevIndex);
+        this.hideContainer(this.currentContainerIndex);
+        this.showContainer(this.prevContainerIndex);
     }
     showContainer(index) {
         this.containers[index].classList.add("show");
@@ -2860,26 +2875,29 @@ class Lightbox {
     hideContainer(index) {
         this.containers[index].classList.remove("show");
     }
-    triggerLazyLoad(element) {
+    triggerLazyLoadImage(element) {
+        if (!element.dataset.src) {
+            return;
+        }
         element.src = element.dataset.src;
     }
-    get nextIndex() {
-        if (this.currentIndex >= this.containers.length - 1) {
-            this.currentIndex = 0;
+    get nextContainerIndex() {
+        if (this.currentContainerIndex >= this.containers.length - 1) {
+            this.currentContainerIndex = 0;
         }
         else {
-            this.currentIndex++;
+            this.currentContainerIndex++;
         }
-        return this.currentIndex;
+        return this.currentContainerIndex;
     }
-    get prevIndex() {
-        if (this.currentIndex == 0) {
-            this.currentIndex = this.containers.length - 1;
+    get prevContainerIndex() {
+        if (this.currentContainerIndex == 0) {
+            this.currentContainerIndex = this.containers.length - 1;
         }
         else {
-            this.currentIndex--;
+            this.currentContainerIndex--;
         }
-        return this.currentIndex;
+        return this.currentContainerIndex;
     }
 }
 class LightboxController {
@@ -2947,8 +2965,7 @@ class LightboxGestureController extends LightboxController {
         const touchDiff_y = this.touchEnd_y - this.touchStart_y;
         const touchDiffRatio_xy = Math.abs(touchDiff_x / touchDiff_y);
         const touchDiffRatio_yx = Math.abs(touchDiff_y / touchDiff_x);
-        if (Math.abs(touchDiff_x) > this.threshold ||
-            Math.abs(touchDiff_y) > this.threshold) {
+        if (Math.abs(touchDiff_x) > this.threshold || Math.abs(touchDiff_y) > this.threshold) {
             if (touchDiffRatio_yx <= this.limit) {
                 if (touchDiff_x < 0) {
                     // Gesture: Swipe Left
@@ -2973,7 +2990,7 @@ class LightboxGestureController extends LightboxController {
     }
 }
 window.addEventListener("load", () => {
-    if (document.querySelector("#lightbox") === null) {
+    if (!document.querySelector("#lightbox")) {
         return;
     }
     new Lightbox().setup();
@@ -2997,6 +3014,7 @@ class MenuMobile {
         this.elements__toFadeOut = [...this.elements__toFadeIn].reverse();
         this.keyboardController = new MenuMobileKeyboardController(this);
         this.uiButtonsController = new MenuMobileUIButtonsController(this);
+        this.isVisible = false;
     }
     setup() {
         this.close();
