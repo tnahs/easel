@@ -71,7 +71,7 @@ class _PageFactory:
         self._page_types[name] = page
 
 
-class PageInterface(abc.ABC):
+class AbstractPage(abc.ABC):
     def __init__(self, site: "Site", path: pathlib.Path, config: dict):
 
         self._site = site
@@ -176,7 +176,7 @@ class PageInterface(abc.ABC):
 
 
 class PageConfig:
-    """ Creates a PageConfig object from a dictionary with the following
+    """Creates a PageConfig object from a dictionary with the following
     attributes:
 
         {
@@ -197,7 +197,7 @@ class PageConfig:
     All page configuration is accessed through this class. The reason being
     that it's easier to implement mixins by declaring one abstract method
     'config' that returns a 'PageConfig' object rather than a bunch of
-    different attributes. """
+    different attributes."""
 
     # fmt:off
     _config_default = {
@@ -215,7 +215,7 @@ class PageConfig:
     }
     # fmt:on
 
-    def __init__(self, page: "PageInterface", config: dict):
+    def __init__(self, page: "AbstractPage", config: dict):
 
         self._page = page
         self._config_user: dict = config
@@ -284,9 +284,9 @@ class PageConfig:
 
     @property
     def options(self) -> dict:
-        """ Returns a dictionary of optional attributes declared in Page's
-        config file. See PageInterface subclasses Lazy LazyGallery Layout
-        LayoutGallery for specifics. """
+        """Returns a dictionary of optional attributes declared in Page's
+        config file. See AbstractPage subclasses Lazy LazyGallery Layout
+        LayoutGallery for specifics."""
         return self.__config[Key.OPTIONS]
 
 
@@ -308,7 +308,7 @@ class LazyMixin(abc.ABC):
 
     @property
     def _directory_contents(self) -> Generator[pathlib.Path, None, None]:
-        """ Returns the contents of the Page's root directory. Primarily used
+        """Returns the contents of the Page's root directory. Primarily used
         for creating Content objects to populate the Page.
 
         NOTE: The glob module ignores the contents of hidden directories as
@@ -319,7 +319,7 @@ class LazyMixin(abc.ABC):
         Ideally we'd use pathlib here, but when recursing with Path.glob("**"),
         we get every single item including those inside hidden directories.
 
-        https://docs.python.org/3/library/glob.html """
+        https://docs.python.org/3/library/glob.html"""
 
         # Create a generator and feed it using iglob which returns an iterator.
         visible_paths = (
@@ -425,8 +425,8 @@ class ShowCaptionsMixin(abc.ABC):
         return self.config.options.get(Key.SHOW_CAPTIONS, False)
 
 
-class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
-    """ Creates an Lazy Page object from a dictionary with the following
+class Lazy(AbstractPage, LazyMixin, ShowCaptionsMixin):
+    """Creates an Lazy Page object from a dictionary with the following
     attributes:
 
         {
@@ -476,8 +476,8 @@ class Lazy(PageInterface, LazyMixin, ShowCaptionsMixin):
         return items
 
 
-class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an LazyGallery Page object from a dictionary with the following
+class LazyGallery(AbstractPage, LazyMixin, GalleryMixin, ShowCaptionsMixin):
+    """Creates an LazyGallery Page object from a dictionary with the following
     attributes:
 
         {
@@ -514,8 +514,8 @@ class LazyGallery(PageInterface, LazyMixin, GalleryMixin, ShowCaptionsMixin):
         return images
 
 
-class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
-    """ Creates an Layout Page object from a dictionary with the following
+class Layout(AbstractPage, LayoutMixin, ShowCaptionsMixin):
+    """Creates an Layout Page object from a dictionary with the following
     attributes:
 
         {
@@ -545,8 +545,8 @@ class Layout(PageInterface, LayoutMixin, ShowCaptionsMixin):
         return items
 
 
-class LayoutGallery(PageInterface, LayoutMixin, GalleryMixin, ShowCaptionsMixin):
-    """ Creates an LayoutGallery Page object from a dictionary with the following
+class LayoutGallery(AbstractPage, LayoutMixin, GalleryMixin, ShowCaptionsMixin):
+    """Creates an LayoutGallery Page object from a dictionary with the following
     attributes:
 
         {

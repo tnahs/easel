@@ -10,9 +10,7 @@
     * Footer
     * --------------------------------------------------------------------- */
 
-    --header-menu--offset: calc(
-        var(--header-and-menu--height) + var(--body--padding-top)
-    );
+    --header-menu--offset: calc(var(--header-and-menu--height) + var(--body--padding-top));
 
     --menu-mobile__footer--font-family: var(--font-family--primary);
     --menu-mobile__footer--font-weight: 400;
@@ -119,9 +117,7 @@
     grid-area: footer;
     align-self: flex-end;
 
-    padding-bottom: calc(
-        var(--header-menu--offset) + var(--body--padding-bottom)
-    );
+    padding-bottom: calc(var(--header-menu--offset) + var(--body--padding-bottom));
 
     font-family: var(--menu-mobile__footer--font-family);
     font-weight: var(--menu-mobile__footer--font-weight);

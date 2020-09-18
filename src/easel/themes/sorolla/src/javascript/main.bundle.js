@@ -2662,6 +2662,7 @@ class AllContentItems {
                     return;
                 }
                 setTimeout(() => {
+                    // TODO:LOW Is there a way to not have to re-cast this?
                     this.triggerFadeIn(entry.target);
                 }, this.FADE_IN_DELAY);
                 observer.unobserve(entry.target);
@@ -2684,7 +2685,7 @@ class ImageContentItems {
     constructor() {
         this.style = getComputedStyle(document.documentElement);
         this.PROXY_COLOR_FALLBACK = this.style.getPropertyValue("--proxy-color--fallback");
-        this.PROXY_ALPHA = this.style.getPropertyValue("--proxy-color--alpha");
+        this.PROXY_COLOR_ALPHA = this.style.getPropertyValue("--proxy-color--alpha");
         this.items = document.querySelectorAll(".content__item--image");
     }
     setup() {
@@ -2748,7 +2749,7 @@ class ImageContentItems {
         if (!("R" in color) || !("G" in color) || !("B" in color)) {
             return this.PROXY_COLOR_FALLBACK;
         }
-        return `rgba(${color.R}, ${color.G}, ${color.B}, ${this.PROXY_ALPHA})`;
+        return `rgba(${color.R}, ${color.G}, ${color.B}, ${this.PROXY_COLOR_ALPHA})`;
     }
     triggerLazyLoadImage(element) {
         if (!element.dataset.src) {

@@ -14,7 +14,7 @@
 
         <title>{% if page and page.config.title and not page.is_index %}{{ page.config.title }} • {% endif %}{{ config.site.title }}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ 'css/main.css' | theme_url }}"/>
+        <link rel="stylesheet" type="text/css" href="{{ 'css/main.bundle.css' | theme_url }}"/>
 
     </head>
 
@@ -35,7 +35,7 @@
             {% include "_lightbox.html" %}
         {% endif %}
 
-        <script src="{{ 'javascript/main.js' | theme_url }}"></script>
+        <script src="{{ 'javascript/main.bundle.js' | theme_url }}"></script>
 
     </body>
 

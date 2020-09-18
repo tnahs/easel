@@ -33,8 +33,8 @@ class _MenuFactory:
         }
 
     def build(self, site: "Site", config: dict) -> MenuObj:
-        """ Builds Menu-like object from a dictionary. See respective classes
-        for documentation on accepted keys and structure. """
+        """Builds Menu-like object from a dictionary. See respective classes
+        for documentation on accepted keys and structure."""
 
         try:
             menu_type: str = config[Key.TYPE]
@@ -63,7 +63,7 @@ class _MenuFactory:
         self._menu_types[name] = menu
 
 
-class MenuInterface(abc.ABC):
+class AbstractMenu(abc.ABC):
     def __init__(self, site: "Site", **config):
 
         self._site = site
@@ -84,15 +84,15 @@ class MenuInterface(abc.ABC):
         pass
 
 
-class LinkPage(MenuInterface):
-    """ Creates a LinkPage Menu object from a dictionary with the following
-        attributes:
+class LinkPage(AbstractMenu):
+    """Creates a LinkPage Menu object from a dictionary with the following
+    attributes:
 
-        {
-            "type": "link-page",
-            "label": [str: None],
-            "links-to": [str: None],
-        }
+    {
+        "type": "link-page",
+        "label": [str: None],
+        "links-to": [str: None],
+    }
     """
 
     is_link_page: bool = True
@@ -148,15 +148,15 @@ class LinkPage(MenuInterface):
         return Utils.urlify(self.links_to)
 
 
-class LinkURL(MenuInterface):
-    """ Creates an LinkURL Menu object from a dictionary with the following
-        attributes:
+class LinkURL(AbstractMenu):
+    """Creates an LinkURL Menu object from a dictionary with the following
+    attributes:
 
-        {
-            "type": "link-url",
-            "label": [str: None],
-            "url": [str: None],
-        }
+    {
+        "type": "link-url",
+        "label": [str: None],
+        "url": [str: None],
+    }
     """
 
     is_link_url: bool = True
@@ -191,15 +191,15 @@ class LinkURL(MenuInterface):
         return self.config[Key.URL]
 
 
-class Spacer(MenuInterface):
-    """ Creates an Spacer Menu object from a dictionary with the following
-        attributes:
+class Spacer(AbstractMenu):
+    """Creates an Spacer Menu object from a dictionary with the following
+    attributes:
 
-        {
-            "type": "spacer",
-            "label": [str?: None],
-            "size": [str?: None]
-        }
+    {
+        "type": "spacer",
+        "label": [str?: None],
+        "size": [str?: None]
+    }
     """
 
     is_spacer: bool = True

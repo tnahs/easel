@@ -52,8 +52,8 @@ class _ContentFactory:
         }
 
     def build(self, page: "PageObj", config: dict) -> ContentObj:
-        """ Builds Content-like object from a dictionary. See respective
-        classes for documentation on accepted keys and structure. """
+        """Builds Content-like object from a dictionary. See respective
+        classes for documentation on accepted keys and structure."""
 
         try:
             content_type: str = config[Key.TYPE]
@@ -85,7 +85,7 @@ class _ContentFactory:
 
 
 class CaptionMixin(abc.ABC):
-    """ Adds support for parsing and render captions from a dictionary with the
+    """Adds support for parsing and render captions from a dictionary with the
     following attributes:
 
         {
@@ -139,7 +139,7 @@ class CaptionMixin(abc.ABC):
             )
 
 
-class ContentInterface(abc.ABC):
+class AbstractContent(abc.ABC):
     def __init__(self, page: "PageObj", **config):
 
         self._page = page
@@ -160,14 +160,14 @@ class ContentInterface(abc.ABC):
         return self._page
 
 
-class FileContent(ContentInterface):
-    """ Provides subclasses with file attributes for loading content from disk.
-        Requires that the config dictionary contain with the following
-        attributes:
+class FileContent(AbstractContent):
+    """Provides subclasses with file attributes for loading content from disk.
+    Requires that the config dictionary contain with the following
+    attributes:
 
-        {
-            "path": [str|pathlib.Path: None],
-        }
+    {
+        "path": [str|pathlib.Path: None],
+    }
     """
 
     def __repr__(self):
@@ -235,7 +235,7 @@ class FileContent(ContentInterface):
 
 
 class Image(FileContent, CaptionMixin):
-    """ Creates an Image Content object from a dictionary with the following
+    """Creates an Image Content object from a dictionary with the following
     attributes:
 
         {
@@ -273,7 +273,7 @@ class Image(FileContent, CaptionMixin):
 
 
 class Video(FileContent, CaptionMixin):
-    """ Creates an Video Content object from a dictionary with the following
+    """Creates an Video Content object from a dictionary with the following
     attributes:
 
         {
@@ -297,7 +297,7 @@ class Video(FileContent, CaptionMixin):
 
 
 class Audio(FileContent, CaptionMixin):
-    """ Creates an Audio Content object from a dictionary with the following
+    """Creates an Audio Content object from a dictionary with the following
     attributes:
 
         {
@@ -321,7 +321,7 @@ class Audio(FileContent, CaptionMixin):
 
 
 class TextBlock(FileContent):
-    """ Creates an TextBlock Content object from a dictionary with the
+    """Creates an TextBlock Content object from a dictionary with the
     following attributes:
 
         {
@@ -356,8 +356,8 @@ class TextBlock(FileContent):
         return self.config.get(Key.ALIGN, None)
 
 
-class Embedded(ContentInterface, CaptionMixin):
-    """ Creates an Embedded Content object from a dictionary with the following
+class Embedded(AbstractContent, CaptionMixin):
+    """Creates an Embedded Content object from a dictionary with the following
     attributes:
 
         {
@@ -395,8 +395,8 @@ class Embedded(ContentInterface, CaptionMixin):
         return self.config[Key.HTML]
 
 
-class Header(ContentInterface):
-    """ Creates an Header Content object from a dictionary with the following
+class Header(AbstractContent):
+    """Creates an Header Content object from a dictionary with the following
     attributes:
 
         {
@@ -451,8 +451,8 @@ class Header(ContentInterface):
         return self.config.get(Key.ALIGN, None)
 
 
-class Break(ContentInterface):
-    """ Creates an Break Content object from a dictionary with the following
+class Break(AbstractContent):
+    """Creates an Break Content object from a dictionary with the following
     attributes:
 
         {

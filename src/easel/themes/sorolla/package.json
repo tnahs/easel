@@ -9,10 +9,13 @@
     },
     "devDependencies": {
         "gulp": "^4.0.2",
+        "gulp-autoprefixer": "^7.0.1",
         "gulp-concat": "^2.6.1",
         "gulp-sass": "^4.1.0",
         "gulp-typescript": "^6.0.0-alpha.1",
+        "gulp-uglify": "^3.0.2",
         "ordered-read-streams": "^1.0.1",
+        "prettier": "2.1.2",
         "typescript": "^4.0.2"
     }
 }

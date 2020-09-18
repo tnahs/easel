@@ -1,6 +1,7 @@
 const gulp = require("gulp")
 const sass = require("gulp-sass")
 const ts = require("gulp-typescript")
+const autoprefixer = require("gulp-autoprefixer")
 const concat = require("gulp-concat")
 const orderedReadStream = require("ordered-read-streams")
 
@@ -19,10 +20,13 @@ const tsProject = ts.createProject("./tsconfig.json")
 
 function runSCSS() {
     const libs = gulp.src(paths.srcLibs.css)
-    const scssStream = gulp.src(paths.srcSCSS).pipe(sass())
+    const scssStream = gulp
+        .src(paths.srcSCSS)
+        .pipe(sass({ outputStyle: "expanded" }))
+        .pipe(autoprefixer("last 2 version"))
 
     return orderedReadStream([libs, scssStream])
-        .pipe(concat("main.css"))
+        .pipe(concat("main.bundle.css"))
         .pipe(gulp.dest(paths.destCSS))
 }
 
@@ -31,7 +35,7 @@ function runTS() {
     const tsStream = gulp.src(paths.srcTS).pipe(tsProject())
 
     return orderedReadStream([libs, tsStream])
-        .pipe(concat("main.js"))
+        .pipe(concat("main.bundle.js"))
         .pipe(gulp.dest(paths.destJS))
 }
 

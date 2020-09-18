@@ -2,9 +2,9 @@
 
 ## HIGH
 
-- Test:
-  - 'page.date'
-  - 'page.cover'
+- Test/Implement:
+  - `Page.date`
+  - `Page.cover`
 
 ## MEDIUM
 
@@ -14,16 +14,10 @@
 
 ## THEME:SOROLLA
 
-- Convert CSS -> SASS
-- Convert Javascript -> Typescript
 - Style 404 Page
 - Style Page Description
 - Style Markdown
 - Fix Lightbox styling on both desktop and mobile.
-- Give each theme its own `gulpfile.js`
-  - <https://macr.ae/article/splitting-gulpfile-multiple-files>
-- Autoprefix CSS
-- Minify CSS/JS
 - Optimize fonts
 
 ## NEXT VERSION
@@ -34,6 +28,12 @@
   - Try `watchdog`
   - Live-reloading
 - Lossless image compression?
+  - PIL `image.save("optimized-image.jpg", "JPEG", optimize=True, quality=85)`
+    - `full.jpg`
+    - `full-optimized.jpg` <- Use with a toggle in the `site.yaml`.
+    - `small.jpg`
+    - `medium.jpg`
+    - `large.jpg`
 
 ## QUESTIONS
 
@@ -42,11 +42,15 @@
 - CSS variable naming convention needs some work.
 - Check proxy image generation for all Easel supported filetypes.
 - Sift through paths and URLs.
+  - The way `Page` objects are referenced and identified is not very well documented. The same goes for `FileContent` objects
 - Document Lightbox
 - Import module? or import contents?
     `from . import errors` or `from .errors import Error`
 - Square up SitePaths.root and SitePaths.static. Its a bit confusing.
 - Unified validation setup.
+- Documentation for using:
+  - <https://www.netlify.com/>
+  - <https://pages.github.com/>
 
 ## FEATURES
 
