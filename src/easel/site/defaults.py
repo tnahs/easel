@@ -1,21 +1,20 @@
 import logging
 import pathlib
-from typing import Dict, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 
 logger = logging.getLogger(__name__)
 
 
 class Defaults:
-    """ Primarily used to share the location of the site directory 'path_site'
-    across modules as well as default/valid configuration values. """
+    """Primarily used to share the location of the site directory 'path_site'
+    across modules as well as default/valid configuration values."""
 
     # Path to /repo/src/easel
     APP_ROOT = pathlib.Path(__file__).parent.parent
 
     DIRECTORY_NAME_BUILD: str = "build"
     DIRECTORY_NAME_CONTENTS: str = "contents"
-    DIRECTORY_NAME_SRC: str = "src"
     DIRECTORY_NAME_PAGES: str = "pages"
     DIRECTORY_NAME_SITE_CACHE: str = "site-cache"
     DIRECTORY_NAME_STATIC: str = "static"
@@ -26,8 +25,30 @@ class Defaults:
     FILENAME_PAGE_YAML: str = "page.yaml"
     FILENAME_THEME_YAML: str = "theme.yaml"
 
-    DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
-    DATE_FORMAT_PRETTY: str = "YYYY-MM-DD HH:MM:SS"
+    DATE_SEPARATOR: str = "-"
+
+    DATE_FORMAT_YMD: str = f"%Y{DATE_SEPARATOR}%m{DATE_SEPARATOR}%d"
+    DATE_FORMAT_MDY: str = f"%m{DATE_SEPARATOR}%d{DATE_SEPARATOR}%Y"
+    DATE_FORMAT_DMY: str = f"%d{DATE_SEPARATOR}%m{DATE_SEPARATOR}%Y"
+    DATE_FORMAT_ISO: str = "%Y-%m-%d %H:%M:%S"
+    DATE_FORMAT_YMD_PRETTY: str = f"YYYY{DATE_SEPARATOR}MM{DATE_SEPARATOR}DD"
+    DATE_FORMAT_MDY_PRETTY: str = f"MM{DATE_SEPARATOR}DD{DATE_SEPARATOR}YYYY"
+    DATE_FORMAT_DMY_PRETTY: str = f"DD{DATE_SEPARATOR}MM{DATE_SEPARATOR}YYYY"
+    DATE_FORMAT_ISO_PRETTY: str = "YYYY-MM-DD HH:MM:SS"
+
+    DATE_FORMATS: List[str] = [
+        DATE_FORMAT_YMD,
+        DATE_FORMAT_MDY,
+        DATE_FORMAT_DMY,
+        DATE_FORMAT_ISO,
+    ]
+
+    DATE_FORMATS_PRETTY: List[str] = [
+        DATE_FORMAT_YMD_PRETTY,
+        DATE_FORMAT_MDY_PRETTY,
+        DATE_FORMAT_DMY_PRETTY,
+        DATE_FORMAT_ISO_PRETTY,
+    ]
 
     PROXY_IMAGE_FORMAT: str = "JPEG"
     PROXY_IMAGE_QUALITY: int = 95

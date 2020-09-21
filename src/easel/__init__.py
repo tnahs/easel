@@ -18,11 +18,12 @@ logging.basicConfig(
 
 import os
 import pathlib
+import re
 from typing import Optional, Union
 
 from flask import Flask
 
-from .site import Site
+from .site import Site, errors
 from .site.defaults import Key
 from .site.globals import Globals
 from .site.helpers import Utils
@@ -32,9 +33,9 @@ logger = logging.getLogger()
 
 
 class Easel(Flask):
-    """ Returns a thinly wrapped Flask application instance with two bound
+    """Returns a thinly wrapped Flask application instance with two bound
     attributes, Easel._site and it's accessor Easel.site which returns a
-    Site object. """
+    Site object."""
 
     def __init__(
         self,
@@ -54,9 +55,9 @@ class Easel(Flask):
         if loglevel is not None:
 
             # Convert loglevel to an integer for setting numeric levels.
-            loglevel_parsed: Union[str, int] = int(
-                loglevel
-            ) if loglevel.isnumeric() else loglevel
+            loglevel_parsed: Union[str, int] = (
+                int(loglevel) if loglevel.isnumeric() else loglevel
+            )
 
             logger.setLevel(loglevel_parsed)
 
@@ -115,6 +116,7 @@ class Easel(Flask):
     def _context(self) -> dict:
         # fmt:off
         return {
+            "debug": Globals.debug,
             "config": {
                 "site": Globals.site_config,
                 "theme": Globals.theme_config,
@@ -125,22 +127,59 @@ class Easel(Flask):
         }
         # fmt:on
 
+    # TODO:LOW Add a filter to prettify dates.
+
     @staticmethod
-    def _filter__site_url(path) -> str:
-        """ Returns the path as absolute url to the site's static url '/site':
+    def _filter__site_url(path: str) -> str:
+        """Returns the path as absolute url to the site's static url '/site':
 
             path -> /site/path
 
-        See Easel.__inti__() and Globals.site_paths.static_url_path. """
+        See Easel.__inti__() and Globals.site_paths.static_url_path."""
         return Utils.urlify(f"{Globals.site_paths.static_url_path}{os.sep}{path}")
 
     @staticmethod
-    def _filter__theme_url(path) -> str:
-        """ Returns the path as absolute url to the themes's static url:
+    def _filter__theme_url(path: Union[pathlib.Path, str]) -> str:
+        """Returns the path as absolute url to the themes's static url:
 
             path -> /theme/path
 
-        See Easel.__inti__() and Globals.theme_paths.static_url_path. """
+        See Easel.__inti__() and Globals.theme_paths.static_url_path."""
+
+        # public/css/bundle.#.css
+        path = pathlib.Path(path)
+
+        # bundle.#.css
+        filename = path.name
+
+        if "#" in filename:
+
+            # -> public/css/
+            parent = path.parent
+
+            # -> absolute/path/to/parent
+            path_absolute = Globals.theme_paths.root / parent
+
+            # -> bundle.*.css
+            filename_glob = re.sub(pattern=r"#+", repl="*", string=filename)
+
+            try:
+                latest_hashed_path = max(
+                    path_absolute.glob(filename_glob), key=os.path.getctime,
+                )
+                # NOTE: os.path.getctime returns the system’s ctime which, on
+                # Unix-like systems, is the time of the last metadata change,
+                # and, on others like Windows, is the creation time for path.
+            except ValueError:
+                # A ValueError is raised by max() if path_absolute.glob()
+                # returns an empty iterator. Meaning there were no files that
+                # matched the glob.
+                raise errors.SiteConfigError(f"Hashed path '{path}' not found.")
+            else:
+                # Reassemble the path with the actual name of the hashed file.
+                # -> public/css/bundle.###.css
+                path = parent / latest_hashed_path.name
+
         return Utils.urlify(f"{Globals.theme_paths.static_url_path}{os.sep}{path}")
 
     @property
@@ -149,7 +188,11 @@ class Easel(Flask):
 
     def run(self, watch: bool = False, **kwargs) -> None:
 
-        extra_files = self.site.assets if watch is True else []
+        extra_files = (
+            [*Globals.site_paths.assets, *Globals.theme_paths.assets]
+            if watch is True
+            else []
+        )
 
         if watch is True:
             # TODO:LOW Once we're fully decoupled from Flask, re-assess how

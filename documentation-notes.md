@@ -11,7 +11,7 @@
 Minimum requirements.
 
 ``` plaintext
-.
+theme-name
 ├── 404.html
 ├── main.html
 └── theme.yaml
@@ -27,7 +27,7 @@ _version: 0.1.0
 Expanded example.
 
 ``` plaintext
-.
+theme-name
 ├── static
 │   ├── css
 │   ├── javascript
@@ -36,6 +36,26 @@ Expanded example.
 ├── 404.html
 ├── base.html
 ├── main.html
+└── theme.yaml
+```
+
+Project example.
+
+``` plaintext
+theme-name
+├── src
+│   ├── fonts
+│   ├── images
+│   ├── scss
+│   └── typescript
+├── theme-name
+│   ├── css
+│   ├── fonts
+│   ├── images
+│   ├── javascript
+│   ├── 404.html
+│   ├── base.html
+│   └── main.html
 └── theme.yaml
 ```
 
@@ -227,6 +247,14 @@ Note: The precedence order for setting a theme is: Custom > Installed > Built-in
 
 {{ menu }}
 {{ pages }}
+```
+
+### Hashed Theme files
+
+Hashed filenames i.e. `bundle.d41d8cd98f.css` can be accessed by replacing the hashed sub-string with a `#` e.g. `bundle.#.css`.
+
+``` jinja
+<link rel="stylesheet" type="text/css" href="{{ 'css/bundle.#.css' | theme_url }}"/>
 ```
 
 ## Site API

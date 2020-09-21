@@ -17,8 +17,8 @@ for theme_name in ${themes_names[@]}; do
     gulp="$theme_root/node_modules/gulp/bin/gulp.js"
 
     $prettier \
-        "$theme_root/assets/scss/**/*.scss" \
-        "$theme_root/assets/typescript/**/*.ts" \
+        "$theme_root/src/scss/**/*.scss" \
+        "$theme_root/src/typescript/**/*.ts" \
         --config "$theme_root/.prettierrc" \
         --write
 

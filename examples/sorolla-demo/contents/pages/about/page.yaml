@@ -5,11 +5,8 @@ title: About
 
 contents:
 
-- type: text-block
-  path: image.md
-
 - type: header
-  text: >
+  text: >-
     J. S. Sargent ipsum dolor sit amet, consectetur adipiscing elit. Sed molestie
     pulvinar libero non hendrerit. Aenean eget mauris leo. Pellentesque
     habitant morbi tristique senectus et netus.

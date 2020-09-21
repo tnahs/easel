@@ -31,4 +31,5 @@ menu:
 
 
 header:
-  title: Joaquín Sorolla
+  title:
+    label: Joaquín Sorolla

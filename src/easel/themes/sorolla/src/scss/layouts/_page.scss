@@ -1,0 +1,52 @@
+// ----------------------------------------------------------------------------
+// Structure of #page
+//
+//    #page
+//        .page__description
+//        .page__contents--base / .page__contents--gallery
+// ----------------------------------------------------------------------------
+
+:root {
+    // NOTE: When both 'column-width' and 'column-count' properties are
+    // declared, 'column-count' is the maximum number of columns and
+    // 'column-width' is the minimum width for those columns.
+    --gallery--column-width: 250px;
+    --gallery--column-count: auto;
+    --gallery--column-gap: 10px;
+
+    @media only screen and (max-width: $mobile-breakpoint) {
+        --gallery--column-width: auto;
+        --gallery--column-count: 2;
+        --gallery--column-gap: 5px;
+    }
+}
+
+#page {
+    .page {
+        &__description {
+            padding: 0 0 35px 0;
+
+            width: 75%;
+            font-size: 1.15rem;
+
+            @media only screen and (max-width: $mobile-breakpoint) {
+                width: 100%;
+                font-size: 1rem;
+            }
+        }
+
+        &__contents--base {
+            // TODO:HIGH Implement page-width with grid columns. This will mainly
+            // be used to prevent the text content on the page from spanning 100%.
+
+            display: grid;
+            row-gap: 25px;
+        }
+
+        &__contents--gallery {
+            column-width: var(--gallery--column-width);
+            column-count: var(--gallery--column-count);
+            column-gap: var(--gallery--column-gap);
+        }
+    }
+}

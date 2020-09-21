@@ -7,12 +7,21 @@ description: A demo for Testing Easel.
 
 menu:
   - type: link-page
-    label: Nature
-    links-to: ./contents/pages/testing-nature
+    label: Images
+    links-to: ./contents/pages/images
+
+  - type: link-page
+    label: TextBlock
+    links-to: ./contents/pages/text-block
+
+  - type: link-page
+    label: Markdown
+    links-to: ./contents/pages/markdown
 
   - type: link-page
     label: Embedded
-    links-to: ./contents/pages/testing-embedded
+    links-to: ./contents/pages/embedded
 
 header:
-  title: Testing Demo
+  title:
+    label: Testing Demo

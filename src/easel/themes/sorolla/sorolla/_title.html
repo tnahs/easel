@@ -1,0 +1,19 @@
+{% if config.site.header.title.image.path %}
+
+    <a href="{{ index.url }}">
+        <img
+            class="title__image"
+            src="{{ config.site.header.title.image.path | site_url }}"
+        >
+    </a>
+
+{% elif config.site.header.title is not none %}
+
+    {% set title = config.site.header.title.label
+        if config.site.header.title.label
+        else config.site.title
+    %}
+
+    <a class="title__label" href="{{ index.url }}">{{ title }}</a>
+
+{% endif %}

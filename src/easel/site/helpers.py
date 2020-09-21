@@ -64,7 +64,7 @@ class Utils:
 
     @staticmethod
     def slugify(string: str, delimiter: str = "-", allow_unicode: bool = False) -> str:
-        """ Convert to ASCII if 'allow_unicode' is False. Convert spaces to
+        """Convert to ASCII if 'allow_unicode' is False. Convert spaces to
         hyphens. Remove characters that aren't alphanumerics, underscores, or
         hyphens. Convert to lowercase. Also strip leading and trailing
         whitespace.
@@ -90,7 +90,7 @@ class Utils:
 
     @staticmethod
     def normalize_page_path(path: Union[str, pathlib.Path]) -> str:
-        """ Ensures path is relative to the 'Globals.site_paths.pages' directory.
+        """Ensures path is relative to the 'Globals.site_paths.pages' directory.
 
             ./contents/pages/page-name --> page-name
             /contents/pages/page-name  --> page-name
@@ -105,7 +105,7 @@ class Utils:
             page-name                  --> page-name
 
         This allows users to use paths relative to the site-name or or 'pages'
-        directory. """
+        directory."""
 
         # Starting with: ./contents/pages/page-name
 
@@ -159,11 +159,11 @@ class Utils:
 
     @staticmethod
     def update_dict(original: dict, updates: collections.Mapping) -> dict:
-        """ Returns a new dictionary with values from 'original' updated
+        """Returns a new dictionary with values from 'original' updated
         from the values from 'updates'.
 
         via https://stackoverflow.com/a/43228384
-        via https://stackoverflow.com/a/38089879 """
+        via https://stackoverflow.com/a/38089879"""
 
         updated = copy.deepcopy(original)
 
@@ -185,12 +185,12 @@ class Utils:
 
 
 class SafeDict(dict):
-    """ Creates a dictionary that never raises a KeyError but rather returns a
+    """Creates a dictionary that never raises a KeyError but rather returns a
     new dictionary of its own kind (i.e. a SafeDict) as the value of the
     missing key. This is primarily used for optional nested configurations
     where a missing key is okay.
 
-    https://stackoverflow.com/a/25840834 """
+    https://stackoverflow.com/a/25840834"""
 
     def __getitem__(self, key):
 

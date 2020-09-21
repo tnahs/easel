@@ -1,0 +1,83 @@
+// ----------------------------------------------------------------------------
+// Structure overview:
+//
+//    body
+//        header
+//            #title
+//            #menu
+//              #menu-base
+//              #menu-mobile-buttons
+//              #menu-mobile
+//        main
+//            #page
+//        footer
+//
+//        #lightbox
+// ----------------------------------------------------------------------------
+
+:root {
+    --body--padding: 50px;
+
+    @media only screen and (max-width: $mobile-breakpoint) {
+        --body--padding: 30px;
+    }
+
+    --header--height: 50px;
+    --main--height: auto;
+    --footer--height: 200px;
+}
+
+html {
+    // NOTE: Both this property and 'body.min-height: 100%;' help to keep the
+    // 'footer' stuck to the bottom of this page. Using 'body.height' instead
+    // causes the 'footer' to lose its bottom padding on mobile.
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+
+    padding: var(--body--padding);
+    background-color: var(--color-background);
+
+    display: grid;
+    grid-template-areas:
+        "header"
+        " main "
+        "footer";
+    grid-template-rows:
+        var(--header--height)
+        var(--main--height)
+        var(--footer--height);
+}
+
+header {
+    grid-area: header;
+
+    display: grid;
+    grid-template-areas: "title menu";
+
+    #title {
+        grid-area: title;
+        align-self: flex-start;
+        justify-self: flex-start;
+    }
+
+    #menu {
+        grid-area: menu;
+        align-self: flex-start;
+        justify-self: flex-end;
+    }
+}
+
+main {
+    grid-area: main;
+
+    padding-top: 30px;
+}
+
+footer {
+    grid-area: footer;
+    align-self: flex-end;
+    justify-self: flex-end;
+}

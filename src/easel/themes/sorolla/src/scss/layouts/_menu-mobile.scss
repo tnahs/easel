@@ -1,0 +1,132 @@
+// ----------------------------------------------------------------------------
+// Structure of #menu-mobile-buttons
+//
+//    #menu-mobile-buttons
+//        .menu-mobile-button &__button--open
+//        .menu-mobile-button &__button--close
+// ----------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Structure of #menu-mobile
+//
+//    #menu-mobile
+//        .menu-mobile__menu-items
+//            .menu-item .menu-item--link-page
+//            .menu-item .menu-item--link-url
+//            .menu-item .menu-item--spacer size--small
+//            .menu-item .menu-item--spacer size--medium
+//            .menu-item .menu-item--spacer size--large
+//        .menu-mobile__footer
+// ----------------------------------------------------------------------------
+
+:root {
+    --header--offset: calc(var(--header--height) + var(--body--padding));
+}
+
+#menu-mobile-buttons {
+    display: none;
+
+    @media only screen and (max-width: $mobile-breakpoint) {
+        display: block;
+    }
+
+    .menu-mobile-button {
+        width: 32px;
+        height: auto;
+        opacity: 0.75;
+
+        cursor: pointer;
+
+        &--close {
+            display: none;
+        }
+    }
+}
+
+#menu-mobile {
+    position: fixed;
+    top: calc(var(--header--height) + var(--body--padding));
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+
+    padding: var(--body--padding);
+    background-color: var(--color-background);
+
+    text-align: center;
+
+    display: grid;
+    grid-template-areas:
+        "items "
+        "footer";
+
+    // See below: .animation--fade-in-out
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 750ms var(--transition--ease-out);
+
+    &.animation--fade-in-out {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .menu-mobile__menu-items {
+        grid-area: items;
+
+        display: grid;
+        grid-auto-flow: row;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 10px;
+
+        .menu-item {
+            font-weight: 300;
+            font-size: 1.75rem;
+
+            &--spacer {
+                &.size--small {
+                    width: 0;
+                    height: 0;
+                }
+
+                &.size--medium {
+                    width: 0;
+                    height: 15px;
+                }
+
+                &.size--large {
+                    width: 0;
+                    height: 30px;
+                }
+            }
+
+            // See below: .animation--fade-in-out
+            transition: transform 750ms var(--transition--ease-out);
+            transform: translateY(20px);
+
+            &.animation--fade-in-out {
+                transform: translateY(0);
+            }
+        }
+    }
+
+    .menu-mobile__footer {
+        grid-area: footer;
+
+        // TODO:HIGH This doesn't work in Safari.
+        align-self: flex-end;
+
+        font-size: 1em;
+        color: var(--color-black-30);
+
+        // See below: .animation--fade-in-out
+        transition: transform 750ms var(--transition--ease-out);
+        transform: translateY(20px);
+
+        &.animation--fade-in-out {
+            transform: translateY(0);
+        }
+    }
+}

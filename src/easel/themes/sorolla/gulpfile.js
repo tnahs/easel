@@ -3,13 +3,14 @@ const sass = require("gulp-sass")
 const ts = require("gulp-typescript")
 const autoprefixer = require("gulp-autoprefixer")
 const concat = require("gulp-concat")
+const rev = require("gulp-rev")
 const orderedReadStream = require("ordered-read-streams")
 
 const paths = {
-    srcSCSS: "./assets/scss/*.scss",
-    destCSS: "./src/css",
-    srcTS: "./assets/typescript/*.ts",
-    destJS: "./src/javascript",
+    srcSCSS: "./src/scss/**/*.scss",
+    destCSS: "./sorolla/css",
+    srcTS: "./src/typescript/**/*.ts",
+    destJS: "./sorolla/javascript",
     srcLibs: {
         css: ["./node_modules/normalize.css/normalize.css"],
         js: ["./node_modules/hammerjs/hammer.js"],
@@ -26,7 +27,8 @@ function runSCSS() {
         .pipe(autoprefixer("last 2 version"))
 
     return orderedReadStream([libs, scssStream])
-        .pipe(concat("main.bundle.css"))
+        .pipe(concat("bundle.css"))
+        .pipe(rev())
         .pipe(gulp.dest(paths.destCSS))
 }
 
@@ -35,12 +37,14 @@ function runTS() {
     const tsStream = gulp.src(paths.srcTS).pipe(tsProject())
 
     return orderedReadStream([libs, tsStream])
-        .pipe(concat("main.bundle.js"))
+        .pipe(concat("bundle.js"))
+        .pipe(rev())
         .pipe(gulp.dest(paths.destJS))
 }
 
 gulp.task("dev", () => {
-    gulp.parallel(runSCSS, runTS)
+    runSCSS()
+    runTS()
     gulp.watch(paths.srcSCSS, runSCSS)
     gulp.watch(paths.srcTS, runTS)
 })

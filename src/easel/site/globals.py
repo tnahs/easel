@@ -1,9 +1,10 @@
+import glob
 import importlib
 import json
 import logging
 import os
 import pathlib
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 from . import errors
 from .defaults import Defaults, Key
@@ -96,19 +97,30 @@ class SitePaths(GlobalsBase):
         try:
             root = root.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(
-                f"Site directory {root} does not exist."
-            ) from error
+            raise errors.SiteConfigError(f"Site directory {root} not found.") from error
 
         self._root = root
 
     @property
-    def pages(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/site-name/pages """
+    def contents(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name/contents """
 
-        path_pages = (
-            self.root / Defaults.DIRECTORY_NAME_CONTENTS / Defaults.DIRECTORY_NAME_PAGES
-        )
+        path_contents = self.root / Defaults.DIRECTORY_NAME_CONTENTS
+
+        try:
+            path_contents = path_contents.resolve(strict=True)
+        except FileNotFoundError as error:
+            raise errors.SiteConfigError(
+                "Site directory missing 'contents' sub-directory."
+            ) from error
+
+        return path_contents
+
+    @property
+    def pages(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name/contents/pages """
+
+        path_pages = self.contents / Defaults.DIRECTORY_NAME_PAGES
 
         try:
             path_pages = path_pages.resolve(strict=True)
@@ -123,6 +135,16 @@ class SitePaths(GlobalsBase):
     def cache(self) -> pathlib.Path:
         """ Returns /absolute/path/to/site-name/site-cache """
         return self.root / Defaults.DIRECTORY_NAME_SITE_CACHE
+
+    @property
+    def assets(self) -> List[str]:
+        """Returns a list of paths pointing to all the sub-directories and
+        files inside the 'contents' directory.
+
+        This is useful for passing to a file-watcher to trigger a new build or
+        reload a server."""
+
+        return list(glob.glob(f"{self.contents}/**", recursive=True))
 
     @property
     def static_url_path(self) -> str:
@@ -143,11 +165,13 @@ class SiteConfig(GlobalsBase):
         Key.FAVICON: None,
         Key.MENU: [],
         Key.HEADER: {
-            Key.TITLE: None,
-            Key.IMAGE: {
-                Key.PATH: None,
-                Key.WIDTH: None,
-                Key.HEIGHT: None,
+            Key.TITLE: {
+                Key.LABEL: None,
+                Key.IMAGE: {
+                    Key.PATH: None,
+                    Key.WIDTH: None,
+                    Key.HEIGHT: None,
+                },
             },
         },
         Key.THEME: {
@@ -302,7 +326,7 @@ class ThemePaths(GlobalsBase):
 
     @staticmethod
     def _get_builtin_root(name: str) -> pathlib.Path:
-        """ Returns the root directory of a built-in theme. Built-in themes
+        """Returns the root directory of a built-in theme. Built-in themes
         are found in the 'themes' directory and conform to the following
         structure:
 
@@ -312,16 +336,16 @@ class ThemePaths(GlobalsBase):
                 └── themes
                     ├── ...
                     └── [NAME]
-                        ├── assets
                         ├── src
+               ROOT --> ├── [NAME]
                         │   ├── main.html
                         │   ├── 404.html
                         │   └── theme.yaml
                         └── package.json
 
-        The 'src' directory is where the actual theme is located. The 'assets'
-        directory contain the assets used to compile the theme i.e. SCSS and
-        TypeScript files. """
+        The second [NAME] directory is where the actual theme is located. The
+        'src' directory contain the assets used to compile the theme i.e. SCSS
+        and TypeScript files."""
 
         if name not in Defaults.VALID_BUILTIN_THEME_NAMES:
             raise errors.SiteConfigError(
@@ -331,17 +355,22 @@ class ThemePaths(GlobalsBase):
 
         logger.info(f"Using built-in theme '{name}'.")
 
-        return (
-            Defaults.APP_ROOT
-            / Defaults.DIRECTORY_NAME_THEMES
-            / name
-            / Defaults.DIRECTORY_NAME_SRC
-        )
+        return Defaults.APP_ROOT / Defaults.DIRECTORY_NAME_THEMES / name / name
 
     @property
     def root(self) -> pathlib.Path:
         """ Returns the root path to the current theme. """
         return self._root
+
+    @property
+    def assets(self) -> List[str]:
+        """Returns a list of paths pointing to all the sub-directories and
+        files inside the themes 'root' directory.
+
+        This is useful for passing to a file-watcher to trigger a new build or
+        reload a server."""
+
+        return list(glob.glob(f"{self.root}/**", recursive=True))
 
     @property
     def static_url_path(self) -> str:

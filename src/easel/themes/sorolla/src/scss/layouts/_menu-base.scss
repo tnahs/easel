@@ -1,0 +1,67 @@
+// ----------------------------------------------------------------------------
+// Structure of #menu-base
+//
+//     #menu-base
+//         .menu-base__menu-items
+//             .menu-item .menu-item--link-page
+//             .menu-item .menu-item--link-url
+//             .menu-item .menu-item--spacer size--small
+//             .menu-item .menu-item--spacer size--medium
+//             .menu-item .menu-item--spacer size--large
+// ----------------------------------------------------------------------------
+
+// Shared attributes between #menu-base and #menu-mobile
+.menu-item {
+    font-family: var(--font-family--primary);
+    color: var(--color-black-70);
+
+    transition: color 250ms var(--transition--ease-out);
+
+    &:hover,
+    &:focus {
+        color: var(--color-black-50);
+    }
+
+    &--link-page.menu-item--current {
+        // TODO:HIGH Current page menu-item needs styling.
+        text-decoration: underline;
+    }
+}
+
+#menu-base {
+    @media only screen and (max-width: $mobile-breakpoint) {
+        display: none;
+    }
+
+    .menu-base__menu-items {
+        // TODO:HIGH Re-adjust this when final font is chosen.
+        // Align the top of the menu-items with the header title.
+        padding-top: 7px;
+
+        display: grid;
+        grid-auto-flow: column;
+        gap: 20px;
+
+        .menu-item {
+            font-weight: 400;
+            font-size: 1rem;
+
+            &--spacer {
+                &.size--small {
+                    width: 0;
+                    height: 0;
+                }
+
+                &.size--medium {
+                    width: 15px;
+                    height: 0;
+                }
+
+                &.size--large {
+                    width: 30px;
+                    height: 0;
+                }
+            }
+        }
+    }
+}

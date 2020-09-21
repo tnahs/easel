@@ -2,23 +2,22 @@
 
 ## HIGH
 
-- Test/Implement:
-  - `Page.date`
-  - `Page.cover`
+- Proxy image and proxy colors need re-working.
+- Flatten unnecessarily nested SCSS styles.
 
 ## MEDIUM
+
+- Complete `testing-demo` site.
+- Implement a way to set Page's `column-count`.
 
 ## LOW
 
 - Implement `MenuConfig` and `ContentConfig` types.
+- Review and document paths in markdown files.
+- Display a `Loading...` indicator when site-cache is being created.
+- Reload `site.yaml` when the file is changed/saved.
 
 ## THEME:SOROLLA
-
-- Style 404 Page
-- Style Page Description
-- Style Markdown
-- Fix Lightbox styling on both desktop and mobile.
-- Optimize fonts
 
 ## NEXT VERSION
 
@@ -36,6 +35,8 @@
     - `large.jpg`
 
 ## QUESTIONS
+
+- Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
 
 ## HOUSEKEEPING
 
