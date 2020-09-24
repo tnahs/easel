@@ -2,31 +2,7 @@
 // Structure of footer
 //
 //    footer
-//        .footer__copyright
+//        .copyright
 // ----------------------------------------------------------------------------
 
-:root {
-    --footer--font-family: var(--font-family--primary);
-    --footer--font-weight: 400;
-    --footer--font-size: 11pt;
-    --footer--color: hsla(0, 0%, 0%, 0.6);
-}
-
-// TODO:HIGH Style Footer.
-
-footer {
-    .footer {
-        font-family: var(--footer--font-family);
-        font-weight: var(--footer--font-weight);
-        font-size: var(--footer--font-size);
-        color: var(--footer--color);
-
-        &__copyright {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: nowrap;
-            align-items: center;
-            gap: 5px;
-        }
-    }
-}
+// See ./src/scss/_typography.ts

@@ -24,7 +24,12 @@ def cli(context, site_root: str, loglevel: str, debug: bool) -> None:
 @click.option("-p", "--port")
 @click.option("--watch", is_flag=True)
 @click.pass_obj
-def serve(easel, watch: bool, host: str, port: str,) -> None:
+def serve(
+    easel,
+    watch: bool,
+    host: str,
+    port: str,
+) -> None:
     """ Serve the site. """
 
     easel.run(watch=watch, host=host, port=port)

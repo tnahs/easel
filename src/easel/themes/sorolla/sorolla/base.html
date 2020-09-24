@@ -6,32 +6,34 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        {# TODO:LOW Need to check for "page" in case we hit a 404 error. Is
-        there a clearer way to do this? #}
-
-        {% if config.site.description
-            and page
+        {% if page
             and page.is_index
+            and config.site.description is not none
         %}
             <meta name="description" content="{{ config.site.description }}">
         {% endif %}
 
-        {% if config.site.author %}
+        {% if config.site.author is not none %}
             <meta name="author" content="{{ config.site.author }}">
         {% endif %}
 
-        {% if config.site.favicon %}
+        {% if config.site.favicon is not none %}
             <link rel="shortcut icon" href="{{ config.site.favicon | site_url }}">
         {% endif %}
 
-        <title>
-            {% if page
-                and page.config.title
-                and not page.is_index
-            -%}
-                {{ page.config.title }} • {% endif -%}
-                {{ config.site.title }}
-        </title>
+        {% set page_title = page.config.title ~ " • "
+            if page
+            and page.config.title is not none
+            and not page.is_index
+            else ""
+        %}
+
+        {% set site_title = config.site.title
+            if config.site.title is not none
+            else ""
+        %}
+
+        <title>{{ page_title }}{{ site_title }}</title>
 
         <link rel="stylesheet" type="text/css" href="{{ 'css/bundle-#.css' | theme_url }}"/>
 

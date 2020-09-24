@@ -1,13 +1,9 @@
 import logging
-from typing import TYPE_CHECKING, Any, Optional, Type, Union
+from typing import Any, Optional, Type, Union
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import MenuConfigError
 from .menus import LinkPage, LinkURL, Spacer
-
-
-if TYPE_CHECKING:
-    from .. import Site
 
 
 logger = logging.getLogger(__name__)
@@ -15,11 +11,15 @@ logger = logging.getLogger(__name__)
 
 # See easel.site.contents
 MenuClass = Union[
-    Type["LinkPage"], Type["LinkURL"], Type["Spacer"],
+    Type["LinkPage"],
+    Type["LinkURL"],
+    Type["Spacer"],
 ]
 
 MenuObj = Union[
-    "LinkPage", "LinkURL", "Spacer",
+    "LinkPage",
+    "LinkURL",
+    "Spacer",
 ]
 
 
@@ -31,14 +31,14 @@ class _MenuFactory:
         Key.SPACER: Spacer,
     }
 
-    def build(self, site: "Site", config: dict) -> MenuObj:
+    def build(self, config: dict) -> MenuObj:
         """Builds Menu-like object from a dictionary. See respective classes
         for documentation on accepted keys and structure."""
 
         try:
             menu_type: str = config[Key.TYPE]
         except KeyError as error:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Missing required key '{Key.TYPE}' for Menu-like item in "
                 f"{Defaults.FILENAME_SITE_YAML}."
             ) from error
@@ -47,12 +47,12 @@ class _MenuFactory:
         Menu: Optional["MenuClass"] = self.menu_types(menu_type=menu_type)
 
         if Menu is None:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Unsupported value '{menu_type}' for '{Key.TYPE}' for "
                 f"Menu-like item in {Defaults.FILENAME_SITE_YAML}."
             )
 
-        return Menu(site=site, **config)
+        return Menu(**config)
 
     def menu_types(self, menu_type: str) -> Optional["MenuClass"]:
         return self._menu_types.get(menu_type, None)
@@ -62,4 +62,4 @@ class _MenuFactory:
         self._menu_types[name] = menu
 
 
-menu_factory = _MenuFactory()
+MenuFactory = _MenuFactory()

@@ -3,21 +3,24 @@
 ## HIGH
 
 - Proxy image and proxy colors need re-working.
-- Flatten unnecessarily nested SCSS styles.
+- Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
+- Style and set content for footers in `base.html` and `menu-mobile.html`
 
 ## MEDIUM
 
-- Complete `testing-demo` site.
-- Implement a way to set Page's `column-count`.
+- Review and document how paths work in Markdown files.
+- Re-work the way the `Site` object is being created and move away from Flask's `current_app`. Seeing as `Site` is only dependant on Globals, it can be instantiated anywhere. In fact maybe it should be bound to the `Globals` object.
+- Standardize how we're using `*args` and `**kwargs` when creating `Pages`, `Menus` and `Contents`.
 
 ## LOW
 
-- Implement `MenuConfig` and `ContentConfig` types.
-- Review and document paths in markdown files.
 - Display a `Loading...` indicator when site-cache is being created.
-- Reload `site.yaml` when the file is changed/saved.
+- Complete `testing-demo` site.
+- Locale detection for date formatting.
 
 ## THEME:SOROLLA
+
+- Add `Page.date` to templates. When locale detection works.
 
 ## NEXT VERSION
 
@@ -26,6 +29,7 @@
   - Serve the `build` folder.
   - Try `watchdog`
   - Live-reloading
+    - Reload `site.yaml` when the file is changed/saved.
 - Lossless image compression?
   - PIL `image.save("optimized-image.jpg", "JPEG", optimize=True, quality=85)`
     - `full.jpg`
@@ -36,18 +40,16 @@
 
 ## QUESTIONS
 
-- Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
+- Should `{{ index.url }}` return `\`?
+- Is it worth implementing `MenuConfig` and `ContentConfig` types?
+- Is it worth/possible to decouple `Page` from `Contents`
 
 ## HOUSEKEEPING
 
-- CSS variable naming convention needs some work.
 - Check proxy image generation for all Easel supported filetypes.
 - Sift through paths and URLs.
   - The way `Page` objects are referenced and identified is not very well documented. The same goes for `FileContent` objects
-- Document Lightbox
-- Import module? or import contents?
-    `from . import errors` or `from .errors import Error`
-- Square up SitePaths.root and SitePaths.static. Its a bit confusing.
+- Square up `SitePaths.root` and `SitePaths.static`. It's a bit confusing.
 - Unified validation setup.
 - Documentation for using:
   - <https://www.netlify.com/>
@@ -57,11 +59,10 @@
 
 - More CLI Tools:
   - READ: <https://jekyllrb.com/docs/usage/>
-- 'Collection' Page (For relating other pages or a blog.)
-  - A child of a 'Collection' Page would maintain a link to it's siblings allowing navigation between them.
+- 'Collection' Page (For relating pages or a blog.)
+  - A child of a 'Collection' Page would maintain a link to it's siblings and parent allowing navigation between them.
 - 'Landing' Page
 - 'Grid' that holds Content types
-- Better way to find dominant/average color of an image.
+- Better way to find dominant color of an image.
 - Repo for 'easel-basic-theme'
-- Menu item icon
 - Print site-map method.

@@ -1,6 +1,6 @@
 # testing-demo/pages/images
 
-type: layout-gallery
+type: layout
 title: Images
 
 options:

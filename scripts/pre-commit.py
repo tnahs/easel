@@ -13,6 +13,7 @@ logging.basicConfig(
     style="{",
 )
 
+
 logger = logging.getLogger()
 
 
@@ -22,31 +23,35 @@ THEME_NAMES: List[str] = [
 ]
 
 
-def main(verbose: bool = False):
-
-    # isort
+def run__isort(verbose: bool = False):
 
     logger.info("Sorting Python imports with 'isort'...")
 
-    isort_command = ["isort", "./src"]
+    isort_command = ["isort", "./src", "./tests"]
 
     if verbose is True:
         isort_command.append("--verbose")
+    else:
+        isort_command.append("--quiet")
 
     subprocess.run(isort_command)
 
-    # Black
+
+def run__black(verbose: bool = False):
 
     logger.info("Formatting Python with 'Black'...")
 
-    black_command = ["black", "./src"]
+    black_command = ["black", "./src", "./tests"]
 
     if verbose is True:
         black_command.append("--verbose")
+    else:
+        black_command.append("--quiet")
 
     subprocess.run(black_command)
 
-    # Themes
+
+def run__build_themes(verbose: bool = False):
 
     for theme_name in THEME_NAMES:
 
@@ -73,6 +78,8 @@ def main(verbose: bool = False):
 
         if verbose is True:
             prettier_command.append("--loglevel=debug")
+        else:
+            prettier_command.append("--loglevel=silent")
 
         subprocess.run(prettier_command)
 
@@ -94,6 +101,8 @@ def main(verbose: bool = False):
 
         if verbose is True:
             gulp_command.append("--loglevel=4")
+        else:
+            gulp_command.append("--silent")
 
         subprocess.run(gulp_command)
 
@@ -121,6 +130,26 @@ def main(verbose: bool = False):
 
         for path in [*css, *javascript]:
             path.unlink()
+
+
+def run__pytest_coverage(verbose: bool = False):
+
+    logger.info("Testing Python with 'pytest' and 'Coverage.py'...")
+
+    coverage_pytest = ["coverage", "run", "-m", "pytest"]
+    coverage_html = ["coverage", "html"]
+    coverage_open = ["open", "./htmlcov/index.html"]
+
+    subprocess.run(coverage_pytest)
+    subprocess.run(coverage_html)
+    subprocess.run(coverage_open)
+
+
+def main(verbose: bool):
+    run__isort(verbose=verbose)
+    run__black(verbose=verbose)
+    run__build_themes(verbose=verbose)
+    run__pytest_coverage(verbose=verbose)
 
 
 parser = argparse.ArgumentParser(add_help=False)

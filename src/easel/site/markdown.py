@@ -4,9 +4,8 @@ from typing import Optional, Union
 
 import markdown as _markdown
 
-from easel.site.helpers import Utils
-
 from .globals import Globals
+from .helpers import Utils
 
 
 class Markdown:

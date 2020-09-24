@@ -7,12 +7,8 @@
 //        .content .content--audio
 //        .content .content--embedded
 //        .content .content--text-block (typeset)
-//        .content .content--header size--small (typeset)
-//        .content .content--header size--medium (typeset)
-//        .content .content--header size--large (typeset)
-//        .content .content--break size--small
-//        .content .content--break size--medium
-//        .content .content--break size--large
+//        .content .content--header (typeset)
+//        .content .content--break
 //
 //        .content__caption
 //            .caption
@@ -20,94 +16,83 @@
 //            .caption__description
 // ----------------------------------------------------------------------------
 
-// TODO:HIGH Implement proxies.
 // TODO:HIGH Check the structure of the HTML/CSS.
+// TODO:HIGH Implement proxies.
 
-#page {
-    .page__contents--gallery {
-        .content__container {
-            margin-bottom: var(--gallery--column-gap);
+.content__container {
+    opacity: 0;
+    transition: opacity 500ms var(--transition--ease-out);
 
-            cursor: pointer;
+    &.animation--fade-in {
+        opacity: 1;
+    }
+}
+
+.content {
+    &--image {
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
         }
     }
 
-    .page__contents--base,
-    .page__contents--gallery {
-        .content__container {
-            opacity: 0;
-            transition: opacity 500ms var(--transition--ease-out);
-
-            &.animation--fade-in {
-                opacity: 1;
-            }
-
-            .content {
-                &--image {
-                    img {
-                        display: block;
-                        width: 100%;
-                        height: auto;
-                    }
-                }
-
-                &--video {
-                    video {
-                        display: block;
-                        max-width: 100%;
-                        height: auto;
-                    }
-                }
-
-                &--audio {
-                    audio {
-                        display: block;
-                        width: 100%;
-                    }
-                }
-
-                &--embedded {
-                    // See ./src/typescript/contents.ts
-                }
-
-                &--text-block {
-                    // See ./src/scss/_typography.ts
-                }
-
-                &--header {
-                    // See ./src/scss/_typography.ts
-
-                    &.size--large {
-                        @include h1;
-                    }
-
-                    &.size--medium {
-                        @include h2;
-                    }
-
-                    &.size--small {
-                        @include h3;
-                    }
-                }
-
-                &--break {
-                    &.size--small {
-                        height: 0px;
-                    }
-
-                    &.size--medium {
-                        height: 50px;
-                    }
-
-                    &.size--large {
-                        height: 100px;
-                    }
-                }
-            }
-        }
-
-        .content__caption {
-            margin: 5px 5px 0 5px;
+    &--video {
+        video {
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
     }
+
+    &--audio {
+        audio {
+            display: block;
+            width: 100%;
+        }
+    }
+
+    &--embedded {
+        // See ./src/typescript/contents.ts
+    }
+
+    &--text-block {
+        // See ./src/scss/_typography.ts
+    }
+
+    &--header {
+        // See ./src/scss/_typography.ts
+
+        &.size--large {
+            @include h1;
+        }
+
+        &.size--medium {
+            @include h2;
+        }
+
+        &.size--small {
+            @include h3;
+        }
+    }
+
+    &--break {
+        &.size--small {
+            height: 0px;
+        }
+
+        &.size--medium {
+            height: 50px;
+        }
+
+        &.size--large {
+            height: 100px;
+        }
+    }
+}
+
+.content__caption {
+    margin: 5px 5px 0 5px;
+
+    // See ./src/scss/_typography.ts
 }

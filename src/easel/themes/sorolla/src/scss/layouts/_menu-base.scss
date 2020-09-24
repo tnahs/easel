@@ -1,25 +1,17 @@
 // ----------------------------------------------------------------------------
-// Structure of #menu-base
-//
-//     #menu-base
-//         .menu-base__menu-items
-//             .menu-item .menu-item--link-page
-//             .menu-item .menu-item--link-url
-//             .menu-item .menu-item--spacer size--small
-//             .menu-item .menu-item--spacer size--medium
-//             .menu-item .menu-item--spacer size--large
+// Shared attributes between #menu-base and #menu-mobile
 // ----------------------------------------------------------------------------
 
-// Shared attributes between #menu-base and #menu-mobile
 .menu-item {
     font-family: var(--font-family--primary);
-    color: var(--color-black-70);
+    color: var(--color-foreground);
 
     transition: color 250ms var(--transition--ease-out);
 
     &:hover,
     &:focus {
-        color: var(--color-black-50);
+        // TODO:HIGH Hover/focus page menu-item needs styling.
+        color: var(--color-foreground-light);
     }
 
     &--link-page.menu-item--current {
@@ -28,39 +20,49 @@
     }
 }
 
+// ----------------------------------------------------------------------------
+// Structure of #menu-base
+//
+//     #menu-base
+//         .menu-base__menu-items
+//             .menu-item .menu-item--link-page
+//             .menu-item .menu-item--link-url
+//             .menu-item .menu-item--spacer
+// ----------------------------------------------------------------------------
+
 #menu-base {
     @media only screen and (max-width: $mobile-breakpoint) {
         display: none;
     }
+}
 
-    .menu-base__menu-items {
-        // TODO:HIGH Re-adjust this when final font is chosen.
-        // Align the top of the menu-items with the header title.
-        padding-top: 7px;
+.menu-base__menu-items {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 20px;
 
-        display: grid;
-        grid-auto-flow: column;
-        gap: 20px;
+    .menu-item {
+        font-weight: 400;
+        font-size: 1rem;
 
-        .menu-item {
-            font-weight: 400;
-            font-size: 1rem;
+        // &--link-page {}
 
-            &--spacer {
-                &.size--small {
-                    width: 0;
-                    height: 0;
-                }
+        // &--link-url {}
 
-                &.size--medium {
-                    width: 15px;
-                    height: 0;
-                }
+        &--spacer {
+            &.size--small {
+                width: 0;
+                height: 0;
+            }
 
-                &.size--large {
-                    width: 30px;
-                    height: 0;
-                }
+            &.size--medium {
+                width: 15px;
+                height: 0;
+            }
+
+            &.size--large {
+                width: 30px;
+                height: 0;
             }
         }
     }

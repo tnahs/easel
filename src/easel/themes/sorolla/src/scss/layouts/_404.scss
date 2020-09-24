@@ -5,9 +5,7 @@
 //        .error-404__message (typeset)
 // ----------------------------------------------------------------------------
 
-#error-404 {
-    .error-404__message {
-        margin-top: 15%;
-        text-align: center;
-    }
+.error-404__message {
+    margin-top: 15%;
+    text-align: center;
 }

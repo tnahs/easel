@@ -2940,16 +2940,16 @@ class MenuMobile {
     constructor() {
         this.FADE_IN_OUT_CLASS = "animation--fade-in-out";
         this.FADE_IN_OUT_DELAY = 25;
-        this.buttons = document.querySelector("#menu-mobile-buttons");
-        this.buttonOpen = this.buttons.querySelector(".menu-mobile-button--open");
-        this.buttonClose = this.buttons.querySelector(".menu-mobile-button--close");
+        this.toggles = document.querySelector("#menu-mobile-toggles");
+        this.toggleOpen = this.toggles.querySelector(".menu-mobile-toggle--open");
+        this.toggleClose = this.toggles.querySelector(".menu-mobile-toggle--close");
         this.main = document.querySelector("#menu-mobile");
         this.menuItems = this.main.querySelectorAll(".menu-item");
         this.footer = this.main.querySelector(".menu-mobile__footer");
         this.elements__toFadeIn = [this.main, ...this.menuItems, this.footer];
         this.elements__toFadeOut = [...this.elements__toFadeIn].reverse();
         this.keyboardController = new MenuMobileKeyboardController(this);
-        this.uiButtonsController = new MenuMobileUIButtonsController(this);
+        this.uiTogglesController = new MenuMobileUITogglesController(this);
         this.isVisible = false;
     }
     setup() {
@@ -2962,8 +2962,8 @@ class MenuMobile {
             }, count * this.FADE_IN_OUT_DELAY);
         });
         this.isVisible = true;
-        this.buttonOpen.style.display = "none";
-        this.buttonClose.style.display = "block";
+        this.toggleOpen.style.display = "none";
+        this.toggleClose.style.display = "block";
         document.body.style.overflow = "hidden";
     }
     close() {
@@ -2973,8 +2973,8 @@ class MenuMobile {
             }, count * this.FADE_IN_OUT_DELAY);
         });
         this.isVisible = false;
-        this.buttonOpen.style.display = "block";
-        this.buttonClose.style.display = "none";
+        this.toggleOpen.style.display = "block";
+        this.toggleClose.style.display = "none";
         document.body.style.overflow = "auto";
     }
 }
@@ -2984,12 +2984,12 @@ class MenuMobileController {
         this.setup();
     }
 }
-class MenuMobileUIButtonsController extends MenuMobileController {
+class MenuMobileUITogglesController extends MenuMobileController {
     setup() {
-        this.menuMobile.buttonOpen.addEventListener("click", () => {
+        this.menuMobile.toggleOpen.addEventListener("click", () => {
             this.menuMobile.open();
         });
-        this.menuMobile.buttonClose.addEventListener("click", () => {
+        this.menuMobile.toggleClose.addEventListener("click", () => {
             this.menuMobile.close();
         });
     }

@@ -1,38 +1,33 @@
 import abc
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import MenuConfigError
 from ..helpers import Utils
-
-
-if TYPE_CHECKING:
-    from .. import Site
 
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractMenu(abc.ABC):
-    def __init__(self, site: "Site", **config):
+    def __init__(self, **config):
 
-        self._site = site
         self._config = config
 
         self.validate__config()
 
     @abc.abstractmethod
     def validate__config(self) -> None:
-        pass
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def label(self) -> Optional[str]:
+        pass  # pragma: no cover
 
     @property
     def config(self) -> dict:
         return self._config
-
-    @abc.abstractmethod
-    def label(self) -> Optional[str]:
-        pass
 
 
 class LinkPage(AbstractMenu):
@@ -48,6 +43,13 @@ class LinkPage(AbstractMenu):
 
     is_link_page: bool = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.config[Key.LINKS_TO] = Utils.normalize_page_path(
+            path=self.config[Key.LINKS_TO]
+        )
+
     def __repr__(self) -> str:
         return (
             f"<{self.__class__.__name__}: label:{self.label} links_to:{self.links_to}>"
@@ -58,33 +60,18 @@ class LinkPage(AbstractMenu):
         try:
             self.config[Key.LABEL]
         except KeyError as error:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
                 f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
 
         try:
-            links_to = self.config[Key.LINKS_TO]
+            self.config[Key.LINKS_TO]
         except KeyError as error:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Missing required key '{Key.LINKS_TO}' "
                 f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
-
-        self.config[Key.LINKS_TO] = Utils.normalize_page_path(path=links_to)
-
-        self._validate__links_to()
-
-    def _validate__links_to(self) -> None:
-
-        for page in self._site.pages:
-            if page.url == self.url:
-                return
-
-        raise errors.MenuConfigError(
-            f"Menu item '{self.label}' has no corresponding page. "
-            f"Page '{self.links_to}' not found."
-        )
 
     @property
     def label(self) -> str:
@@ -120,7 +107,7 @@ class LinkURL(AbstractMenu):
         try:
             self.config[Key.LABEL]
         except KeyError as error:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Missing required key '{Key.LABEL}' "
                 f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
@@ -128,7 +115,7 @@ class LinkURL(AbstractMenu):
         try:
             self.config[Key.URL]
         except KeyError as error:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Missing required key '{Key.URL}' "
                 f"for {self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             ) from error
@@ -161,7 +148,7 @@ class Spacer(AbstractMenu):
     def validate__config(self) -> None:
 
         if self.size is not None and self.size not in Defaults.VALID_SIZES:
-            raise errors.MenuConfigError(
+            raise MenuConfigError(
                 f"Unsupported value '{self.size}' for {Key.SIZE} for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_SITE_YAML}."
             )

@@ -4,8 +4,8 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Generator
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import PageConfigError
 
 
 if TYPE_CHECKING:
@@ -19,12 +19,12 @@ class LazyMixin(abc.ABC):
     @property
     @abc.abstractmethod
     def config(self) -> "PageConfig":
-        pass
+        pass  # pragma: no cover
 
     @property
     @abc.abstractmethod
     def path(self) -> pathlib.Path:
-        pass
+        pass  # pragma: no cover
 
     def validate__lazy_config(self) -> None:
 
@@ -48,19 +48,19 @@ class LazyMixin(abc.ABC):
         https://docs.python.org/3/library/glob.html"""
 
         # Create a generator and feed it using iglob which returns an iterator.
-        visible_paths = (
-            pathlib.Path(visible_path)
-            for visible_path in glob.iglob(f"{self.path}/**", recursive=True)
+        valid_paths = (
+            pathlib.Path(path)
+            for path in glob.iglob(f"{self.path}/**/*", recursive=True)
         )
 
-        for path in visible_paths:
+        for path in valid_paths:
 
             # Ignore directories and symlinks.
             if path.is_dir() or path.is_symlink():
                 continue
 
             # Ignore 'private' files.
-            if path.name.startswith("_") or path.name.startswith("."):
+            if path.name.startswith("_"):
                 continue
 
             if path.name == Defaults.FILENAME_PAGE_YAML:
@@ -74,12 +74,12 @@ class LazyMixin(abc.ABC):
                 if path.name == self.config.description.name:
                     continue
 
-            if path.suffix not in Defaults.VALID_CONTENT_EXTENSIONS:
-                logger.warning(f"Unsupported file '{path.name}' found in {self}.")
-                continue
-
             if path.suffix in Defaults.VALID_YAML_EXTENSIONS:
                 logger.warning(f"Unused YAML file '{path.name}' found in {self}.")
+                continue
+
+            if path.suffix not in Defaults.VALID_CONTENT_EXTENSIONS:
+                logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 
             yield path
@@ -89,14 +89,14 @@ class LayoutMixin(abc.ABC):
     @property
     @abc.abstractmethod
     def config(self) -> "PageConfig":
-        pass
+        pass  # pragma: no cover
 
     def validate__layout_config(self) -> None:
 
         contents = self.config.contents
 
         if type(contents) is not list:
-            raise errors.PageConfigError(
+            raise PageConfigError(
                 f"{self}: Expected type 'list' for '{Key.CONTENTS}' got "
                 f"'{type(contents).__name__}'."
             )
@@ -112,7 +112,7 @@ class GalleryMixin(abc.ABC):
     @property
     @abc.abstractmethod
     def config(self) -> "PageConfig":
-        pass
+        pass  # pragma: no cover
 
     def validate__gallery_config(self) -> None:
 
@@ -120,7 +120,7 @@ class GalleryMixin(abc.ABC):
             self.column_count is not None
             and self.column_count not in Defaults.VALID_COLUMN_COUNT
         ):
-            raise errors.PageConfigError(
+            raise PageConfigError(
                 f"{self}: Unsupported value '{self.column_count}' for "
                 f"'{Key.COLUMN_COUNT}'."
             )
@@ -134,14 +134,14 @@ class ShowCaptionsMixin(abc.ABC):
     @property
     @abc.abstractmethod
     def config(self) -> "PageConfig":
-        pass
+        pass  # pragma: no cover
 
     def validate__show_captions_config(self) -> None:
 
         show_captions = self.config.options[Key.SHOW_CAPTIONS]
 
         if type(show_captions) is not bool:
-            raise errors.PageConfigError(
+            raise PageConfigError(
                 f"{self}: Expected type 'bool' for '{Key.SHOW_CAPTIONS}' "
                 f"got '{type(show_captions).__name__}'."
             )

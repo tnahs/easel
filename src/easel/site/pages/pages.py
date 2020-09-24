@@ -4,24 +4,23 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, List, Optional, Union
 
-from .. import contents, errors
+from ..contents import Audio, ContentFactory, Image, TextBlock, Video
 from ..defaults import Defaults, Key
+from ..errors import MissingContent, PageConfigError
 from ..helpers import Utils
-from . import mixins
+from .mixins import GalleryMixin, LayoutMixin, LazyMixin, ShowCaptionsMixin
 
 
 if TYPE_CHECKING:
-    from .. import Site
-    from ..contents import Audio, ContentObj, Image, TextBlock, Video
+    from ..contents import ContentObj
 
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractPage(abc.ABC):
-    def __init__(self, site: "Site", path: pathlib.Path, config: dict):
+    def __init__(self, path: pathlib.Path, config: dict):
 
-        self._site = site
         self._path = path
 
         self._config = PageConfig(page=self, config=config)
@@ -36,30 +35,27 @@ class AbstractPage(abc.ABC):
         self._validate_build__description()
         self._validate_build__cover()
 
-        """ TODO:LOW To properly validate and generate proxies, self.contents,
-        self.date, self.description and self.cover need to be called before the
-        site is run. It would probably a good idea to cache the contents to
-        reduce overhead on a page refresh. This needs a slight re-design. """
-        self.contents
+        # TODO:LOW Revisit how building page contents is implemented.
+        self._contents: List["ContentObj"] = self.build__contents()
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.directory_name}>"
 
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.directory_name}"
-
-    @property
-    @abc.abstractmethod
-    def contents(self) -> List["ContentObj"]:
-        pass
-
     @abc.abstractmethod
     def validate__config(self) -> None:
-        pass
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def build__contents(self) -> List["ContentObj"]:
+        pass  # pragma: no cover
 
     @property
     def config(self) -> "PageConfig":
         return self._config
+
+    @property
+    def contents(self) -> List["ContentObj"]:
+        return self._contents
 
     @property
     def directory_name(self) -> str:
@@ -94,28 +90,15 @@ class AbstractPage(abc.ABC):
         return self._cover
 
     def _validate_build__date(self) -> None:
+
         if self.config.date is None:
             return
+        elif type(self.config.date) is str:
+            date = Utils.str_to_datetime(date=self.config.date)
+        else:
+            date = self.config.date
 
-        for date_format in Defaults.DATE_FORMATS:
-            try:
-                date = datetime.datetime.strptime(str(self.config.date), date_format)
-            except ValueError:
-                """ValueError is raised if the date_string and format can’t be
-                parsed by time.strptime() or if it returns a value which isn’t
-                a time tuple.
-
-                via https://docs.python.org/3/library/datetime.html#datetime.datetime.strptime
-                """
-                pass
-            else:
-                self._date = date
-                return
-
-        raise errors.PageConfigError(
-            f"Unsupported format '{self.config.date}' for {Key.DATE}. Valid "
-            f"formats are {Defaults.DATE_FORMATS_PRETTY}."
-        )
+        self._date = date
 
     def _validate_build__description(self) -> None:
 
@@ -127,11 +110,9 @@ class AbstractPage(abc.ABC):
         try:
             path = path.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.MissingContent(
-                f"Missing description {path} for {self}."
-            ) from error
+            raise MissingContent(f"Missing description {path} for {self}.") from error
 
-        self._description = contents.TextBlock(page=self, path=path)
+        self._description = TextBlock(page=self, path=path)
 
     def _validate_build__cover(self) -> None:
 
@@ -143,9 +124,9 @@ class AbstractPage(abc.ABC):
         try:
             path = path.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.MissingContent(f"Missing cover {path} for {self}.") from error
+            raise MissingContent(f"Missing cover {path} for {self}.") from error
 
-        self._cover = contents.Image(page=self, path=path)
+        self._cover = Image(page=self, path=path)
 
 
 class PageConfig:
@@ -182,6 +163,7 @@ class PageConfig:
         Key.DESCRIPTION: None,
         Key.CONTENTS: [],
         Key.OPTIONS: {
+            # TODO:MED Should 'PageConfig' contain these options?
             Key.SHOW_CAPTIONS: False,
             Key.COLUMN_COUNT: None,
         },
@@ -210,7 +192,7 @@ class PageConfig:
             return
 
         if type(options) is not dict:
-            raise errors.PageConfigError(
+            raise PageConfigError(
                 f"{self}: Expected type 'dict' for '{Key.OPTIONS}' got "
                 f"'{type(options).__name__}'."
             )
@@ -228,7 +210,8 @@ class PageConfig:
         return self.__config[Key.TITLE]
 
     @property
-    def date(self) -> str:
+    def date(self) -> Optional[Union[datetime.datetime, str]]:
+        # YAML can parse some date formats hence the return type.
         return self.__config[Key.DATE]
 
     @property
@@ -263,7 +246,7 @@ class PageConfig:
         return self.__config[Key.OPTIONS]
 
 
-class Lazy(AbstractPage, mixins.LazyMixin, mixins.ShowCaptionsMixin):
+class Lazy(AbstractPage, LazyMixin, ShowCaptionsMixin):
     """Creates an Lazy Page object from a dictionary with the following
     attributes:
 
@@ -279,33 +262,26 @@ class Lazy(AbstractPage, mixins.LazyMixin, mixins.ShowCaptionsMixin):
         self.validate__lazy_config()
         self.validate__show_captions_config()
 
-    @property
-    def contents(self) -> List[Union["Image", "Video", "Audio", "TextBlock"]]:
+    def build__contents(self) -> List[Union["Image", "Video", "Audio", "TextBlock"]]:
 
         items: List[Union["Image", "Video", "Audio", "TextBlock"]] = []
 
         for path in self._directory_contents:
 
             if path.suffix in Defaults.VALID_IMAGE_EXTENSIONS:
-                item = contents.Image(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+                item = Image(page=self, path=path, caption={Key.TITLE: path.stem})
 
             elif path.suffix in Defaults.VALID_VIDEO_EXTENSIONS:
-                item = contents.Video(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+                item = Video(page=self, path=path, caption={Key.TITLE: path.stem})
 
             elif path.suffix in Defaults.VALID_AUDIO_EXTENSIONS:
-                item = contents.Audio(
-                    page=self, path=path, caption={Key.TITLE: path.stem}
-                )
+                item = Audio(page=self, path=path, caption={Key.TITLE: path.stem})
 
             elif path.suffix in Defaults.VALID_TEXT_EXTENSIONS:
-                item = contents.TextBlock(page=self, path=path)
+                item = TextBlock(page=self, path=path)
 
             else:
-                continue
+                continue  # pragma: no cover
 
             items.append(item)
 
@@ -314,9 +290,7 @@ class Lazy(AbstractPage, mixins.LazyMixin, mixins.ShowCaptionsMixin):
         return items
 
 
-class LazyGallery(
-    AbstractPage, mixins.LazyMixin, mixins.GalleryMixin, mixins.ShowCaptionsMixin,
-):
+class LazyGallery(AbstractPage, LazyMixin, GalleryMixin, ShowCaptionsMixin):
     """Creates an LazyGallery Page object from a dictionary with the following
     attributes:
 
@@ -334,8 +308,7 @@ class LazyGallery(
         self.validate__gallery_config()
         self.validate__show_captions_config()
 
-    @property
-    def contents(self) -> List["Image"]:
+    def build__contents(self) -> List["Image"]:
 
         images: List["Image"] = []
 
@@ -345,7 +318,7 @@ class LazyGallery(
                 logger.warning(f"Unsupported file '{path.name}' found in {self}.")
                 continue
 
-            image: "Image" = contents.Image(page=self, path=path)
+            image = Image(page=self, path=path)
 
             images.append(image)
 
@@ -354,7 +327,7 @@ class LazyGallery(
         return images
 
 
-class Layout(AbstractPage, mixins.LayoutMixin, mixins.ShowCaptionsMixin):
+class Layout(AbstractPage, LayoutMixin, ShowCaptionsMixin):
     """Creates an Layout Page object from a dictionary with the following
     attributes:
 
@@ -371,23 +344,20 @@ class Layout(AbstractPage, mixins.LayoutMixin, mixins.ShowCaptionsMixin):
         self.validate__layout_config()
         self.validate__show_captions_config()
 
-    @property
-    def contents(self) -> List["ContentObj"]:
+    def build__contents(self) -> List["ContentObj"]:
 
         items: List["ContentObj"] = []
 
         for config in self.config.contents:
 
-            item = contents.content_factory.build(page=self, config=config)
+            item = ContentFactory.build(page=self, config=config)
 
             items.append(item)
 
         return items
 
 
-class LayoutGallery(
-    AbstractPage, mixins.LayoutMixin, mixins.GalleryMixin, mixins.ShowCaptionsMixin,
-):
+class LayoutGallery(AbstractPage, LayoutMixin, GalleryMixin, ShowCaptionsMixin):
     """Creates an LayoutGallery Page object from a dictionary with the following
     attributes:
 
@@ -406,14 +376,13 @@ class LayoutGallery(
         self.validate__gallery_config()
         self.validate__show_captions_config()
 
-    @property
-    def contents(self) -> List["Image"]:
+    def build__contents(self) -> List["Image"]:
 
         images: List["Image"] = []
 
         for config in self.config.contents:
 
-            image = contents.Image(page=self, **config)
+            image = Image(page=self, **config)
 
             images.append(image)
 

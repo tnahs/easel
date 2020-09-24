@@ -1,16 +1,17 @@
-import collections
+import collections.abc
 import copy
+import datetime
 import logging
 import os
 import pathlib
 import re
 import unicodedata
-from typing import Union
+from typing import Optional, Union
 
 import yaml
 
-from . import errors
 from .defaults import Defaults
+from .errors import ConfigLoadError
 
 
 logger = logging.getLogger(__name__)
@@ -26,17 +27,15 @@ class Utils:
             with open(path, "r") as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as error:
-            raise errors.ConfigLoadError(
+            raise ConfigLoadError(
                 f"YAML Parsing Error while loading {path}."
             ) from error
         except FileNotFoundError as error:
-            raise errors.ConfigLoadError(
+            raise ConfigLoadError(
                 f"Config '{path.name}' not found in {path.parent}."
             ) from error
         except Exception as error:
-            raise errors.ConfigLoadError(
-                f"Unexpected Error while loading {path}."
-            ) from error
+            raise ConfigLoadError(f"Unexpected Error while loading {path}.") from error
 
         if data is None:
             return {}
@@ -61,6 +60,28 @@ class Utils:
             return ""
 
         return mimetype
+
+    @staticmethod
+    def str_to_datetime(date: str) -> datetime.datetime:
+
+        for date_format in Defaults.DATE_FORMATS:
+            try:
+                datetime_date = datetime.datetime.strptime(date, date_format)
+            except ValueError:
+                """ValueError is raised if the date_string and format can’t be
+                parsed by time.strptime() or if it returns a value which isn’t
+                a time tuple.
+
+                via https://docs.python.org/3/library/datetime.html#datetime.datetime.strptime
+                """
+                continue
+            else:
+                return datetime_date
+
+        raise ValueError(
+            f"Unsupported date format '{date}'. Supported formats are "
+            f"{Defaults.DATE_FORMATS_PRETTY}."
+        )
 
     @staticmethod
     def slugify(string: str, delimiter: str = "-", allow_unicode: bool = False) -> str:
@@ -158,7 +179,7 @@ class Utils:
         return path
 
     @staticmethod
-    def update_dict(original: dict, updates: collections.Mapping) -> dict:
+    def update_dict(original: dict, updates: collections.abc.Mapping) -> dict:
         """Returns a new dictionary with values from 'original' updated
         from the values from 'updates'.
 
@@ -169,7 +190,7 @@ class Utils:
 
         for key, value in updates.items():
 
-            if isinstance(value, collections.Mapping):
+            if isinstance(value, collections.abc.Mapping):
 
                 default = value.copy()  # type: ignore
                 default.clear()

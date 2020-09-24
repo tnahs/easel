@@ -18,6 +18,10 @@ class SiteConfigError(Error):
     pass
 
 
+class ThemeConfigError(Error):
+    pass
+
+
 class MenuConfigError(Error):
     pass
 
@@ -27,10 +31,6 @@ class PageConfigError(Error):
 
 
 class ContentConfigError(Error):
-    pass
-
-
-class TemplateConfigError(Error):
     pass
 
 

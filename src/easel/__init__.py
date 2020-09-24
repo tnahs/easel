@@ -23,8 +23,9 @@ from typing import Optional, Union
 
 from flask import Flask
 
-from .site import Site, errors
+from .site import Site
 from .site.defaults import Key
+from .site.errors import ThemeConfigError
 from .site.globals import Globals
 from .site.helpers import Utils
 
@@ -110,9 +111,6 @@ class Easel(Flask):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:{Globals.site_paths.root}>"
 
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}:{Globals.site_paths.root}"
-
     def _context(self) -> dict:
         # fmt:off
         return {
@@ -126,8 +124,6 @@ class Easel(Flask):
             "pages": self.site.pages,
         }
         # fmt:on
-
-    # TODO:LOW Add a filter to prettify dates.
 
     @staticmethod
     def _filter__site_url(path: str) -> str:
@@ -165,7 +161,8 @@ class Easel(Flask):
 
             try:
                 latest_hashed_path = max(
-                    path_absolute.glob(filename_glob), key=os.path.getctime,
+                    path_absolute.glob(filename_glob),
+                    key=os.path.getctime,
                 )
                 # NOTE: os.path.getctime returns the system’s ctime which, on
                 # Unix-like systems, is the time of the last metadata change,
@@ -174,7 +171,7 @@ class Easel(Flask):
                 # A ValueError is raised by max() if path_absolute.glob()
                 # returns an empty iterator. Meaning there were no files that
                 # matched the glob.
-                raise errors.SiteConfigError(f"Hashed path '{path}' not found.")
+                raise ThemeConfigError(f"Hashed path '{path}' not found.")
             else:
                 # Reassemble the path with the actual name of the hashed file.
                 # -> public/css/bundle.###.css

@@ -1,11 +1,12 @@
 import logging
-import pathlib
 from typing import TYPE_CHECKING, List, Optional
 
-from . import errors, menus, pages
 from .defaults import Key
+from .errors import SiteConfigError
 from .globals import Globals
 from .helpers import Utils
+from .menus import LinkPage, MenuFactory
+from .pages import PageFactory
 
 
 if TYPE_CHECKING:
@@ -28,9 +29,6 @@ class Site:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {Globals.site_paths.root}>"
 
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}: {self.config.title}"
-
     def build(self) -> None:
 
         logger.info(f"Building Site from {Globals.site_paths.root}.")
@@ -45,22 +43,9 @@ class Site:
 
     def _build_pages(self) -> None:
 
-        for path in Globals.site_paths.pages.iterdir():
+        for path in Globals.site_paths.iter_pages():
 
-            if not path.is_dir():
-                continue
-
-            if path.name.startswith(".") or path.name.startswith("_"):
-                continue
-
-            if not list(path.glob(Defaults.FILENAME_PAGE_YAML)):
-                logger.warning(
-                    f"Ignoring path {path}. Path contains no "
-                    f"'{Defaults.FILENAME_PAGE_YAML}' file."
-                )
-                continue
-
-            page = pages.page_factory.build(site=self, path=path)
+            page = PageFactory.build(path=path)
 
             self._pages.append(page)
 
@@ -75,19 +60,35 @@ class Site:
 
         for menu_config in self.config.menu:
 
-            menu = menus.menu_factory.build(site=self, config=menu_config)
+            menu = MenuFactory.build(config=menu_config)
 
             self._menu.append(menu)
 
     def _validate_build(self) -> None:
+        self._validate_index()
+        self._validate_menu()
+
+    def _validate_index(self) -> None:
 
         # NOTE: Boolean types sum like integers!
         index_pages = sum([page.is_index for page in self._pages])
 
         if index_pages > 1 or index_pages < 1:
-            raise errors.SiteConfigError(
-                "Site must have one and only one 'index' page."
-            )
+            raise SiteConfigError("Site must have one and only one 'index' page.")
+
+    def _validate_menu(self) -> None:
+
+        page_urls: List[str] = [page.url for page in self.pages]
+        menu_items: List["LinkPage"] = [
+            menu for menu in self.menu if isinstance(menu, LinkPage)
+        ]
+
+        for menu in menu_items:
+            if menu.url not in page_urls:
+                raise SiteConfigError(
+                    f"Menu item '{menu.label}' has no corresponding page. "
+                    f"Page '{menu.links_to}' not found."
+                )
 
     def rebuild_cache(self) -> None:
         # TODO:LOW This method might have room for some optimization.

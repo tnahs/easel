@@ -1,8 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import ContentConfigError
 from .contents import Audio, Break, Embedded, Header, Image, TextBlock, Video
 
 
@@ -30,7 +30,13 @@ ContentClass = Union[
 ]
 
 ContentObj = Union[
-    "Image", "Video", "Audio", "Embedded", "TextBlock", "Header", "Break",
+    "Image",
+    "Video",
+    "Audio",
+    "Embedded",
+    "TextBlock",
+    "Header",
+    "Break",
 ]
 
 
@@ -53,7 +59,7 @@ class _ContentFactory:
         try:
             content_type: str = config[Key.TYPE]
         except KeyError as error:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{page}: Missing required key '{Key.TYPE}' for Content-like "
                 f"item in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
@@ -64,7 +70,7 @@ class _ContentFactory:
         )
 
         if Content is None:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{page}: Unsupported value '{content_type}' for "
                 f"'{Key.TYPE}' for Content-like item in {Defaults.FILENAME_PAGE_YAML}."
             )
@@ -79,4 +85,4 @@ class _ContentFactory:
         self._content_types[name] = content
 
 
-content_factory = _ContentFactory()
+ContentFactory = _ContentFactory()

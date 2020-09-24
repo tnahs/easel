@@ -1,15 +1,15 @@
 {% from "_macros.html" import render_menu_items with context %}
 
 
-<div id="menu-mobile-buttons">
+<div id="menu-mobile-toggles">
 
     <img
-        class="menu-mobile-button menu-mobile-button--open"
+        class="menu-mobile-toggle menu-mobile-toggle--open"
         src="{{ 'images/menu.png' | theme_url }}"
     >
 
     <img
-        class="menu-mobile-button menu-mobile-button--close"
+        class="menu-mobile-toggle menu-mobile-toggle--close"
         src="{{ 'images/close.png' | theme_url }}"
     >
 
@@ -20,9 +20,7 @@
     <div class="menu-mobile__menu-items">{{ render_menu_items() }}</div>
 
     <div class="menu-mobile__footer">
-        {# TODO:HIGH Decide what goes into the mobile menu footer. #}
-        <div>Lorem ipsum dolor sit.</div>
-        <div>Duis et felis.</div>
+        {% include "_footer.html" %}
     </div>
 
 </div>

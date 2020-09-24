@@ -55,7 +55,7 @@
         grid-template-areas:
             ".           close"
             "contents contents";
-        grid-template-rows: min-content var(--contents-area-height);
+        grid-template-rows: min-content auto;
         grid-template-columns: auto auto;
     }
 }
@@ -106,19 +106,19 @@
     &.show {
         display: block;
     }
+}
 
-    .lightbox__item {
+.lightbox__item {
+    width: inherit;
+    height: inherit;
+
+    img {
         width: inherit;
         height: inherit;
-
-        img {
-            width: inherit;
-            height: inherit;
-            object-fit: contain;
-        }
+        object-fit: contain;
     }
+}
 
-    .lightbox__caption {
-        //
-    }
+.lightbox__caption {
+    // See ./src/scss/_typography.ts
 }

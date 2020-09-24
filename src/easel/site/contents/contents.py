@@ -3,12 +3,13 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Union
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import ContentConfigError, MissingContent, UnsupportedContentType
 from ..globals import Globals
 from ..helpers import Utils
 from ..markdown import markdown
-from . import mixins, proxies
+from .mixins import CaptionMixin
+from .proxies import ProxyColorManager, ProxyImageManager
 
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ class AbstractContent(abc.ABC):
 
     @abc.abstractmethod
     def validate__config(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def config(self) -> dict:
@@ -56,15 +57,12 @@ class FileContent(AbstractContent):
             f"filename:{self.filename}>"
         )
 
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.filename}"
-
     def validate__config(self) -> None:
 
         try:
             self.config[Key.PATH]
         except KeyError as error:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.PATH}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
@@ -72,7 +70,7 @@ class FileContent(AbstractContent):
         # TODO:LOW Check type of self.config[Key.PATH]
 
         if not self.path.exists():
-            raise errors.MissingContent(f"Missing '{self.filename}' in {self.path}.")
+            raise MissingContent(f"Missing '{self.filename}' in {self.path}.")
 
     @property
     def name(self) -> str:
@@ -114,7 +112,7 @@ class FileContent(AbstractContent):
         return Utils.get_mimetype(extension=self.extension)
 
 
-class Image(FileContent, mixins.CaptionMixin):
+class Image(FileContent, CaptionMixin):
     """Creates an Image Content object from a dictionary with the following
     attributes:
 
@@ -129,14 +127,14 @@ class Image(FileContent, mixins.CaptionMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._proxy_images = proxies.ProxyImageManager(image=self)
-        self._proxy_colors = proxies.ProxyColorManager(image=self)
+        self._proxy_images = ProxyImageManager(image=self)
+        self._proxy_colors = ProxyColorManager(image=self)
 
     def validate__config(self) -> None:
         super().validate__config()
 
         if self.extension not in Defaults.VALID_IMAGE_EXTENSIONS:
-            raise errors.UnsupportedContentType(
+            raise UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path}."
             )
@@ -144,15 +142,15 @@ class Image(FileContent, mixins.CaptionMixin):
         self.validate__caption_config()
 
     @property
-    def proxy_images(self) -> "proxies.ProxyImageManager":
+    def proxy_images(self) -> "ProxyImageManager":
         return self._proxy_images
 
     @property
-    def proxy_colors(self) -> "proxies.ProxyColorManager":
+    def proxy_colors(self) -> "ProxyColorManager":
         return self._proxy_colors
 
 
-class Video(FileContent, mixins.CaptionMixin):
+class Video(FileContent, CaptionMixin):
     """Creates an Video Content object from a dictionary with the following
     attributes:
 
@@ -168,7 +166,7 @@ class Video(FileContent, mixins.CaptionMixin):
         super().validate__config()
 
         if self.extension not in Defaults.VALID_VIDEO_EXTENSIONS:
-            raise errors.UnsupportedContentType(
+            raise UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path}."
             )
@@ -176,7 +174,7 @@ class Video(FileContent, mixins.CaptionMixin):
         self.validate__caption_config()
 
 
-class Audio(FileContent, mixins.CaptionMixin):
+class Audio(FileContent, CaptionMixin):
     """Creates an Audio Content object from a dictionary with the following
     attributes:
 
@@ -192,7 +190,7 @@ class Audio(FileContent, mixins.CaptionMixin):
         super().validate__config()
 
         if self.extension not in Defaults.VALID_AUDIO_EXTENSIONS:
-            raise errors.UnsupportedContentType(
+            raise UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path}."
             )
@@ -217,13 +215,13 @@ class TextBlock(FileContent):
         super().validate__config()
 
         if self.extension not in Defaults.VALID_TEXT_EXTENSIONS:
-            raise errors.UnsupportedContentType(
+            raise UnsupportedContentType(
                 f"{self}: Unsupported {self.__class__.__name__} type "
                 f"'{self.filename}' in {self.path}."
             )
 
         if self.align is not None and self.align not in Defaults.VALID_ALIGNMENTS:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
 
@@ -236,7 +234,7 @@ class TextBlock(FileContent):
         return self.config.get(Key.ALIGN, None)
 
 
-class Embedded(AbstractContent, mixins.CaptionMixin):
+class Embedded(AbstractContent, CaptionMixin):
     """Creates an Embedded Content object from a dictionary with the following
     attributes:
 
@@ -254,16 +252,13 @@ class Embedded(AbstractContent, mixins.CaptionMixin):
             f"html:{self.html[:32].strip()}...>"
         )
 
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.html[:32].strip()}..."
-
     def validate__config(self) -> None:
         super().validate__config()
 
         try:
             self.config[Key.HTML]
         except KeyError as error:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.HTML}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
@@ -295,26 +290,23 @@ class Header(AbstractContent):
             f"text:{self.text[:32].strip()}...>"
         )
 
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.text[:32].strip()}..."
-
     def validate__config(self) -> None:
 
         try:
             self.config[Key.TEXT]
         except KeyError as error:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.TEXT}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
         if self.size is not None and self.size not in Defaults.VALID_SIZES:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 
         if self.align is not None and self.align not in Defaults.VALID_ALIGNMENTS:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Unsupported value '{self.align}' for '{Key.ALIGN}'."
             )
 
@@ -352,7 +344,7 @@ class Break(AbstractContent):
     def validate__config(self) -> None:
 
         if self.size is not None and self.size not in Defaults.VALID_SIZES:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page} Unsupported value '{self.size}' for '{Key.SIZE}'."
             )
 

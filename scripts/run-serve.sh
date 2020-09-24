@@ -1,4 +1,4 @@
-# !/bin/zsh
+#!/bin/bash
 
 python -m src.easel \
     --debug \

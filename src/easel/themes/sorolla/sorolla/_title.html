@@ -1,13 +1,20 @@
-{% if config.site.header.title.image.path %}
+{% if config.site.header.title.image is not none %}
+
+    {% set title = config.site.header.title.label
+        if config.site.header.title.label is not none
+        else ""
+    %}
 
     <a href="{{ index.url }}">
         <img
             class="title__image"
-            src="{{ config.site.header.title.image.path | site_url }}"
+            src="{{ config.site.header.title.image | site_url }}"
+            alt="{{ title }}"
         >
     </a>
 
-{% elif config.site.header.title is not none %}
+{% elif config.site.header.title.label is not none
+    or config.site.title is not none %}
 
     {% set title = config.site.header.title.label
         if config.site.header.title.label

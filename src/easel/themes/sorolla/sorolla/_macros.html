@@ -5,7 +5,8 @@
         {% if item.is_link_page %}
 
             {% set current_item = "menu-item--current"
-                if page and page.url == item.url
+                if page
+                and page.url == item.url
                 else ""
             %}
 
@@ -127,7 +128,10 @@
 
     {% if content.caption_title or content.caption_description %}
 
-        {% set align = content.caption_align if content.caption_align else align_default %}
+        {% set align = content.caption_align
+            if content.caption_align
+            else align_default
+        %}
 
         <div class="caption align--{{ align }}">
 

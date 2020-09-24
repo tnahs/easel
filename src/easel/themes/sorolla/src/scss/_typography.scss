@@ -42,7 +42,7 @@ html {
 body {
     font-feature-settings: "liga";
     font-family: var(--font-family--primary);
-    color: var(--color-black-70);
+    color: var(--color-foreground);
 }
 
 code,
@@ -63,13 +63,13 @@ pre {
     }
 
     a {
-        color: var(--color-black-70);
+        color: var(--color-foreground);
 
         text-decoration: underline;
 
         &:hover,
         &:focus {
-            color: var(--color-black-50);
+            color: var(--color-foreground-light);
         }
     }
 
@@ -105,11 +105,16 @@ pre {
         }
 
         &__title {
-            color: var(--color-black-60);
+            color: var(--color-foreground-light);
         }
 
         &__description {
-            color: var(--color-black-40);
+            color: var(--color-foreground-lighter);
         }
+    }
+
+    &.copyright {
+        font-size: 0.9rem;
+        color: var(--color-foreground-lightest);
     }
 }

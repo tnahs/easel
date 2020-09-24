@@ -33,12 +33,12 @@ class BaseProxyManager(abc.ABC):
 
     @abc.abstractmethod
     def cache(self, force: bool) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     @abc.abstractmethod
     def proxies(self) -> list:
-        pass
+        pass  # pragma: no cover
 
     @property
     def image(self) -> "Image":

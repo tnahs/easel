@@ -4,10 +4,10 @@ import json
 import logging
 import os
 import pathlib
-from typing import Any, List, Optional, Union
+from typing import Any, Generator, List, Optional, Union
 
-from . import errors
 from .defaults import Defaults, Key
+from .errors import SiteConfigError
 from .helpers import SafeDict, Utils
 
 
@@ -80,11 +80,15 @@ class GlobalsBase:
 
 class SitePaths(GlobalsBase):
 
-    _root: pathlib.Path
+    _root: Optional[pathlib.Path] = None
 
     @property
     def root(self) -> pathlib.Path:
         """ Returns /absolute/path/to/site-name """
+
+        if self._root is None:
+            raise SiteConfigError("Site root must be set before running.")
+
         return self._root
 
     @root.setter
@@ -97,7 +101,7 @@ class SitePaths(GlobalsBase):
         try:
             root = root.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(f"Site directory {root} not found.") from error
+            raise SiteConfigError(f"Site directory {root} not found.") from error
 
         self._root = root
 
@@ -110,7 +114,7 @@ class SitePaths(GlobalsBase):
         try:
             path_contents = path_contents.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 "Site directory missing 'contents' sub-directory."
             ) from error
 
@@ -125,7 +129,7 @@ class SitePaths(GlobalsBase):
         try:
             path_pages = path_pages.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 "Site directory missing 'pages' sub-directory."
             ) from error
 
@@ -151,6 +155,29 @@ class SitePaths(GlobalsBase):
         """ Returns an absolute url: /site """
         return Utils.urlify("site")
 
+    def iter_pages(self) -> Generator[pathlib.Path, None, None]:
+        """Returns a generator consisting of 'valid' page paths. Paths
+        are filtered down to those which are directories, non private i.e names
+        starting with "." or "_", and directories which contain a 'page.yaml'
+        file."""
+
+        for path in self.pages.iterdir():
+
+            if not path.is_dir():
+                continue
+
+            if path.name.startswith(".") or path.name.startswith("_"):
+                continue
+
+            if not list(path.glob(Defaults.FILENAME_PAGE_YAML)):
+                logger.warning(
+                    f"Ignoring path {path}. Path contains no "
+                    f"'{Defaults.FILENAME_PAGE_YAML}' file."
+                )
+                continue
+
+            yield path
+
 
 class SiteConfig(GlobalsBase):
 
@@ -167,11 +194,7 @@ class SiteConfig(GlobalsBase):
         Key.HEADER: {
             Key.TITLE: {
                 Key.LABEL: None,
-                Key.IMAGE: {
-                    Key.PATH: None,
-                    Key.WIDTH: None,
-                    Key.HEIGHT: None,
-                },
+                Key.IMAGE: None,
             },
         },
         Key.THEME: {
@@ -205,21 +228,21 @@ class SiteConfig(GlobalsBase):
         menu: dict = self._config_user.get(Key.MENU, [])
 
         if type(menu) is not list:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 f"Expected type 'list' for '{Key.MENU}' got '{type(menu).__name__}'."
             )
 
         header: dict = self._config_user.get(Key.HEADER, {})
 
         if type(header) is not dict:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 f"Expected type 'dict' for '{Key.HEADER}' got '{type(header).__name__}'."
             )
 
         theme: dict = self._config_user.get(Key.THEME, {})
 
         if type(theme) is not dict:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 f"Expected type 'dict' for '{Key.THEME}' got '{type(theme).__name__}'."
             )
 
@@ -270,9 +293,9 @@ class ThemePaths(GlobalsBase):
 
     def load(self) -> None:
 
-        self._root = self._get_root_dispatcher()
+        self._root = self._get_root__dispatcher()
 
-    def _get_root_dispatcher(self) -> pathlib.Path:
+    def _get_root__dispatcher(self) -> pathlib.Path:
 
         # Grab 'theme.name' and 'theme.custom-path' from the 'site.yaml'.
         name = self.globals.site_config.theme_name
@@ -301,7 +324,7 @@ class ThemePaths(GlobalsBase):
         try:
             root = root.resolve(strict=True)
         except FileNotFoundError as error:
-            raise errors.SiteConfigError(f"Custom theme {path} not found.") from error
+            raise SiteConfigError(f"Custom theme {path} not found.") from error
 
         logger.info(f"Using custom theme from {path}.")
 
@@ -316,9 +339,7 @@ class ThemePaths(GlobalsBase):
         try:
             installed_theme = importlib.__import__(module_name)
         except ModuleNotFoundError as error:
-            raise errors.SiteConfigError(
-                f"Installed theme '{name}' not found."
-            ) from error
+            raise SiteConfigError(f"Installed theme '{name}' not found.") from error
 
         logger.info(f"Using installed theme '{name}'.")
 
@@ -348,7 +369,7 @@ class ThemePaths(GlobalsBase):
         and TypeScript files."""
 
         if name not in Defaults.VALID_BUILTIN_THEME_NAMES:
-            raise errors.SiteConfigError(
+            raise SiteConfigError(
                 f"Invalid theme name '{name}'. Available built-in themes are: "
                 f"{Defaults.VALID_BUILTIN_THEME_NAMES}"
             )

@@ -1,0 +1,7 @@
+# tests/site-testing/contents/pages/page-lazy/page.yaml
+type: lazy
+
+title: PageLazy
+date: 2020-01-01
+description: ./description.md
+cover: ./cover.jpg

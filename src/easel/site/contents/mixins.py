@@ -2,8 +2,8 @@ import abc
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from .. import errors
 from ..defaults import Defaults, Key
+from ..errors import ContentConfigError
 from ..markdown import markdown
 
 
@@ -29,12 +29,12 @@ class CaptionMixin(abc.ABC):
     @property
     @abc.abstractmethod
     def config(self) -> dict:
-        pass
+        pass  # pragma: no cover
 
     @property
     @abc.abstractmethod
     def page(self) -> "PageObj":
-        pass
+        pass  # pragma: no cover
 
     @property
     def _caption_config(self) -> dict:
@@ -55,7 +55,7 @@ class CaptionMixin(abc.ABC):
     def validate__caption_config(self) -> None:
 
         if type(self._caption_config) is not dict:
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Expected type 'dict' for "
                 f"'{Key.CAPTION}' got '{type(self._caption_config).__name__}'."
             )
@@ -64,6 +64,6 @@ class CaptionMixin(abc.ABC):
             self.caption_align is not None
             and self.caption_align not in Defaults.VALID_ALIGNMENTS
         ):
-            raise errors.ContentConfigError(
+            raise ContentConfigError(
                 f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
             )

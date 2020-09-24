@@ -6,9 +6,9 @@ class MenuMobile {
     readonly FADE_IN_OUT_CLASS = "animation--fade-in-out"
     readonly FADE_IN_OUT_DELAY: number = 25
 
-    buttons = document.querySelector<HTMLElement>("#menu-mobile-buttons")!
-    buttonOpen = this.buttons.querySelector<HTMLElement>(".menu-mobile-button--open")!
-    buttonClose = this.buttons.querySelector<HTMLElement>(".menu-mobile-button--close")!
+    toggles = document.querySelector<HTMLElement>("#menu-mobile-toggles")!
+    toggleOpen = this.toggles.querySelector<HTMLElement>(".menu-mobile-toggle--open")!
+    toggleClose = this.toggles.querySelector<HTMLElement>(".menu-mobile-toggle--close")!
 
     private main = document.querySelector<HTMLElement>("#menu-mobile")!
     private menuItems = this.main.querySelectorAll<HTMLElement>(".menu-item")!
@@ -18,7 +18,7 @@ class MenuMobile {
     private elements__toFadeOut = [...this.elements__toFadeIn].reverse()
 
     private keyboardController = new MenuMobileKeyboardController(this)
-    private uiButtonsController = new MenuMobileUIButtonsController(this)
+    private uiTogglesController = new MenuMobileUITogglesController(this)
 
     isVisible: boolean = false
 
@@ -34,8 +34,8 @@ class MenuMobile {
         })
 
         this.isVisible = true
-        this.buttonOpen.style.display = "none"
-        this.buttonClose.style.display = "block"
+        this.toggleOpen.style.display = "none"
+        this.toggleClose.style.display = "block"
 
         // Prevent body scrolling.
         document.body.style.overflow = "hidden"
@@ -49,8 +49,8 @@ class MenuMobile {
         })
 
         this.isVisible = false
-        this.buttonOpen.style.display = "block"
-        this.buttonClose.style.display = "none"
+        this.toggleOpen.style.display = "block"
+        this.toggleClose.style.display = "none"
 
         // Re-enable body scrolling.
         document.body.style.overflow = "auto"
@@ -68,12 +68,12 @@ abstract class MenuMobileController {
     protected abstract setup(): void
 }
 
-class MenuMobileUIButtonsController extends MenuMobileController {
+class MenuMobileUITogglesController extends MenuMobileController {
     protected setup(): void {
-        this.menuMobile.buttonOpen.addEventListener("click", () => {
+        this.menuMobile.toggleOpen.addEventListener("click", () => {
             this.menuMobile.open()
         })
-        this.menuMobile.buttonClose.addEventListener("click", () => {
+        this.menuMobile.toggleClose.addEventListener("click", () => {
             this.menuMobile.close()
         })
     }
@@ -94,6 +94,5 @@ class MenuMobileKeyboardController extends MenuMobileController {
 }
 
 window.addEventListener("load", () => {
-    // FIXME:LOW Safari loads the closing animation when the page loads.
     new MenuMobile().setup()
 })
