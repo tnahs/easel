@@ -33,8 +33,8 @@ ContentObj = Union[
     "Image",
     "Video",
     "Audio",
-    "Embedded",
     "TextBlock",
+    "Embedded",
     "Header",
     "Break",
 ]
@@ -42,7 +42,7 @@ ContentObj = Union[
 
 class _ContentFactory:
 
-    _content_types = {
+    _types = {
         Key.IMAGE: Image,
         Key.VIDEO: Video,
         Key.AUDIO: Audio,
@@ -65,9 +65,7 @@ class _ContentFactory:
             ) from error
 
         # Get Content class based on 'content_type'.
-        Content: Optional["ContentClass"] = self.content_types(
-            content_type=content_type
-        )
+        Content: Optional["ContentClass"] = self.get_type(name=content_type)
 
         if Content is None:
             raise ContentConfigError(
@@ -77,12 +75,12 @@ class _ContentFactory:
 
         return Content(page=page, **config)
 
-    def content_types(self, content_type: str) -> Optional["ContentClass"]:
-        return self._content_types.get(content_type, None)
+    def get_type(self, name: str) -> Optional["ContentClass"]:
+        return self._types.get(name, None)
 
-    def register_content_type(self, name: str, content: Any) -> None:
+    def register(self, name: str, obj: Any) -> None:
         """ Register new Content-like object. """
-        self._content_types[name] = content
+        self._types[name] = obj
 
 
 ContentFactory = _ContentFactory()

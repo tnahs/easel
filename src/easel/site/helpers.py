@@ -47,7 +47,7 @@ class Utils:
         return value.upper() in ["TRUE", "ENABLED", "YES", "1"]
 
     @staticmethod
-    def get_mimetype(extension: str) -> str:
+    def get_mimetype(extension: str) -> Optional[str]:
         """ Returns appropriate MIME Type for a file extension. """
 
         if not extension.startswith("."):
@@ -57,7 +57,6 @@ class Utils:
 
         if mimetype is None:
             logger.warning(f"Unsupported MIME Type '{extension}' detected.")
-            return ""
 
         return mimetype
 

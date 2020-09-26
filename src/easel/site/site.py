@@ -43,11 +43,16 @@ class Site:
 
     def _build_pages(self) -> None:
 
-        for path in Globals.site_paths.iter_pages():
+        if not len(list(Globals.site_paths.iter_pages())):
+            logger.warn(
+                "No pages will be generated. Site pages directory contains no "
+                "page directories."
+            )
+            return
 
-            page = PageFactory.build(path=path)
-
-            self._pages.append(page)
+        self._pages = [
+            PageFactory.build(path=path) for path in Globals.site_paths.iter_pages()
+        ]
 
     def _build_menu(self) -> None:
 
@@ -58,11 +63,7 @@ class Site:
             )
             return
 
-        for menu_config in self.config.menu:
-
-            menu = MenuFactory.build(config=menu_config)
-
-            self._menu.append(menu)
+        self._menu = [MenuFactory.build(config=config) for config in self.config.menu]
 
     def _validate_build(self) -> None:
         self._validate_index()
@@ -70,7 +71,7 @@ class Site:
 
     def _validate_index(self) -> None:
 
-        # NOTE: Boolean types sum like integers!
+        # Boolean types sum like integers!
         index_pages = sum([page.is_index for page in self._pages])
 
         if index_pages > 1 or index_pages < 1:
@@ -79,15 +80,16 @@ class Site:
     def _validate_menu(self) -> None:
 
         page_urls: List[str] = [page.url for page in self.pages]
+
         menu_items: List["LinkPage"] = [
             menu for menu in self.menu if isinstance(menu, LinkPage)
         ]
 
-        for menu in menu_items:
-            if menu.url not in page_urls:
+        for menu_item in menu_items:
+            if menu_item.url not in page_urls:
                 raise SiteConfigError(
-                    f"Menu item '{menu.label}' has no corresponding page. "
-                    f"Page '{menu.links_to}' not found."
+                    f"Menu item '{menu_item.label}' has no corresponding "
+                    f"page. Page '{menu_item.links_to}' not found."
                 )
 
     def rebuild_cache(self) -> None:

@@ -34,7 +34,7 @@ class ContentConfigError(Error):
     pass
 
 
-class MissingContent(Error):
+class MissingFile(Error):
     pass
 
 

@@ -37,6 +37,6 @@ def test__PageFactory__register_type():
     name = "custom-page-type"
     obj = CustomPageType
 
-    PageFactory.register_page_type(name=name, page=obj)
+    PageFactory.register(name=name, obj=obj)
 
-    assert PageFactory.page_types(name) == obj
+    assert PageFactory.get_type(name=name) == obj

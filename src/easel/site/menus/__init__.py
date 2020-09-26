@@ -25,7 +25,7 @@ MenuObj = Union[
 
 class _MenuFactory:
 
-    _menu_types = {
+    _types = {
         Key.LINK_PAGE: LinkPage,
         Key.LINK_URL: LinkURL,
         Key.SPACER: Spacer,
@@ -44,7 +44,7 @@ class _MenuFactory:
             ) from error
 
         # Get Menu class based on 'menu_type'.
-        Menu: Optional["MenuClass"] = self.menu_types(menu_type=menu_type)
+        Menu: Optional["MenuClass"] = self.get_type(name=menu_type)
 
         if Menu is None:
             raise MenuConfigError(
@@ -54,12 +54,12 @@ class _MenuFactory:
 
         return Menu(**config)
 
-    def menu_types(self, menu_type: str) -> Optional["MenuClass"]:
-        return self._menu_types.get(menu_type, None)
+    def get_type(self, name: str) -> Optional["MenuClass"]:
+        return self._types.get(name, None)
 
-    def register_menu_type(self, name: str, menu: Any) -> None:
+    def register(self, name: str, obj: Any) -> None:
         """ Register new Menu-like object. """
-        self._menu_types[name] = menu
+        self._types[name] = obj
 
 
 MenuFactory = _MenuFactory()

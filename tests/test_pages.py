@@ -1,13 +1,13 @@
 import pytest
 
 from easel.site.contents import ContentClass, Image, TextBlock
-from easel.site.errors import MissingContent, PageConfigError
+from easel.site.errors import MissingFile, PageConfigError
 from easel.site.pages import PageClass
 
 from .conftest import PageTestConfig
 
 
-def run__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
+def run__Page__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 
@@ -36,7 +36,7 @@ def run__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
     assert isinstance(page.cover, Image)
 
 
-def run__valid__no_date_cover_description(
+def run__Page__no_date_cover_description(
     cls: "PageClass", ptc: "PageTestConfig"
 ) -> None:
 
@@ -57,7 +57,7 @@ def run__valid__no_date_cover_description(
     assert page.cover is None
 
 
-def run__invalid__invaid_date_format(cls: "PageClass", ptc: "PageTestConfig") -> None:
+def run__Page__invaid_date_format(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
     page_yaml = ptc.page_yaml
     page_yaml["date"] = "invalid-date-format"
@@ -66,25 +66,25 @@ def run__invalid__invaid_date_format(cls: "PageClass", ptc: "PageTestConfig") ->
         cls(path=ptc.path, config=page_yaml)
 
 
-def run__invalid__missing_description(cls: "PageClass", ptc: "PageTestConfig") -> None:
+def run__Page__missing_description(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
     page_yaml = ptc.page_yaml
     page_yaml["description"] = "./missing-description.md"
 
-    with pytest.raises(MissingContent):
+    with pytest.raises(MissingFile):
         cls(path=ptc.path, config=page_yaml)
 
 
-def run__invalid__missing_cover(cls: "PageClass", ptc: "PageTestConfig") -> None:
+def run__Page__missing_cover(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
     page_yaml = ptc.page_yaml
     page_yaml["cover"] = "./missing-cover.jpg"
 
-    with pytest.raises(MissingContent):
+    with pytest.raises(MissingFile):
         cls(path=ptc.path, config=page_yaml)
 
 
-def run__invalid_options_type(cls: "PageClass", ptc: "PageTestConfig") -> None:
+def run__Page__invalid_options_type(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
     page_yaml = ptc.page_yaml
     page_yaml["options"] = "invalid-type"
@@ -93,31 +93,31 @@ def run__invalid_options_type(cls: "PageClass", ptc: "PageTestConfig") -> None:
         cls(path=ptc.path, config=page_yaml)
 
 
-def test__valid(all_pages) -> None:
+def test__Page__valid(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__valid(cls=cls, ptc=ptc)
+        run__Page__valid(cls=cls, ptc=ptc)
 
 
-def test__valid__no_date_cover_description(all_pages) -> None:
+def test__Page__no_date_cover_description(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__valid__no_date_cover_description(cls=cls, ptc=ptc)
+        run__Page__no_date_cover_description(cls=cls, ptc=ptc)
 
 
-def test__invalid__invaid_date_format(all_pages) -> None:
+def test__Page__invaid_date_format(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__invalid__invaid_date_format(cls=cls, ptc=ptc)
+        run__Page__invaid_date_format(cls=cls, ptc=ptc)
 
 
-def test__invalid__missing_description(all_pages) -> None:
+def test__Page__missing_description(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__invalid__missing_description(cls=cls, ptc=ptc)
+        run__Page__missing_description(cls=cls, ptc=ptc)
 
 
-def test__invalid__missing_cover(all_pages) -> None:
+def test__Page__missing_cover(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__invalid__missing_cover(cls=cls, ptc=ptc)
+        run__Page__missing_cover(cls=cls, ptc=ptc)
 
 
-def test__invalid_options_type(all_pages) -> None:
+def test__Page__invalid_options_type(all_pages) -> None:
     for cls, ptc in all_pages.items():
-        run__invalid_options_type(cls=cls, ptc=ptc)
+        run__Page__invalid_options_type(cls=cls, ptc=ptc)

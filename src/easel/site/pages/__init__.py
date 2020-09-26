@@ -44,7 +44,7 @@ PageObj = Union[
 
 class _PageFactory:
 
-    _page_types = {
+    _types = {
         Key.LAZY: Lazy,
         Key.LAYOUT: Layout,
         Key.LAZY_GALLERY: LazyGallery,
@@ -66,7 +66,7 @@ class _PageFactory:
             ) from error
 
         # Get Page class based on 'page_type'.
-        Page: Optional["PageClass"] = self.page_types(page_type=page_type)
+        Page: Optional["PageClass"] = self.get_type(name=page_type)
 
         if Page is None:
             raise PageConfigError(
@@ -76,12 +76,12 @@ class _PageFactory:
 
         return Page(path=path, config=page_config)
 
-    def page_types(self, page_type: str) -> Optional["PageClass"]:
-        return self._page_types.get(page_type, None)
+    def get_type(self, name: str) -> Optional["PageClass"]:
+        return self._types.get(name, None)
 
-    def register_page_type(self, name: str, page: Any) -> None:
+    def register(self, name: str, obj: Any) -> None:
         """ Register new Page-like object. """
-        self._page_types[name] = page
+        self._types[name] = obj
 
 
 PageFactory = _PageFactory()

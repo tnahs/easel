@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..contents import Audio, ContentFactory, Image, TextBlock, Video
 from ..defaults import Defaults, Key
-from ..errors import MissingContent, PageConfigError
+from ..errors import MissingFile, PageConfigError
 from ..helpers import Utils
 from .mixins import GalleryMixin, LayoutMixin, LazyMixin, ShowCaptionsMixin
 
@@ -110,7 +110,7 @@ class AbstractPage(abc.ABC):
         try:
             path = path.resolve(strict=True)
         except FileNotFoundError as error:
-            raise MissingContent(f"Missing description {path} for {self}.") from error
+            raise MissingFile(f"Missing description {path} for {self}.") from error
 
         self._description = TextBlock(page=self, path=path)
 
@@ -124,7 +124,7 @@ class AbstractPage(abc.ABC):
         try:
             path = path.resolve(strict=True)
         except FileNotFoundError as error:
-            raise MissingContent(f"Missing cover {path} for {self}.") from error
+            raise MissingFile(f"Missing cover {path} for {self}.") from error
 
         self._cover = Image(page=self, path=path)
 

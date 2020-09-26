@@ -1,10 +1,10 @@
 import abc
 import logging
 import pathlib
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from ..defaults import Defaults, Key
-from ..errors import ContentConfigError, MissingContent, UnsupportedContentType
+from ..errors import ContentConfigError, MissingFile, UnsupportedContentType
 from ..globals import Globals
 from ..helpers import Utils
 from ..markdown import markdown
@@ -41,7 +41,7 @@ class AbstractContent(abc.ABC):
         return self._page
 
 
-class FileContent(AbstractContent):
+class File(AbstractContent):
     """Provides subclasses with file attributes for loading content from disk.
     Requires that the config dictionary contain with the following
     attributes:
@@ -60,17 +60,27 @@ class FileContent(AbstractContent):
     def validate__config(self) -> None:
 
         try:
-            self.config[Key.PATH]
+            path = self.config[Key.PATH]
         except KeyError as error:
             raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.PATH}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
 
-        # TODO:LOW Check type of self.config[Key.PATH]
+        if type(path) is not str and not isinstance(path, pathlib.Path):
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'str' or 'pathlib.Path' for "
+                f"'{Key.PATH}' got '{type(path).__name__}'."
+            )
+
+        if not path:
+            raise ContentConfigError(
+                f"{self.page}: Required key '{Key.PATH}' for "
+                f"{self.__class__.__name__} cannot be blank."
+            )
 
         if not self.path.exists():
-            raise MissingContent(f"Missing '{self.filename}' in {self.path}.")
+            raise MissingFile(f"Missing '{self.filename}' in {self.path}.")
 
     @property
     def name(self) -> str:
@@ -89,7 +99,7 @@ class FileContent(AbstractContent):
 
     @property
     def path(self) -> pathlib.Path:
-        """ Returns an absolute path to the FileContent. """
+        """ Returns an absolute path to the File. """
 
         path = self.config[Key.PATH]
 
@@ -108,11 +118,11 @@ class FileContent(AbstractContent):
         return self.path.relative_to(Globals.site_paths.root)
 
     @property
-    def mimetype(self) -> str:
+    def mimetype(self) -> Optional[str]:
         return Utils.get_mimetype(extension=self.extension)
 
 
-class Image(FileContent, CaptionMixin):
+class Image(File, CaptionMixin):
     """Creates an Image Content object from a dictionary with the following
     attributes:
 
@@ -150,7 +160,7 @@ class Image(FileContent, CaptionMixin):
         return self._proxy_colors
 
 
-class Video(FileContent, CaptionMixin):
+class Video(File, CaptionMixin):
     """Creates an Video Content object from a dictionary with the following
     attributes:
 
@@ -174,7 +184,7 @@ class Video(FileContent, CaptionMixin):
         self.validate__caption_config()
 
 
-class Audio(FileContent, CaptionMixin):
+class Audio(File, CaptionMixin):
     """Creates an Audio Content object from a dictionary with the following
     attributes:
 
@@ -198,7 +208,7 @@ class Audio(FileContent, CaptionMixin):
         self.validate__caption_config()
 
 
-class TextBlock(FileContent):
+class TextBlock(File):
     """Creates an TextBlock Content object from a dictionary with the
     following attributes:
 
@@ -256,12 +266,18 @@ class Embedded(AbstractContent, CaptionMixin):
         super().validate__config()
 
         try:
-            self.config[Key.HTML]
+            html = self.config[Key.HTML]
         except KeyError as error:
             raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.HTML}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
+
+        if type(html) is not str:
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'str' or for '{Key.HTML}' got "
+                f"'{type(html).__name__}'."
+            )
 
         self.validate__caption_config()
 
@@ -293,12 +309,18 @@ class Header(AbstractContent):
     def validate__config(self) -> None:
 
         try:
-            self.config[Key.TEXT]
+            text = self.config[Key.TEXT]
         except KeyError as error:
             raise ContentConfigError(
                 f"{self.page}: Missing required key '{Key.TEXT}' for "
                 f"{self.__class__.__name__} in {Defaults.FILENAME_PAGE_YAML}."
             ) from error
+
+        if type(text) is not str:
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'str' or for '{Key.TEXT}' got "
+                f"'{type(text).__name__}'."
+            )
 
         if self.size is not None and self.size not in Defaults.VALID_SIZES:
             raise ContentConfigError(

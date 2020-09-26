@@ -23,27 +23,20 @@ def test__MenuFactory__valid():
         },
     ]
 
-    for menu_config in config:
-        MenuFactory.build(config=menu_config)
+    for config in config:
+        MenuFactory.build(config=config)
 
 
 def test__MenuFactory__missing_type():
 
-    config = {
-        "label": "missing-type",
-        "links-to": "/missing-type",
-    }
-
     with pytest.raises(MenuConfigError):
-        MenuFactory.build(config=config)
+        MenuFactory.build(config={})
 
 
 def test__MenuFactory__invalid_type():
 
     config = {
         "type": "invalid-type",
-        "label": "invalid-type",
-        "links-to": "/invalid-type",
     }
 
     with pytest.raises(MenuConfigError):
@@ -57,6 +50,6 @@ def test__MenuFactory__register_type():
     name = "custom-menu-type"
     obj = CustomMenuType
 
-    MenuFactory.register_menu_type(name=name, menu=obj)
+    MenuFactory.register(name=name, obj=obj)
 
-    assert MenuFactory.menu_types(name) == obj
+    assert MenuFactory.get_type(name=name) == obj
