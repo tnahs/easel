@@ -1,0 +1,4 @@
+menu:
+  - type: link-page
+    label: MissingPage
+    links-to: ./pages/missing-page

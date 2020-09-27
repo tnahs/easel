@@ -3,23 +3,10 @@ import pytest
 from easel.site.contents import ContentFactory
 from easel.site.defaults import Key
 from easel.site.errors import ContentConfigError
-from easel.site.globals import Globals
-from easel.site.pages import Layout, PageObj
-
-from .conftest import PageTestConfig
+from easel.site.pages import PageObj
 
 
-@pytest.fixture
-def page() -> "PageObj":
-    ptc = PageTestConfig(
-        # ./tests/site-testing/contents/other-pages/test-contents
-        path=(Globals.site_paths.contents / "other-pages" / "test-contents")
-    )
-
-    return Layout(path=ptc.path, config=ptc.page_yaml)
-
-
-def test__MenuFactory__valid(page):
+def test__ContentFactory__valid(page_test_content_types: "PageObj") -> None:
 
     contents = [
         {
@@ -52,26 +39,26 @@ def test__MenuFactory__valid(page):
     ]
 
     for config in contents:
-        ContentFactory.build(page=page, config=config)
+        ContentFactory.build(page=page_test_content_types, config=config)
 
 
-def test__MenuFactory__missing_type(page):
+def test__ContentFactory__missing_type(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        ContentFactory.build(page=page, config={})
+        ContentFactory.build(page=page_test_content_types, config={})
 
 
-def test__MenuFactory__invalid_type(page):
+def test__ContentFactory__invalid_type(page_test_content_types: "PageObj") -> None:
 
     config = {
         "type": "invalid-type",
     }
 
     with pytest.raises(ContentConfigError):
-        ContentFactory.build(page=page, config=config)
+        ContentFactory.build(page=page_test_content_types, config=config)
 
 
-def test__MenuFactory__register_type():
+def test__ContentFactory__register_type() -> None:
     class CustomContentType:
         pass
 

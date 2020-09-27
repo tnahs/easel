@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, List, Optional
 
 from .defaults import Key
-from .errors import SiteConfigError
+from .errors import Error, SiteConfigError
 from .globals import Globals
 from .helpers import Utils
 from .menus import LinkPage, MenuFactory
@@ -23,8 +23,10 @@ from .defaults import Defaults
 
 class Site:
 
-    _pages: List["PageObj"] = []
-    _menu: List["MenuObj"] = []
+    _pages: Optional[List["PageObj"]] = None
+    _menu: Optional[List["MenuObj"]] = None
+
+    _index: Optional["PageObj"] = None
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {Globals.site_paths.root}>"
@@ -33,22 +35,21 @@ class Site:
 
         logger.info(f"Building Site from {Globals.site_paths.root}.")
 
-        if logger.getEffectiveLevel() > logging.DEBUG:
+        if logger.getEffectiveLevel() > logging.DEBUG:  # pragma: no cover
             logger.info("Set 'loglevel' to 'DEBUG' for more information.")
 
+        self._build()
+        self._validate()
+
+    def _build(self) -> None:
         self._build_pages()
         self._build_menu()
-
-        self._validate_build()
+        self._set_index()
 
     def _build_pages(self) -> None:
 
         if not len(list(Globals.site_paths.iter_pages())):
-            logger.warn(
-                "No pages will be generated. Site pages directory contains no "
-                "page directories."
-            )
-            return
+            raise SiteConfigError("Site pages directory contains no page directories.")
 
         self._pages = [
             PageFactory.build(path=path) for path in Globals.site_paths.iter_pages()
@@ -57,17 +58,25 @@ class Site:
     def _build_menu(self) -> None:
 
         if not self.config.menu:
-            logger.warn(
+            logger.warning(
                 f"No menu will be generated. Key '{Key.MENU}' in "
                 f"{Defaults.FILENAME_SITE_YAML} is empty."
             )
-            return
 
         self._menu = [MenuFactory.build(config=config) for config in self.config.menu]
 
-    def _validate_build(self) -> None:
-        self._validate_index()
+    def _set_index(self) -> None:
+
+        for page in self._pages:
+
+            if not page.is_index:
+                continue
+
+            self._index = page
+
+    def _validate(self) -> None:
         self._validate_menu()
+        self._validate_index()
 
     def _validate_index(self) -> None:
 
@@ -112,29 +121,33 @@ class Site:
 
     @property
     def pages(self) -> List["PageObj"]:
+
+        if self._pages is None:
+            raise Error("Site must be built before accessing pages.")
+
         return self._pages
 
     @property
     def menu(self) -> List["MenuObj"]:
+
+        if self._menu is None:
+            raise Error("Site must be built before accessing menu.")
+
         return self._menu
 
     @property
-    def index(self) -> Optional["PageObj"]:
+    def index(self) -> "PageObj":
 
-        for page in self._pages:
+        if self._index is None:
+            raise Error("Site must be built before accessing index.")
 
-            if not page.is_index:
-                continue
-
-            return page
-
-        return None
+        return self._index
 
     def get_page(self, page_url: str) -> Optional["PageObj"]:
 
         page_url = Utils.normalize_page_path(path=page_url)
 
-        for page in self._pages:
+        for page in self.pages:
 
             if page.url != page_url:
                 continue

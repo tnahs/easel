@@ -5,20 +5,7 @@ from easel.site.contents.contents import File
 from easel.site.defaults import Key
 from easel.site.errors import ContentConfigError, MissingFile, UnsupportedContentType
 from easel.site.globals import Globals
-from easel.site.pages import Layout, PageObj
-
-from .conftest import PageTestConfig
-
-
-# TODO:LOW This fixture is share between 'test_content*.py' files...
-@pytest.fixture
-def page() -> "PageObj":
-    ptc = PageTestConfig(
-        # ./tests/site-testing/contents/other-pages/test-contents
-        path=(Globals.site_paths.contents / "other-pages" / "test-contents")
-    )
-
-    return Layout(path=ptc.path, config=ptc.page_yaml)
+from easel.site.pages import PageObj
 
 
 # -----------------------------------------------------------------------------
@@ -26,73 +13,76 @@ def page() -> "PageObj":
 # -----------------------------------------------------------------------------
 
 
-def test__File__valid(page: "PageObj") -> None:
+def test__File__valid(page_test_content_types: "PageObj") -> None:
 
     file_name = "file"
     file_extension = ".ext"
     file_filename = f"{file_name}{file_extension}"
     file_path = f"./{file_filename}"
     # ./contents/pages/page-name/filename
-    file_src = page.path.relative_to(Globals.site_paths.root) / file_filename
+    file_src = (
+        page_test_content_types.path.relative_to(Globals.site_paths.root)
+        / file_filename
+    )
 
     file_config = {
         Key.PATH: file_path,
     }
 
-    file = File(page=page, **file_config)
+    file = File(page=page_test_content_types, **file_config)
 
     repr(file)
 
     assert file.name == file_name
     assert file.filename == file_filename
     assert file.extension == file_extension
-    assert file.path == page.path / file_path
+    assert file.path == page_test_content_types.path / file_path
     assert file.src == file_src
 
 
-def test__File__missing_path(page: "PageObj") -> None:
+def test__File__missing_path(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        File(page=page)
+        File(page=page_test_content_types)
 
     with pytest.raises(ContentConfigError):
-        File(page=page, **{})
+        File(page=page_test_content_types, **{})
 
 
-def test__File__invalid_path_type(page: "PageObj") -> None:
-
-    with pytest.raises(ContentConfigError):
-        File(page=page, path=42)
+def test__File__invalid_path_type(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        File(page=page, path=None)
-
-
-def test__File__blank_path(page: "PageObj") -> None:
+        File(page=page_test_content_types, path=42)
 
     with pytest.raises(ContentConfigError):
-        File(page=page, path="")
+        File(page=page_test_content_types, path=None)
 
 
-def test__File__missing_file(page: "PageObj") -> None:
+def test__File__blank_path(page_test_content_types: "PageObj") -> None:
+
+    with pytest.raises(ContentConfigError):
+        File(page=page_test_content_types, path="")
+
+
+def test__File__missing_file(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(MissingFile):
-        File(page=page, path="missing-file.ext")
+        File(page=page_test_content_types, path="missing-file.ext")
 
 
-def test__File__unsupported_content_type(page: "PageObj") -> None:
-
-    with pytest.raises(UnsupportedContentType):
-        Image(page=page, path="./file.ext")
+def test__File__unsupported_content_type(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(UnsupportedContentType):
-        Audio(page=page, path="./file.ext")
+        Image(page=page_test_content_types, path="./file.ext")
 
     with pytest.raises(UnsupportedContentType):
-        Video(page=page, path="./file.ext")
+        Video(page=page_test_content_types, path="./file.ext")
 
     with pytest.raises(UnsupportedContentType):
-        TextBlock(page=page, path="./file.ext")
+        Audio(page=page_test_content_types, path="./file.ext")
+
+    with pytest.raises(UnsupportedContentType):
+        TextBlock(page=page_test_content_types, path="./file.ext")
 
 
 # -----------------------------------------------------------------------------
@@ -100,9 +90,9 @@ def test__File__unsupported_content_type(page: "PageObj") -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Image__valid(page: "PageObj") -> None:
+def test__Image__valid(page_test_content_types: "PageObj") -> None:
 
-    image = Image(page=page, path="./contents/image.jpg")
+    image = Image(page=page_test_content_types, path="./contents/image.jpg")
 
     assert image.mimetype is None
 
@@ -116,10 +106,10 @@ def test__Image__valid(page: "PageObj") -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Audio__mimetype(page: "PageObj") -> None:
+def test__Audio__mimetype(page_test_content_types: "PageObj") -> None:
 
-    mp3 = Audio(page=page, path="./contents/audio.mp3")
-    wav = Audio(page=page, path="./contents/audio.wav")
+    mp3 = Audio(page=page_test_content_types, path="./contents/audio.mp3")
+    wav = Audio(page=page_test_content_types, path="./contents/audio.wav")
 
     assert mp3.mimetype == "audio/mpeg"
     assert wav.mimetype == "audio/wav"
@@ -130,11 +120,11 @@ def test__Audio__mimetype(page: "PageObj") -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Video__mimetypes(page: "PageObj") -> None:
+def test__Video__mimetypes(page_test_content_types: "PageObj") -> None:
 
-    mp4 = Video(page=page, path="./contents/video.mp4")
-    webm = Video(page=page, path="./contents/video.webm")
-    mov = Video(page=page, path="./contents/video.mov")
+    mp4 = Video(page=page_test_content_types, path="./contents/video.mp4")
+    webm = Video(page=page_test_content_types, path="./contents/video.webm")
+    mov = Video(page=page_test_content_types, path="./contents/video.mov")
 
     assert mp4.mimetype == "video/mp4"
     assert webm.mimetype == "video/webm"
@@ -146,21 +136,21 @@ def test__Video__mimetypes(page: "PageObj") -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__TextBlock__text_block(page: "PageObj") -> None:
+def test__TextBlock__valid(page_test_content_types: "PageObj") -> None:
 
     config = {
         Key.PATH: "./contents/text-block.md",
         Key.ALIGN: None,
     }
 
-    text_block = TextBlock(page=page, **config)
+    text_block = TextBlock(page=page_test_content_types, **config)
 
     assert text_block.body == "<h1>TextBlock</h1>"
     assert text_block.align is None
     assert text_block.mimetype is None
 
 
-def test__TextBlock__invalid_alignment(page: "PageObj") -> None:
+def test__TextBlock__invalid_alignment(page_test_content_types: "PageObj") -> None:
 
     config = {
         Key.PATH: "./contents/text-block.md",
@@ -168,7 +158,7 @@ def test__TextBlock__invalid_alignment(page: "PageObj") -> None:
     }
 
     with pytest.raises(ContentConfigError):
-        TextBlock(page=page, **config)
+        TextBlock(page=page_test_content_types, **config)
 
 
 # -----------------------------------------------------------------------------
@@ -176,7 +166,7 @@ def test__TextBlock__invalid_alignment(page: "PageObj") -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Embedded__valid(page) -> None:
+def test__Embedded__valid(page_test_content_types: "PageObj") -> None:
 
     embedded_html = "<tag></tag>"
 
@@ -184,29 +174,29 @@ def test__Embedded__valid(page) -> None:
         Key.HTML: embedded_html,
     }
 
-    embedded = Embedded(page=page, **config)
+    embedded = Embedded(page=page_test_content_types, **config)
 
     repr(embedded)
 
     assert embedded.html == embedded_html
 
 
-def test__Embedded__missing_html(page) -> None:
+def test__Embedded__missing_html(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        Embedded(page=page)
+        Embedded(page=page_test_content_types)
 
     with pytest.raises(ContentConfigError):
-        Embedded(page=page, **{})
+        Embedded(page=page_test_content_types, **{})
 
 
-def test__Embedded__invalid_html_type(page) -> None:
-
-    with pytest.raises(ContentConfigError):
-        Embedded(page=page, html=24)
+def test__Embedded__invalid_html_type(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        Embedded(page=page, html=None)
+        Embedded(page=page_test_content_types, html=24)
+
+    with pytest.raises(ContentConfigError):
+        Embedded(page=page_test_content_types, html=None)
 
 
 # -----------------------------------------------------------------------------
@@ -214,7 +204,7 @@ def test__Embedded__invalid_html_type(page) -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Header__valid(page) -> None:
+def test__Header__valid(page_test_content_types: "PageObj") -> None:
 
     header_text = "Header Text"
 
@@ -224,7 +214,7 @@ def test__Header__valid(page) -> None:
         Key.ALIGN: None,
     }
 
-    header = Header(page=page, **config)
+    header = Header(page=page_test_content_types, **config)
 
     repr(header)
 
@@ -233,25 +223,25 @@ def test__Header__valid(page) -> None:
     assert header.align is None
 
 
-def test__Header__missing_text(page) -> None:
+def test__Header__missing_text(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        Header(page=page)
+        Header(page=page_test_content_types)
 
     with pytest.raises(ContentConfigError):
-        Header(page=page, **{})
+        Header(page=page_test_content_types, **{})
 
 
-def test__Header__invalid_text_type(page) -> None:
-
-    with pytest.raises(ContentConfigError):
-        Header(page=page, text=24)
+def test__Header__invalid_text_type(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        Header(page=page, text=None)
+        Header(page=page_test_content_types, text=24)
+
+    with pytest.raises(ContentConfigError):
+        Header(page=page_test_content_types, text=None)
 
 
-def test__Header__invalid_size(page) -> None:
+def test__Header__invalid_size(page_test_content_types: "PageObj") -> None:
 
     config = {
         Key.TEXT: "Header Text",
@@ -259,10 +249,10 @@ def test__Header__invalid_size(page) -> None:
     }
 
     with pytest.raises(ContentConfigError):
-        Header(page=page, **config)
+        Header(page=page_test_content_types, **config)
 
 
-def test__Header__invalid_align(page) -> None:
+def test__Header__invalid_align(page_test_content_types: "PageObj") -> None:
 
     config = {
         Key.TEXT: "Header Text",
@@ -270,7 +260,7 @@ def test__Header__invalid_align(page) -> None:
     }
 
     with pytest.raises(ContentConfigError):
-        Header(page=page, **config)
+        Header(page=page_test_content_types, **config)
 
 
 # -----------------------------------------------------------------------------
@@ -278,16 +268,16 @@ def test__Header__invalid_align(page) -> None:
 # -----------------------------------------------------------------------------
 
 
-def test__Break__break(page) -> None:
+def test__Break__break(page_test_content_types: "PageObj") -> None:
 
-    break_ = Break(page=page)
+    break_ = Break(page=page_test_content_types)
 
     repr(break_)
 
     assert break_.size is None
 
 
-def test__Break__invalid_size(page) -> None:
+def test__Break__invalid_size(page_test_content_types: "PageObj") -> None:
 
     with pytest.raises(ContentConfigError):
-        Break(page=page, size="invalid")
+        Break(page=page_test_content_types, size="invalid")

@@ -55,6 +55,7 @@
   - <https://www.netlify.com/>
   - <https://pages.github.com/>
 - Lineup naming: invalid/valid supported/unsupported
+- Clean-up Error names.
 
 ## FEATURES
 

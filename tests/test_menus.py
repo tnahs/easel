@@ -5,7 +5,7 @@ from easel.site.errors import MenuConfigError
 from easel.site.menus import LinkPage, LinkURL, Spacer
 
 
-def test__LinkPage__valid():
+def test__LinkPage__valid() -> None:
 
     config = {
         "label": "TestLinkPage",
@@ -21,7 +21,7 @@ def test__LinkPage__valid():
     assert link_page.url == "/test-link-page"
 
 
-def test__LinkPage__normalize_page_path():
+def test__LinkPage__normalize_page_path() -> None:
 
     normalized_page_path = "/test-link-page"
 
@@ -49,7 +49,7 @@ def test__LinkPage__normalize_page_path():
     assert link_page_02.links_to == normalized_page_path
 
 
-def test__LinkPage__missing_config():
+def test__LinkPage__missing_config() -> None:
 
     config_01 = {
         "label": "TestLinkPage",
@@ -69,7 +69,7 @@ def test__LinkPage__missing_config():
         LinkPage(**config_02)
 
 
-def test__LinkURL__valid():
+def test__LinkURL__valid() -> None:
 
     config = {
         "label": "TestLinkURL",
@@ -84,7 +84,7 @@ def test__LinkURL__valid():
     assert link_url.url == "www.test-link-url.com"
 
 
-def test__LinkURL__missing_config():
+def test__LinkURL__missing_config() -> None:
 
     config_01 = {
         "label": "TestLinkPage",
@@ -104,7 +104,7 @@ def test__LinkURL__missing_config():
         LinkURL(**config_02)
 
 
-def test__Spacer__valid():
+def test__Spacer__valid() -> None:
 
     config = {
         "label": "TestSpacer",
@@ -119,7 +119,7 @@ def test__Spacer__valid():
     assert spacer.size == Defaults.DEFAULT_SIZE
 
 
-def test__Spacer__valid_default():
+def test__Spacer__valid_default() -> None:
 
     spacer_default = Spacer()
 
@@ -129,7 +129,7 @@ def test__Spacer__valid_default():
     assert spacer_default.size == None
 
 
-def test__Spacer__invalid_size():
+def test__Spacer__invalid_size() -> None:
 
     config_01 = {
         "size": "invalid-size",

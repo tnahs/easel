@@ -5,7 +5,7 @@ from easel.site.errors import MenuConfigError
 from easel.site.menus import MenuFactory
 
 
-def test__MenuFactory__valid():
+def test__MenuFactory__valid() -> None:
 
     config = [
         {
@@ -27,13 +27,13 @@ def test__MenuFactory__valid():
         MenuFactory.build(config=config)
 
 
-def test__MenuFactory__missing_type():
+def test__MenuFactory__missing_type() -> None:
 
     with pytest.raises(MenuConfigError):
         MenuFactory.build(config={})
 
 
-def test__MenuFactory__invalid_type():
+def test__MenuFactory__invalid_type() -> None:
 
     config = {
         "type": "invalid-type",
@@ -43,7 +43,7 @@ def test__MenuFactory__invalid_type():
         MenuFactory.build(config=config)
 
 
-def test__MenuFactory__register_type():
+def test__MenuFactory__register_type() -> None:
     class CustomMenuType:
         pass
 

@@ -2,7 +2,6 @@ import pytest
 
 from easel.site.defaults import Key
 from easel.site.errors import PageConfigError
-from easel.site.globals import Globals
 from easel.site.pages import (
     Lazy,
     LazyGallery,
@@ -12,9 +11,7 @@ from easel.site.pages import (
 )
 
 from .conftest import PageTestConfig
-
-
-OTHER_PAGES = Globals.site_paths.contents / "other-pages"
+from .test_configs import TestSites
 
 
 # -----------------------------------------------------------------------------
@@ -24,7 +21,12 @@ OTHER_PAGES = Globals.site_paths.contents / "other-pages"
 
 def test__LazyMixin__directory_contents() -> None:
 
-    path = OTHER_PAGES / "test-directory-contents"
+    path = (
+        TestSites.misc_tests
+        / "contents"
+        / "pages"
+        / "page-test-lazy-mixin-directory-contents"
+    )
 
     Lazy(path=path, config={})
     LazyGallery(path=path, config={})

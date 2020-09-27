@@ -40,6 +40,40 @@ class CaptionMixin(abc.ABC):
     def _caption_config(self) -> dict:
         return self.config.get(Key.CAPTION, {})
 
+    def validate__caption_config(self) -> None:
+
+        caption = self.config.get(Key.CAPTION, {})
+
+        if type(caption) is not dict:
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'dict' for "
+                f"'{Key.CAPTION}' got '{type(caption).__name__}'."
+            )
+
+        caption_title = caption.get(Key.TITLE, "")
+
+        if type(caption_title) is not str:
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'str' for '{Key.CAPTION}.{Key.TITLE}' got "
+                f"'{type(caption_title).__name__}'."
+            )
+
+        caption_description = caption.get(Key.DESCRIPTION, "")
+
+        if type(caption_description) is not str:
+            raise ContentConfigError(
+                f"{self.page}: Expected type 'str' for '{Key.CAPTION}.{Key.DESCRIPTION}' got "
+                f"'{type(caption_description).__name__}'."
+            )
+
+        if (
+            self.caption_align is not None
+            and self.caption_align not in Defaults.VALID_ALIGNMENTS
+        ):
+            raise ContentConfigError(
+                f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
+            )
+
     @property
     def caption_title(self) -> str:
         return markdown.from_string(self._caption_config.get(Key.TITLE, ""))
@@ -51,19 +85,3 @@ class CaptionMixin(abc.ABC):
     @property
     def caption_align(self) -> Optional[str]:
         return self._caption_config.get(Key.ALIGN, None)
-
-    def validate__caption_config(self) -> None:
-
-        if type(self._caption_config) is not dict:
-            raise ContentConfigError(
-                f"{self.page}: Expected type 'dict' for "
-                f"'{Key.CAPTION}' got '{type(self._caption_config).__name__}'."
-            )
-
-        if (
-            self.caption_align is not None
-            and self.caption_align not in Defaults.VALID_ALIGNMENTS
-        ):
-            raise ContentConfigError(
-                f"{self.page}: Unsupported value '{self.caption_align}' for '{Key.ALIGN}'."
-            )

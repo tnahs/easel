@@ -1,212 +1,42 @@
-import datetime
-import pathlib
-from typing import List, Optional, Union
+from typing import Dict
 
 import pytest
 
-from easel.site.contents import (
-    Audio,
-    Break,
-    ContentClass,
-    Embedded,
-    Header,
-    Image,
-    TextBlock,
-    Video,
-)
-from easel.site.defaults import Key
 from easel.site.globals import Globals
-from easel.site.pages import Layout, LayoutGallery, Lazy, LazyGallery
-
-
-root = pathlib.Path(__file__).parent / "site-testing"
-
-
-Globals.init(root=root)
-
-
-class PageTestConfig:
-    """ Emulates a Page's 'page.yaml' without loading one. """
-
-    def __init__(
-        self,
-        path: Union[pathlib.Path, str],
-        type: Optional[str] = None,
-        is_index: Optional[bool] = None,
-        title: Optional[str] = None,
-        date: Optional[str] = None,
-        description: Optional[str] = None,
-        cover: Optional[str] = None,
-        contents: Optional[List[dict]] = None,
-        contents_count: Optional[int] = None,
-        contents_types: Optional[List["ContentClass"]] = None,
-        options: Optional[dict] = None,
-        url: Optional[str] = None,
-    ) -> None:
-
-        self.path = pathlib.Path(path)
-        self.type = type
-        self.title = title
-
-        self.contents_count = contents_count
-        self.contents_types = contents_types
-        self.contents = contents if contents is not None else []
-
-        self.is_index = is_index
-        self.date = date
-        self.description = description
-        self.cover = cover
-        self.options = options if options is not None else {}
-
-        self.url = url
-
-    @property
-    def datetime_date(self) -> Optional[datetime.datetime]:
-
-        if self.date is None:
-            return
-
-        return datetime.datetime.strptime(self.date, "%Y-%m-%d")
-
-    @property
-    def path_description(self) -> Optional[pathlib.Path]:
-        if self.description is None:
-            return
-
-        return pathlib.Path(self.description)
-
-    @property
-    def path_cover(self) -> Optional[pathlib.Path]:
-        if self.cover is None:
-            return
-
-        return pathlib.Path(self.cover)
-
-    @property
-    def page_yaml(self) -> dict:
-        return {
-            Key.IS_INDEX: self.is_index,
-            Key.TYPE: self.type,
-            Key.TITLE: self.title,
-            Key.DATE: self.date,
-            Key.DESCRIPTION: self.description,
-            Key.COVER: self.cover,
-            Key.CONTENTS: self.contents,
-            Key.OPTIONS: self.options,
-        }
-
-
-test_config__lazy = PageTestConfig(
-    path=Globals.site_paths.pages / "page-lazy",
-    type=Key.LAZY,
-    is_index=False,
-    title="PageLazy",
-    date="2020-01-01",
-    description="./description.md",
-    cover="./cover.jpg",
-    # Contents are generated from: ./site-testing/contents/pages/page-lazy/contents
-    contents=None,
-    contents_count=4,
-    contents_types=[Image, Video, Audio, TextBlock],
-    url="/page-lazy",
+from easel.site.pages import (
+    Layout,
+    LayoutGallery,
+    Lazy,
+    LazyGallery,
+    PageClass,
+    PageObj,
 )
 
-test_config__lazy_gallery = PageTestConfig(
-    path=Globals.site_paths.pages / "page-lazy-gallery",
-    type=Key.LAZY_GALLERY,
-    is_index=False,
-    title="PageLazyGallery",
-    date="2020-01-01",
-    description="./description.md",
-    cover="./cover.jpg",
-    # Contents are generated from: ./site-testing/contents/pages/page-lazy-gallery/contents
-    contents=None,
-    contents_count=3,
-    contents_types=[Image, Image, Image],
-    url="/page-lazy-gallery",
+from .test_configs import (
+    PageTestConfig,
+    test_config__layout,
+    test_config__layout_gallery,
+    test_config__lazy,
+    test_config__lazy_gallery,
+    test_config__test_content_types,
 )
 
 
-test_config__layout = PageTestConfig(
-    path=Globals.site_paths.pages / "page-layout",
-    type=Key.LAYOUT,
-    is_index=False,
-    title="PageLayout",
-    date="2020-01-01",
-    description="./description.md",
-    cover="./cover.jpg",
-    contents=[
-        {
-            Key.TYPE: Key.IMAGE,
-            Key.PATH: "./contents/image.jpg",
-        },
-        {
-            Key.TYPE: Key.VIDEO,
-            Key.PATH: "./contents/video.mp4",
-        },
-        {
-            Key.TYPE: Key.AUDIO,
-            Key.PATH: "./contents/audio.mp3",
-        },
-        {
-            Key.TYPE: Key.TEXT_BLOCK,
-            Key.PATH: "./contents/text-block.md",
-        },
-        {
-            Key.TYPE: Key.EMBEDDED,
-            Key.HTML: "<tag></tag>",
-        },
-        {
-            Key.TYPE: Key.HEADER,
-            Key.TEXT: "Header Text",
-        },
-        {
-            Key.TYPE: Key.BREAK,
-        },
-    ],
-    contents_count=7,
-    contents_types=[
-        Image,
-        Video,
-        Audio,
-        TextBlock,
-        Embedded,
-        Header,
-        Break,
-    ],
-    url="/page-layout",
-)
-
-test_config__layout_gallery = PageTestConfig(
-    path=Globals.site_paths.pages / "page-layout-gallery",
-    type=Key.LAYOUT_GALLERY,
-    is_index=False,
-    title="PageLayoutGallery",
-    date="2020-01-01",
-    description="./description.md",
-    cover="./cover.jpg",
-    contents=[
-        {
-            Key.TYPE: Key.IMAGE,
-            Key.PATH: "./contents/image-01.jpg",
-        },
-        {
-            Key.TYPE: Key.IMAGE,
-            Key.PATH: "./contents/image-02.jpg",
-        },
-        {
-            Key.TYPE: Key.IMAGE,
-            Key.PATH: "./contents/image-03.jpg",
-        },
-    ],
-    contents_count=3,
-    contents_types=[Image, Image, Image],
-    url="/page-layout-gallery",
-)
+# -----------------------------------------------------------------------------
+# Pages in ./tests/sites/site-valid/contents/pages
+# -----------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="session")
-def all_pages():
+def all_pages() -> Dict["PageClass", "PageTestConfig"]:
+    """Returns a dictionary of *all* Page classes with their respective test
+    configuration. Each key:value pair referring to a page directory in
+    ./tests/sites/site-valid/contents/pages.
+
+    These are purposefully un-instantiated so that each test has the
+    possibility to modify the configuration as needed to testdifferent valid
+    and invalid cases."""
+
     return {
         Lazy: test_config__lazy,
         LazyGallery: test_config__lazy_gallery,
@@ -216,7 +46,12 @@ def all_pages():
 
 
 @pytest.fixture(scope="session")
-def lazy_pages():
+def lazy_pages() -> Dict["PageClass", "PageTestConfig"]:
+    """Returns a dictionary of Page classes that implement 'LazyMixin' along
+    with their respective test configuration.
+
+    See 'all_pages()' above for details."""
+
     return {
         Lazy: test_config__lazy,
         LazyGallery: test_config__lazy_gallery,
@@ -224,15 +59,12 @@ def lazy_pages():
 
 
 @pytest.fixture(scope="session")
-def gallery_pages():
-    return {
-        LazyGallery: test_config__lazy_gallery,
-        LayoutGallery: test_config__layout_gallery,
-    }
+def layout_pages() -> Dict["PageClass", "PageTestConfig"]:
+    """Returns a dictionary of Page classes that implement 'LayoutMixin' along
+    with their respective test configuration.
 
+    See 'all_pages()' above for details."""
 
-@pytest.fixture(scope="session")
-def layout_pages():
     return {
         Layout: test_config__layout,
         LayoutGallery: test_config__layout_gallery,
@@ -240,10 +72,53 @@ def layout_pages():
 
 
 @pytest.fixture(scope="session")
-def show_captions_pages():
+def gallery_pages() -> Dict["PageClass", "PageTestConfig"]:
+    """Returns a dictionary of Page classes that implement 'GalleryMixin' along
+    with their respective test configuration.
+
+    See 'all_pages()' above for details."""
+
+    return {
+        LazyGallery: test_config__lazy_gallery,
+        LayoutGallery: test_config__layout_gallery,
+    }
+
+
+@pytest.fixture(scope="session")
+def show_captions_pages() -> Dict["PageClass", "PageTestConfig"]:
+    """Returns a dictionary of Page classes that implement 'ShowCaptionsMixin'
+    along with their respective test configuration.
+
+    See 'all_pages()' above for details."""
+
     return {
         Lazy: test_config__lazy,
         LazyGallery: test_config__lazy_gallery,
         Layout: test_config__layout,
         LayoutGallery: test_config__layout_gallery,
     }
+
+
+# -----------------------------------------------------------------------------
+# Pages in ./tests/sites/site-misc-tests/contents/pages
+# -----------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def page_test_content_types() -> "PageObj":
+    """Returns an instantiated Layout page referring to the page directory in
+    ./tests/sites/site-misc-tests/contents/pages/page-test-content-types. This
+    is primarily used to test Content-like object creation. It's a dummy page
+    to pass in when a Content-like object is instantiated."""
+
+    """ NOTE: Creating Content-like objects *requires* 'Globals.init()' to be
+    called (which essentially sets 'Globals.site_paths.root'). This is because
+    Content-like objects that implement 'File' must be able return their path
+    relative to the site. However Menu-like and Page-like objects can be
+    created without calling the 'Globals.init()'. """
+    Globals.init(root=test_config__test_content_types.site)
+
+    return Layout(
+        path=test_config__test_content_types.path,
+        config=test_config__test_content_types.page_yaml,
+    )
