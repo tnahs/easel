@@ -1,5 +1,6 @@
 import glob
 import importlib
+import importlib.util
 import json
 import logging
 import os
@@ -7,7 +8,7 @@ import pathlib
 from typing import Any, Generator, List, Optional, Union
 
 from .defaults import Defaults, Key
-from .errors import SiteConfigError
+from .errors import SiteConfigError, ThemeConfigError
 from .helpers import SafeDict, Utils
 
 
@@ -25,7 +26,7 @@ class _Globals:
     def init(self, root: Optional[Union[pathlib.Path, str]]):
 
         # The site's root directory is first set.
-        self.site_paths.root = root
+        self.site_paths.load(root=root)
 
         # Using the site's root directory, the 'site.yaml' is loaded and merged
         # with the default site config creating the final site config.
@@ -82,32 +83,25 @@ class SitePaths(GlobalsBase):
 
     _root: Optional[pathlib.Path] = None
 
-    @property
-    def root(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/site-name """
-
-        if self._root is None:
-            raise SiteConfigError("Site root must be set before running.")
-
-        return self._root
-
-    @root.setter
-    def root(self, value: Optional[Union[pathlib.Path, str]]) -> None:  # type:ignore
-        """ Sets /absolute/path/to/site-name """
+    def load(self, root: Optional[Union[pathlib.Path, str]]) -> None:
 
         # Sets the current directory as the root if no root is provided.
-        root = pathlib.Path(value) if value is not None else pathlib.Path()
+        path = pathlib.Path(root) if root is not None else pathlib.Path()
+        self.root = path.resolve()
 
-        try:
-            root = root.resolve(strict=True)
-        except FileNotFoundError as error:
-            raise SiteConfigError(f"Site directory {root} not found.") from error
+        self._validate()
 
-        self._root = root
+    def _validate(self) -> None:
 
-    @property
-    def contents(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/site-name/contents """
+        if not self.root.exists():
+            raise SiteConfigError(f"Site directory {self.root} not found.")
+
+        site_yaml = self.root / Defaults.FILENAME_SITE_YAML
+
+        if not site_yaml.exists():
+            raise SiteConfigError(
+                f"Site directory contains no '{Defaults.FILENAME_SITE_YAML}'."
+            )
 
         path_contents = self.root / Defaults.DIRECTORY_NAME_CONTENTS
 
@@ -118,12 +112,6 @@ class SitePaths(GlobalsBase):
                 "Site directory missing 'contents' sub-directory."
             ) from error
 
-        return path_contents
-
-    @property
-    def pages(self) -> pathlib.Path:
-        """ Returns /absolute/path/to/site-name/contents/pages """
-
         path_pages = self.contents / Defaults.DIRECTORY_NAME_PAGES
 
         try:
@@ -133,7 +121,34 @@ class SitePaths(GlobalsBase):
                 "Site directory missing 'pages' sub-directory."
             ) from error
 
-        return path_pages
+        if not len(list(Globals.site_paths.iter_pages())):
+            raise SiteConfigError(
+                "Site 'pages' sub-directory contains no page directories."
+            )
+
+    @property
+    def root(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name """
+
+        if self._root is None:
+            raise SiteConfigError("Site root must be set before running.")
+
+        return self._root
+
+    @root.setter
+    def root(self, value: pathlib.Path) -> None:
+        """ Sets /absolute/path/to/site-name """
+        self._root = value
+
+    @property
+    def contents(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name/contents """
+        return self.root / Defaults.DIRECTORY_NAME_CONTENTS
+
+    @property
+    def pages(self) -> pathlib.Path:
+        """ Returns /absolute/path/to/site-name/contents/pages """
+        return self.contents / Defaults.DIRECTORY_NAME_PAGES
 
     @property
     def cache(self) -> pathlib.Path:
@@ -199,7 +214,7 @@ class SiteConfig(GlobalsBase):
         },
         Key.THEME: {
             Key.NAME: None,
-            Key.CUSTOM_PATH: None,
+            Key.PATH: None,
         },
     }
     # fmt:on
@@ -283,8 +298,8 @@ class SiteConfig(GlobalsBase):
         return self.__config[Key.THEME][Key.NAME]
 
     @property
-    def theme_custom_path(self) -> Optional[str]:
-        return self.__config[Key.THEME][Key.CUSTOM_PATH]
+    def theme_path(self) -> Optional[str]:
+        return self.__config[Key.THEME][Key.PATH]
 
 
 class ThemePaths(GlobalsBase):
@@ -295,24 +310,53 @@ class ThemePaths(GlobalsBase):
 
         self._root = self._get_root__dispatcher()
 
+        self._validate()
+
+    def _validate(self) -> None:
+
+        theme_yaml = self._root / Defaults.FILENAME_THEME_YAML
+
+        if not theme_yaml.exists():
+            raise ThemeConfigError(f"Theme missing {Defaults.FILENAME_THEME_YAML}")
+
+        template_main_html = self._root / Defaults.FILENAME_TEMPLATE_MAIN_HTML
+
+        if not template_main_html.exists():
+            raise ThemeConfigError(
+                f"Theme missing {Defaults.FILENAME_TEMPLATE_MAIN_HTML}"
+            )
+
+        template_404_html = self._root / Defaults.FILENAME_TEMPLATE_404_HTML
+
+        if not template_404_html.exists():
+            raise ThemeConfigError(
+                f"Theme missing {Defaults.FILENAME_TEMPLATE_404_HTML}"
+            )
+
     def _get_root__dispatcher(self) -> pathlib.Path:
 
-        # Grab 'theme.name' and 'theme.custom-path' from the 'site.yaml'.
-        name = self.globals.site_config.theme_name
-        custom_path = self.globals.site_config.theme_custom_path
+        # Grab 'theme.name' and 'theme.path' from the 'site.yaml'.
+        name: Optional[str] = self.globals.site_config.theme_name
+        path: Optional[str] = self.globals.site_config.theme_path
 
-        if name is not None and custom_path is not None:
+        if name is not None and path is not None:
             logger.warning(
                 "Setting both 'name' and 'custom-path' might result in unexpected behavior."
             )
 
-        if custom_path is not None:
-            return self._get_custom_root(path=custom_path)
+        if path is not None:
+            return self._get_custom_root(path=path)
 
         if name is None:
-            return self._get_builtin_root(name=Defaults.DEFAULT_BUILTIN_THEME_NAME)
+            return self._get_builtin_root(name=Defaults.DEFAULT_THEME_NAME_BUILTIN)
 
-        if name.startswith(Defaults.INSTALLED_THEME_NAME_PREFIX):
+        if any(
+            name.startswith(prefix)
+            for prefix in [
+                Defaults.THEME_NAME_PREFIX_INSTALLED,
+                Defaults.THEME_NAME_PREFIX_TESTING,
+            ]
+        ):
             return self._get_installed_root(name=name)
 
         return self._get_builtin_root(name=name)
@@ -333,16 +377,15 @@ class ThemePaths(GlobalsBase):
     @staticmethod
     def _get_installed_root(name: str) -> pathlib.Path:
 
-        # TODO:LOW It would be nice if this didn't need to happen.
         module_name = name.replace("-", "_")
 
         try:
-            installed_theme = importlib.__import__(module_name)
+            installed_theme = importlib.import_module(name=module_name)
         except ModuleNotFoundError as error:
             raise SiteConfigError(f"Installed theme '{name}' not found.") from error
 
-        logger.info(f"Using installed theme '{name}'.")
-
+        # The '__file__' attribute of 'installed_theme' is an absolute path
+        # to the '__init__.py' file inside the theme directory.
         return pathlib.Path(installed_theme.__file__).parent
 
     @staticmethod
@@ -368,10 +411,10 @@ class ThemePaths(GlobalsBase):
         'src' directory contain the assets used to compile the theme i.e. SCSS
         and TypeScript files."""
 
-        if name not in Defaults.VALID_BUILTIN_THEME_NAMES:
+        if name not in Defaults.VALID_THEME_NAMES_BUILTIN:
             raise SiteConfigError(
                 f"Invalid theme name '{name}'. Available built-in themes are: "
-                f"{Defaults.VALID_BUILTIN_THEME_NAMES}"
+                f"{Defaults.VALID_THEME_NAMES_BUILTIN}"
             )
 
         logger.info(f"Using built-in theme '{name}'.")
@@ -382,6 +425,16 @@ class ThemePaths(GlobalsBase):
     def root(self) -> pathlib.Path:
         """ Returns the root path to the current theme. """
         return self._root
+
+    @property
+    def template_main_html(self) -> pathlib.Path:
+        """ Returns the path to the theme's main.html. """
+        return self._root / Defaults.FILENAME_TEMPLATE_MAIN_HTML
+
+    @property
+    def template_404_html(self) -> pathlib.Path:
+        """ Returns the path to the theme's 404.html. """
+        return self._root / Defaults.FILENAME_TEMPLATE_404_HTML
 
     @property
     def assets(self) -> List[str]:

@@ -48,9 +48,6 @@ class Site:
 
     def _build_pages(self) -> None:
 
-        if not len(list(Globals.site_paths.iter_pages())):
-            raise SiteConfigError("Site pages directory contains no page directories.")
-
         self._pages = [
             PageFactory.build(path=path) for path in Globals.site_paths.iter_pages()
         ]

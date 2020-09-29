@@ -8,9 +8,10 @@ from .globals import Globals
 from .helpers import Utils
 
 
-class Markdown:
+class _Markdown:
+    @staticmethod
     def _convert(
-        self, string: str, base_path: Optional[Union[str, pathlib.Path]] = None
+        string: str, base_path: Optional[Union[str, pathlib.Path]] = None
     ) -> str:
         """ https://facelessuser.github.io/pymdown-extensions/ """
 
@@ -28,13 +29,16 @@ class Markdown:
                 "pymdownx.mark",
             ],
             extension_configs={
-                "pymdownx.pathconverter": {"absolute": True, "base_path": base_path}
+                "pymdownx.pathconverter": {
+                    "absolute": True,
+                    "base_path": base_path,
+                }
             },
         )
 
         return md.convert(string)
 
-    def from_file(self, filepath: pathlib.Path) -> str:
+    def from_file(self, path: pathlib.Path) -> str:
         """ Render Markdown from a file. """
 
         """ 'base_path' is pre-pended to any 'path' or 'src' in <a>, <script>,
@@ -42,7 +46,7 @@ class Markdown:
         files. NOTE: This is emulating Easel._filter__site_url() with a
         slight variation.
 
-        Transforms the original filepath:
+        Transforms the original path:
 
             /site-name/pages/page-name/content.md
 
@@ -50,28 +54,30 @@ class Markdown:
 
             pages/page-name
 
-        ...then appends that to the static_url_path.
+        ...then prepends the static url path.
 
             /sorolla-demo/pages/pages/page-name
 
         via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
         """
 
-        path = filepath.relative_to(Globals.site_paths.root).parent
-        base_path = Utils.urlify(f"{Globals.site_paths.static_url_path}{os.sep}{path}")
+        path_relative = path.relative_to(Globals.site_paths.root).parent
+        base_path = Utils.urlify(
+            f"{Globals.site_paths.static_url_path}{os.sep}{path_relative}"
+        )
 
-        with open(filepath, encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             string = f.read()
 
-        return self._convert(string, base_path)
+        return self._convert(string=string, base_path=base_path)
 
     def from_string(self, string: Optional[str] = None) -> str:
         """ Render Markdown from a string. """
 
-        if string is not None:
-            return self._convert(string)
+        if string is None:
+            return ""
 
-        return ""
+        return self._convert(string)
 
 
-markdown = Markdown()
+Markdown = _Markdown()

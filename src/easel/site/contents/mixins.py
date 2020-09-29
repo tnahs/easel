@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from ..defaults import Defaults, Key
 from ..errors import ContentConfigError
-from ..markdown import markdown
+from ..markdown import Markdown
 
 
 if TYPE_CHECKING:
@@ -76,11 +76,11 @@ class CaptionMixin(abc.ABC):
 
     @property
     def caption_title(self) -> str:
-        return markdown.from_string(self._caption_config.get(Key.TITLE, ""))
+        return Markdown.from_string(self._caption_config.get(Key.TITLE, ""))
 
     @property
     def caption_description(self) -> str:
-        return markdown.from_string(self._caption_config.get(Key.DESCRIPTION, ""))
+        return Markdown.from_string(self._caption_config.get(Key.DESCRIPTION, ""))
 
     @property
     def caption_align(self) -> Optional[str]:

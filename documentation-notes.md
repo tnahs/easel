@@ -12,9 +12,10 @@ Minimum requirements.
 
 ``` plaintext
 theme-name
+├── theme.yaml
 ├── 404.html
 ├── main.html
-└── theme.yaml
+└── __init__.py
 ```
 
 ``` yaml
@@ -28,6 +29,7 @@ Expanded example.
 
 ``` plaintext
 theme-name
+├── theme.yaml
 ├── static
 │   ├── css
 │   ├── javascript
@@ -36,7 +38,7 @@ theme-name
 ├── 404.html
 ├── base.html
 ├── main.html
-└── theme.yaml
+└── __init__.py
 ```
 
 Project example.

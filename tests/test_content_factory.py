@@ -7,6 +7,7 @@ from easel.site.pages import PageObj
 
 
 def test__ContentFactory__valid(page_test_content_types: "PageObj") -> None:
+    # GLOBALFIX
 
     contents = [
         {

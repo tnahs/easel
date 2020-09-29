@@ -40,6 +40,7 @@ def test__LazyMixin__directory_contents() -> None:
 def run__LayoutMixin__no_contents(
     cls: "PageClassLayout", ptc: "PageTestConfig"
 ) -> None:
+    # GLOBALFIX
 
     page_yaml = ptc.page_yaml.copy()
     page_yaml[Key.CONTENTS] = []
@@ -76,6 +77,7 @@ def test__LayoutMixin__invalid_contents_type(layout_pages) -> None:
 def run__GalleryMixin__column_count_set(
     cls: "PageClassGallery", ptc: "PageTestConfig"
 ) -> None:
+    # GLOBALFIX
 
     count = 3
 
@@ -91,6 +93,7 @@ def run__GalleryMixin__column_count_set(
 def run__GalleryMixin__column_count_unset(
     cls: "PageClassGallery", ptc: "PageTestConfig"
 ) -> None:
+    # GLOBALFIX
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 

@@ -24,6 +24,8 @@ class Defaults:
     FILENAME_SITE_YAML: str = "site.yaml"
     FILENAME_PAGE_YAML: str = "page.yaml"
     FILENAME_THEME_YAML: str = "theme.yaml"
+    FILENAME_TEMPLATE_MAIN_HTML: str = "main.html"
+    FILENAME_TEMPLATE_404_HTML: str = "404.html"
 
     DATE_SEPARATOR: str = "-"
 
@@ -65,14 +67,15 @@ class Defaults:
         "size": (1024, 1024),
     }
 
-    DEFAULT_BUILTIN_THEME_NAME: str = "sorolla"
-    VALID_BUILTIN_THEME_NAMES = [
+    DEFAULT_THEME_NAME_BUILTIN: str = "sorolla"
+    VALID_THEME_NAMES_BUILTIN = [
         item.name
         for item in (APP_ROOT / DIRECTORY_NAME_THEMES).iterdir()
         if item.is_dir() and not item.name.startswith(".")
     ]
 
-    INSTALLED_THEME_NAME_PREFIX: str = "easel-"
+    THEME_NAME_PREFIX_INSTALLED: str = "easel-"
+    THEME_NAME_PREFIX_TESTING: str = "testing-"
 
     DEFAULT_SIZE = "medium"
     VALID_SIZES: Tuple[str, ...] = (
@@ -146,7 +149,6 @@ class Key:
     CONTENTS: str = "contents"
     COPYRIGHT: str = "copyright"
     COVER: str = "cover"
-    CUSTOM_PATH: str = "custom-path"
     DATE: str = "date"
     DESCRIPTION: str = "description"
     EMBEDDED: str = "embedded"

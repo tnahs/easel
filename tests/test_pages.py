@@ -8,6 +8,7 @@ from .conftest import PageTestConfig
 
 
 def run__Page__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
+    # GLOBALFIX
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 
@@ -39,6 +40,7 @@ def run__Page__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
 def run__Page__no_date_cover_description(
     cls: "PageClass", ptc: "PageTestConfig"
 ) -> None:
+    # GLOBALFIX
 
     page_yaml = ptc.page_yaml
 

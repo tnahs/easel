@@ -116,6 +116,7 @@ def page_test_content_types() -> "PageObj":
     Content-like objects that implement 'File' must be able return their path
     relative to the site. However Menu-like and Page-like objects can be
     created without calling the 'Globals.init()'. """
+
     Globals.init(root=test_config__test_content_types.site)
 
     return Layout(

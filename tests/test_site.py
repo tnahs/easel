@@ -1,13 +1,26 @@
 import pytest
 
 from easel.site import Site
-from easel.site.errors import ConfigLoadError, Error, SiteConfigError
+from easel.site.defaults import Key
+from easel.site.errors import Error, SiteConfigError
 from easel.site.globals import Globals
 
 from .test_configs import TestSites
 
 
-def test__Site__valid() -> None:
+@pytest.fixture(autouse=True)
+def reset__Globals_site_paths_root():
+    Globals.site_paths._root = None
+    yield
+    Globals.site_paths._root = None
+
+
+# -----------------------------------------------------------------------------
+# Site
+# -----------------------------------------------------------------------------
+
+
+def test__valid() -> None:
 
     Globals.init(root=TestSites.valid)
 
@@ -23,10 +36,25 @@ def test__Site__valid() -> None:
     assert site.get_page("page-lazy") is not None
     assert site.get_page("page-lazy-gallery") is not None
 
-    assert site.get_page("page-non-existant") is None
+    assert site.get_page("page-missing") is None
+
+    assert site.config.title == "Testing Title"
+    assert site.config.author == "Testing Author"
+    assert site.config.copyright == "Testing Copyright"
+    assert site.config.description == "Testing Description"
+    assert site.config.favicon == "./testing-favicon.ico"
+
+    assert site.config.header == {
+        Key.TITLE: {
+            Key.LABEL: "Testing Header Title Label",
+            Key.IMAGE: "./testing-header-title-image.jpg",
+        },
+    }
+
+    assert Globals.site_paths.static_url_path == "/site"
 
 
-def test__Site__not_built() -> None:
+def test__not_built() -> None:
 
     Globals.init(root=TestSites.valid)
 
@@ -42,7 +70,7 @@ def test__Site__not_built() -> None:
         site.index
 
 
-def test__Site__rebuild_cache() -> None:
+def test__rebuild_cache() -> None:
 
     Globals.init(root=TestSites.valid)
 
@@ -51,41 +79,9 @@ def test__Site__rebuild_cache() -> None:
     site.rebuild_cache()
 
 
-def test__Site__missing_site_yaml() -> None:
+def test__config_menu_empty() -> None:
 
-    with pytest.raises(ConfigLoadError):
-        Globals.init(root=TestSites.missing_site_yaml)
-
-
-def test__Site__contents_directory_missing() -> None:
-
-    Globals.init(root=TestSites.contents_directory_missing)
-
-    with pytest.raises(SiteConfigError):
-        Globals.site_paths.contents
-
-
-def test__Site__pages_directory_missing() -> None:
-
-    Globals.init(root=TestSites.pages_directory_missing)
-
-    with pytest.raises(SiteConfigError):
-        Globals.site_paths.pages
-
-
-def test__Site__pages_directory_empty() -> None:
-
-    Globals.init(root=TestSites.pages_directory_empty)
-
-    site = Site()
-
-    with pytest.raises(SiteConfigError):
-        site.build()
-
-
-def test__Site__menu_empty() -> None:
-
-    Globals.init(root=TestSites.menu_empty)
+    Globals.init(root=TestSites.config_menu_empty)
 
     site = Site()
     site.build()
@@ -93,15 +89,9 @@ def test__Site__menu_empty() -> None:
     assert site.menu == []
 
 
-def test__Site__menu_type_invalid() -> None:
+def test__config_menu_missing_page() -> None:
 
-    with pytest.raises(SiteConfigError):
-        Globals.init(root=TestSites.menu_type_invalid)
-
-
-def test__Site__menu_missing_page() -> None:
-
-    Globals.init(root=TestSites.menu_missing_page)
+    Globals.init(root=TestSites.config_menu_missing_page)
 
     site = Site()
 
@@ -109,7 +99,7 @@ def test__Site__menu_missing_page() -> None:
         site.build()
 
 
-def test__Site__index_missing() -> None:
+def test__index_missing() -> None:
 
     Globals.init(root=TestSites.index_missing)
 
@@ -119,7 +109,7 @@ def test__Site__index_missing() -> None:
         site.build()
 
 
-def test__Site__index_overload() -> None:
+def test__index_overload() -> None:
 
     Globals.init(root=TestSites.index_overload)
 
@@ -127,3 +117,74 @@ def test__Site__index_overload() -> None:
 
     with pytest.raises(SiteConfigError):
         site.build()
+
+
+# -----------------------------------------------------------------------------
+# SitePaths
+# -----------------------------------------------------------------------------
+
+
+def test__SitePaths__root_not_set() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.site_paths.root
+
+
+def test__SitePaths__root_missing() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root="/path/to/missing-site")
+
+
+def test__SitePaths__assets() -> None:
+
+    Globals.init(root=TestSites.valid)
+
+    Globals.site_paths.assets
+
+
+def test__SitePaths__missing_site_yaml() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.missing_site_yaml)
+
+
+def test__SitePaths__contents_directory_missing() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.contents_directory_missing)
+
+
+def test__SitePaths__pages_directory_missing() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.pages_directory_missing)
+
+
+def test__SitePaths__pages_directory_empty() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.pages_directory_empty)
+
+
+# -----------------------------------------------------------------------------
+# SiteConfig
+# -----------------------------------------------------------------------------
+
+
+def test__SiteConfig__config_menu_type_invalid() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.config_menu_type_invalid)
+
+
+def test__SiteConfig__config_header_type_invalid() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.config_header_type_invalid)
+
+
+def test__SiteConfig__config_theme_type_invalid() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.init(root=TestSites.config_theme_type_invalid)

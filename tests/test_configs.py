@@ -15,25 +15,56 @@ from easel.site.contents import (
 from easel.site.defaults import Key
 
 
+TESTING_DATA_ROOT = pathlib.Path(__file__).parent / "data"
+
+
 class TestSites:
 
-    ROOT = pathlib.Path(__file__).parent / "sites"
+    root = TESTING_DATA_ROOT / "sites"
 
-    valid = ROOT / "site-valid"
-    missing_site_yaml = ROOT / "site-missing-site-yaml"
+    valid = root / "site-valid"
+    missing_site_yaml = root / "site-missing-site.yaml"
 
-    contents_directory_missing = ROOT / "site-contents-directory-missing"
-    pages_directory_missing = ROOT / "site-pages-directory-missing"
-    pages_directory_empty = ROOT / "site-pages-directory-empty"
+    contents_directory_missing = root / "site-contents-directory-missing"
+    pages_directory_missing = root / "site-pages-directory-missing"
+    pages_directory_empty = root / "site-pages-directory-empty"
 
-    menu_empty = ROOT / "site-menu-empty"
-    menu_type_invalid = ROOT / "site-menu-type-invalid"
-    menu_missing_page = ROOT / "site-menu-missing-page"
+    config_menu_empty = root / "site-config-menu-empty"
+    config_menu_type_invalid = root / "site-config-menu-type-invalid"
+    config_menu_missing_page = root / "site-config-menu-missing-page"
+    config_header_type_invalid = root / "site-config-header-type-invalid"
+    config_theme_type_invalid = root / "site-config-theme-type-invalid"
 
-    index_missing = ROOT / "site-index-missing"
-    index_overload = ROOT / "site-index-overload"
+    index_missing = root / "site-index-missing"
+    index_overload = root / "site-index-overload"
 
-    misc_tests = ROOT / "site-misc-tests"
+    # Built-in
+    theme_builtin_valid_default = root / "site-theme-builtin-valid-default"
+    theme_builtin_valid_01 = root / "site-theme-builtin-valid-01"
+    theme_builtin_valid_02 = root / "site-theme-builtin-valid-02"
+    theme_builtin_invalid = root / "site-theme-builtin-invalid"
+    # Installed
+    theme_installed_valid = root / "site-theme-installed-valid"
+    theme_installed_missing = root / "site-theme-installed-missing"
+    # Custom
+    theme_custom_valid = root / "site-theme-custom-valid"
+    theme_custom_valid_warning = root / "site-theme-custom-valid-warning"
+    theme_custom_missing = root / "site-theme-custom-missing"
+    theme_custom_missing_theme_yaml = root / "site-theme-custom-missing-theme.yaml"
+    theme_custom_missing_main_html = root / "site-theme-custom-missing-main.html"
+    theme_custom_missing_404_html = root / "site-theme-custom-missing-404.html"
+
+    misc_tests = root / "site-misc-tests"
+
+
+class TestYAML:
+
+    root = TESTING_DATA_ROOT / "yaml"
+
+    valid = root / "valid.yaml"
+    invalid = root / "invalid.yaml"
+    empty = root / "empty.yaml"
+    missing = root / "missing.yaml"
 
 
 class PageTestConfig:

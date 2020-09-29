@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from flask import Blueprint, abort, current_app, render_template
 
+from easel.site.defaults import Defaults
+
 from ..site.globals import Globals
 
 
@@ -26,7 +28,7 @@ def index() -> str:
     if page is None:
         abort(404)
 
-    return render_template("main.html", page=page)
+    return render_template(Defaults.FILENAME_TEMPLATE_MAIN_HTML, page=page)
 
 
 @blueprint_theme.route("/<path:page_url>")
@@ -37,9 +39,9 @@ def render_page(page_url: str) -> str:
     if page is None:
         abort(404)
 
-    return render_template("main.html", page=page)
+    return render_template(Defaults.FILENAME_TEMPLATE_MAIN_HTML, page=page)
 
 
 @blueprint_theme.errorhandler(404)
 def error_404(error):
-    return render_template("404.html")
+    return render_template(Defaults.FILENAME_TEMPLATE_404_HTML)

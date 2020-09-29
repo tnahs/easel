@@ -34,8 +34,6 @@ class Utils:
             raise ConfigLoadError(
                 f"Config '{path.name}' not found in {path.parent}."
             ) from error
-        except Exception as error:
-            raise ConfigLoadError(f"Unexpected Error while loading {path}.") from error
 
         if data is None:
             return {}
@@ -112,17 +110,17 @@ class Utils:
     def normalize_page_path(path: Union[str, pathlib.Path]) -> str:
         """Ensures path is relative to the 'Globals.site_paths.pages' directory.
 
-            ./contents/pages/page-name --> page-name
-            /contents/pages/page-name  --> page-name
-            contents/pages/page-name   --> page-name
+            ./contents/pages/page-name --> /page-name
+            /contents/pages/page-name  --> /page-name
+            contents/pages/page-name   --> /page-name
 
-            ./pages/page-name          --> page-name
-            /pages/page-name           --> page-name
-            pages/page-name            --> page-name
+            ./pages/page-name          --> /page-name
+            /pages/page-name           --> /page-name
+            pages/page-name            --> /page-name
 
-            ./page-name                --> page-name
-            /page-name                 --> page-name
-            page-name                  --> page-name
+            ./page-name                --> /page-name
+            /page-name                 --> /page-name
+            page-name                  --> /page-name
 
         This allows users to use paths relative to the site-name or or 'pages'
         directory."""
@@ -153,18 +151,24 @@ class Utils:
 
     @staticmethod
     def urlify(
-        path: Union[str, pathlib.Path], leading_slash: bool = True, slugify: bool = True
+        path: Union[str, pathlib.Path],
+        leading_slash: bool = True,
+        slugify: bool = False,
     ) -> str:
 
         # Normalize path with pathlib.
         path = pathlib.Path(path)
 
-        # Slugify each part of the path.
+        # Slugify each part of the path...
         if slugify is True:
-            for part in path.parts:
-                if part == os.sep:
-                    continue
-                part = Utils.slugify(string=part)
+
+            # ...only if it isn't a slash-type i.e '\'...
+            path_slugified = [
+                Utils.slugify(part) for part in path.parts if part != os.sep
+            ]
+
+            # ...then re-join with the same slash-type
+            path = os.sep.join(path_slugified)
 
         path = str(path)
 

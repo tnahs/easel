@@ -7,7 +7,7 @@ from ..defaults import Defaults, Key
 from ..errors import ContentConfigError, MissingFile, UnsupportedContentType
 from ..globals import Globals
 from ..helpers import Utils
-from ..markdown import markdown
+from ..markdown import Markdown
 from .mixins import CaptionMixin
 from .proxies import ProxyColorManager, ProxyImageManager
 
@@ -237,7 +237,7 @@ class TextBlock(File):
 
     @property
     def body(self) -> str:
-        return markdown.from_file(filepath=self.path)
+        return Markdown.from_file(path=self.path)
 
     @property
     def align(self) -> dict:
