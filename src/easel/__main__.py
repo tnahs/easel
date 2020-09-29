@@ -10,13 +10,14 @@ from . import Easel, __version__
 @click.option("-s", "--site-root")
 @click.option("-l", "--loglevel", default="INFO", show_default=True)
 @click.option("--debug", is_flag=True)
+@click.option("--testing", is_flag=True)
 @click.pass_context
-def cli(context, site_root: str, loglevel: str, debug: bool) -> None:
+def cli(context, site_root: str, loglevel: str, debug: bool, testing: bool) -> None:
 
-    if "--help" in sys.argv:
+    if "--help" in sys.argv:  # pragma: no cover
         return
 
-    context.obj = Easel(site_root, debug=debug, loglevel=loglevel)
+    context.obj = Easel(site_root, loglevel=loglevel, debug=debug, testing=testing)
 
 
 @cli.command()

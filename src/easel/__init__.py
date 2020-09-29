@@ -44,14 +44,17 @@ class Easel(Flask):
         /,
         loglevel: Optional[str] = None,
         debug: Optional[bool] = None,
+        testing: Optional[bool] = None,
     ):
         super().__init__(__name__)
 
-        ENV_SITE_ROOT: Optional[str] = os.environ.get(Key.SITE_ROOT, None)
-        ENV_SITE_DEBUG: str = os.environ.get(Key.SITE_DEBUG, "FALSE")
+        ENV_ROOT: Optional[str] = os.environ.get(Key.SITE_ROOT, None)
+        ENV_DEBUG: str = os.environ.get(Key.SITE_DEBUG, "FALSE")
+        ENV_TESTING: str = os.environ.get(Key.SITE_TESTING, "FALSE")
 
-        root = root if root is not None else ENV_SITE_ROOT
-        debug = debug if debug is not None else Utils.str_to_bool(ENV_SITE_DEBUG)
+        root = root if root is not None else ENV_ROOT
+        debug = debug if debug is not None else Utils.str_to_bool(ENV_DEBUG)
+        testing = testing if testing is not None else Utils.str_to_bool(ENV_TESTING)
 
         if loglevel is not None:
 
@@ -65,8 +68,15 @@ class Easel(Flask):
             # Also set Flask's 'werkzeug' to Easel's loglevel.
             logging.getLogger("werkzeug").setLevel(loglevel_parsed)
 
+        if debug is True:
+            os.environ["FLASK_ENV"] = "development"
+
+        if testing is True:
+            self.config["TESTING"] = True
+
         # Setup Globals object.
         Globals.debug = debug
+        Globals.testing = testing
         Globals.init(root=root)
 
         # Create and bind Site.
@@ -132,6 +142,7 @@ class Easel(Flask):
             path -> /site/path
 
         See Easel.__inti__() and Globals.site_paths.static_url_path."""
+
         return Utils.urlify(f"{Globals.site_paths.static_url_path}{os.sep}{path}")
 
     @staticmethod
@@ -153,7 +164,7 @@ class Easel(Flask):
             # -> public/css/
             parent = path.parent
 
-            # -> absolute/path/to/parent
+            # -> /absolute/path/to/parent
             path_absolute = Globals.theme_paths.root / parent
 
             # -> bundle.*.css
@@ -191,7 +202,7 @@ class Easel(Flask):
             else []
         )
 
-        if watch is True:
+        if watch is True:  # pragma: no branch
             # TODO:LOW Once we're fully decoupled from Flask, re-assess how
             # watching/live-reloading will work along with what assets will be
             # watched. Both site and theme? Or just site?
@@ -200,4 +211,9 @@ class Easel(Flask):
                 f"{Globals.theme_paths.root} for changes."
             )
 
-        super().run(debug=Globals.debug, extra_files=extra_files, **kwargs)
+        if Globals.testing is True:
+            return
+
+        super().run(
+            debug=Globals.debug, extra_files=extra_files, **kwargs
+        )  # pragma: no cover

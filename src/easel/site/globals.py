@@ -63,11 +63,15 @@ class _Globals:
 
     @debug.setter
     def debug(self, value: bool) -> None:
-
-        if value is True:
-            os.environ["FLASK_ENV"] = "development"
-
         self._debug = value
+
+    @property
+    def testing(self) -> bool:
+        return self._testing
+
+    @testing.setter
+    def testing(self, value: bool) -> None:
+        self._testing = value
 
 
 class GlobalsBase:

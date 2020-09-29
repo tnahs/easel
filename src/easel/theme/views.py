@@ -23,10 +23,7 @@ blueprint_theme = Blueprint(
 @blueprint_theme.route("/")
 def index() -> str:
 
-    page: Optional["PageObj"] = current_app.site.index
-
-    if page is None:
-        abort(404)
+    page: "PageObj" = current_app.site.index
 
     return render_template(Defaults.FILENAME_TEMPLATE_MAIN_HTML, page=page)
 

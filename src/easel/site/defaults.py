@@ -176,6 +176,7 @@ class Key:
     SHOW_CAPTIONS: str = "show-captions"
     SITE_DEBUG: str = "SITE_DEBUG"
     SITE_ROOT: str = "SITE_ROOT"
+    SITE_TESTING: str = "SITE_TESTING"
     SIZE: str = "size"
     SPACER: str = "spacer"
     TEXT: str = "text"
