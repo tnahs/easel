@@ -4,15 +4,7 @@ from easel.site import Site
 from easel.site.defaults import Key
 from easel.site.errors import Error, SiteConfigError
 from easel.site.globals import Globals
-
-from .test_configs import TestSites
-
-
-@pytest.fixture(autouse=True)
-def reset__Globals_site_paths_root():
-    Globals.site_paths._root = None
-    yield
-    Globals.site_paths._root = None
+from tests.test_configs import TestSites
 
 
 # -----------------------------------------------------------------------------

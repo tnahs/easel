@@ -3,8 +3,7 @@ import pytest
 from easel.site.errors import PageConfigError
 from easel.site.globals import Globals
 from easel.site.pages import PageFactory
-
-from .test_configs import TestSites
+from tests.test_configs import TestSites
 
 
 def test__PageFactory__valid() -> None:

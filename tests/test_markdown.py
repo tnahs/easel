@@ -1,7 +1,8 @@
 from easel.site.markdown import Markdown
 
 
-def test__from_file__assets_paths_valid() -> None:
+def test__from_file__content_paths() -> None:
+    # TODO:LOW Test content paths injected into the rendered markdown.
     pass
 
 

@@ -1,9 +1,9 @@
+import abc
 import glob
 import importlib
 import importlib.util
 import json
 import logging
-import os
 import pathlib
 from typing import Any, Generator, List, Optional, Union
 
@@ -41,6 +41,12 @@ class _Globals:
         # theme config.
         self.theme_config.load()
 
+    def reset(self) -> None:
+        self.site_paths.reset()
+        self.site_config.reset()
+        self.theme_paths.reset()
+        self.theme_config.reset()
+
     @property
     def site_paths(self) -> "SitePaths":
         return self._site_paths
@@ -74,13 +80,25 @@ class _Globals:
         self._testing = value
 
 
-class GlobalsBase:
+class GlobalsBase(abc.ABC):
     def __init__(self, globals: "_Globals", /):
         self.__globals = globals
 
     @property
     def globals(self) -> "_Globals":
         return self.__globals
+
+    @abc.abstractmethod
+    def load(self) -> None:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def reset(self) -> None:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def validate(self) -> None:
+        pass  # pragma: no cover
 
 
 class SitePaths(GlobalsBase):
@@ -93,9 +111,12 @@ class SitePaths(GlobalsBase):
         path = pathlib.Path(root) if root is not None else pathlib.Path()
         self.root = path.resolve()
 
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
+    def reset(self) -> None:
+        self._root = None
+
+    def validate(self) -> None:
 
         if not self.root.exists():
             raise SiteConfigError(f"Site directory {self.root} not found.")
@@ -135,7 +156,10 @@ class SitePaths(GlobalsBase):
         """ Returns /absolute/path/to/site-name """
 
         if self._root is None:
-            raise SiteConfigError("Site root must be set before running.")
+            raise SiteConfigError(
+                "Site root must be set before running. Possibly "
+                "Globals.init() was never run."
+            )
 
         return self._root
 
@@ -200,10 +224,10 @@ class SitePaths(GlobalsBase):
 
 class SiteConfig(GlobalsBase):
 
-    __config: dict
+    __config = {}
 
     # fmt:off
-    _config_default: dict = {
+    _config_default = {
         Key.TITLE: None,
         Key.AUTHOR: None,
         Key.COPYRIGHT: None,
@@ -222,7 +246,7 @@ class SiteConfig(GlobalsBase):
         },
     }
     # fmt:on
-    _config_user: dict
+    _config_user = {}
 
     def load(self) -> None:
 
@@ -231,7 +255,7 @@ class SiteConfig(GlobalsBase):
             path=self.globals.site_paths.root / Defaults.FILENAME_SITE_YAML
         )
 
-        self._validate()
+        self.validate()
 
         # Merge the 'site.yaml' with the default config dictionary and set
         # the combined dictionary as the site's config.
@@ -242,9 +266,13 @@ class SiteConfig(GlobalsBase):
         # DEBUGGING
         # logger.debug(json.dumps(self.__config, indent=4))
 
-    def _validate(self) -> None:
+    def reset(self) -> None:
+        self.__config = {}
+        self._config_user = {}
 
-        menu: dict = self._config_user.get(Key.MENU, [])
+    def validate(self) -> None:
+
+        menu: list = self._config_user.get(Key.MENU, [])
 
         if type(menu) is not list:
             raise SiteConfigError(
@@ -308,15 +336,18 @@ class SiteConfig(GlobalsBase):
 
 class ThemePaths(GlobalsBase):
 
-    _root: pathlib.Path
+    _root: Optional[pathlib.Path] = None
 
     def load(self) -> None:
 
         self._root = self._get_root__dispatcher()
 
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
+    def reset(self) -> None:
+        self._root = None
+
+    def validate(self) -> None:
 
         theme_yaml = self._root / Defaults.FILENAME_THEME_YAML
 
@@ -428,6 +459,13 @@ class ThemePaths(GlobalsBase):
     @property
     def root(self) -> pathlib.Path:
         """ Returns the root path to the current theme. """
+
+        if self._root is None:
+            raise SiteConfigError(
+                "Theme root must be set before running. Possibly "
+                "Globals.init() was never run."
+            )
+
         return self._root
 
     @property
@@ -458,10 +496,10 @@ class ThemePaths(GlobalsBase):
 
 class ThemeConfig(GlobalsBase):
 
-    __config: dict
+    __config = {}
 
-    _config_default: dict
-    _config_user: dict
+    _config_default = {}
+    _config_user = {}
 
     def load(self) -> None:
 
@@ -473,7 +511,7 @@ class ThemeConfig(GlobalsBase):
         # Grab the 'theme' entry from the 'site.yaml'.
         self._config_user = self.globals.site_config.theme
 
-        self._validate()
+        self.validate()
 
         # Merge the 'theme' entry from the 'site.yaml' with the default
         # 'theme.yaml' and set the combined dictionary as the site's config.
@@ -484,7 +522,12 @@ class ThemeConfig(GlobalsBase):
         # DEBUGGING
         # logger.debug(json.dumps(self.__config, indent=4))
 
-    def _validate(self) -> None:
+    def reset(self) -> None:
+        self.__config = {}
+        self._config_default = {}
+        self._config_user = {}
+
+    def validate(self) -> None:
         pass
 
     def __getitem__(self, key: str) -> Any:

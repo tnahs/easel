@@ -7,7 +7,6 @@ from easel.site.pages import PageObj
 
 
 def test__CaptionsMixin__Image__valid(page_test_content_types: "PageObj") -> None:
-    # GLOBALFIX
 
     caption_title = "Title"
     caption_description = "Description"

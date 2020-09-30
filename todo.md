@@ -17,6 +17,7 @@
 - Display a `Loading...` indicator when site-cache is being created.
 - Complete `testing-demo` site.
 - Locale detection for date formatting.
+- Redesign CLI so we can run `easel serve --site-root=./path --debug`
 
 ## THEME:SOROLLA
 

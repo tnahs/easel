@@ -2,6 +2,7 @@ import pytest
 
 from easel.site.defaults import Key
 from easel.site.errors import PageConfigError
+from easel.site.globals import Globals
 from easel.site.pages import (
     Lazy,
     LazyGallery,
@@ -9,9 +10,9 @@ from easel.site.pages import (
     PageClassGallery,
     PageClassLayout,
 )
+from tests.test_configs import TestSites
 
 from .conftest import PageTestConfig
-from .test_configs import TestSites
 
 
 # -----------------------------------------------------------------------------
@@ -20,6 +21,8 @@ from .test_configs import TestSites
 
 
 def test__LazyMixin__directory_contents() -> None:
+
+    Globals.init(root=TestSites.misc_tests)
 
     path = (
         TestSites.misc_tests
@@ -40,7 +43,8 @@ def test__LazyMixin__directory_contents() -> None:
 def run__LayoutMixin__no_contents(
     cls: "PageClassLayout", ptc: "PageTestConfig"
 ) -> None:
-    # GLOBALFIX
+
+    Globals.init(root=ptc.site)
 
     page_yaml = ptc.page_yaml.copy()
     page_yaml[Key.CONTENTS] = []
@@ -77,7 +81,8 @@ def test__LayoutMixin__invalid_contents_type(layout_pages) -> None:
 def run__GalleryMixin__column_count_set(
     cls: "PageClassGallery", ptc: "PageTestConfig"
 ) -> None:
-    # GLOBALFIX
+
+    Globals.init(root=ptc.site)
 
     count = 3
 
@@ -93,7 +98,8 @@ def run__GalleryMixin__column_count_set(
 def run__GalleryMixin__column_count_unset(
     cls: "PageClassGallery", ptc: "PageTestConfig"
 ) -> None:
-    # GLOBALFIX
+
+    Globals.init(root=ptc.site)
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 
@@ -154,6 +160,8 @@ def test__GalleryMixin__column_count_invalid_type(gallery_pages) -> None:
 
 def run__ShowCaptionsMixin__set(cls: "PageClass", ptc: "PageTestConfig") -> None:
 
+    Globals.init(root=ptc.site)
+
     page_yaml = ptc.page_yaml.copy()
     page_yaml[Key.OPTIONS] = {Key.SHOW_CAPTIONS: True}
 
@@ -164,6 +172,8 @@ def run__ShowCaptionsMixin__set(cls: "PageClass", ptc: "PageTestConfig") -> None
 
 
 def run__ShowCaptionsMixin__unset(cls: "PageClass", ptc: "PageTestConfig") -> None:
+
+    Globals.init(root=ptc.site)
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 

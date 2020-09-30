@@ -101,16 +101,16 @@ class File(AbstractContent):
     def path(self) -> pathlib.Path:
         """ Returns an absolute path to the File. """
 
-        path = self.config[Key.PATH]
-
-        # For Layout/LayoutGallery Pages, 'path' is passed as a string-type
-        # containing a path to the file relative to the Page's root directory.
-        if not isinstance(path, pathlib.Path):
-            return self.page.path / path
+        path = pathlib.Path(self.config[Key.PATH])
 
         # For Lazy/LazyGallery Pages, 'path' is passed as a pathlib.Path object
         # containing an absolute path to the file.
-        return path
+        if path.is_absolute():
+            return path
+
+        # For Layout/LayoutGallery Pages, 'path' is passed as a string-type
+        # containing a path to the file relative to the Page's root directory.
+        return self.page.path / path
 
     @property
     def src(self) -> pathlib.Path:

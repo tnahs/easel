@@ -14,7 +14,6 @@ from easel.site.pages import PageObj
 
 
 def test__File__valid(page_test_content_types: "PageObj") -> None:
-    # GLOBALFIX
 
     file_name = "file"
     file_extension = ".ext"
@@ -92,7 +91,6 @@ def test__File__unsupported_content_type(page_test_content_types: "PageObj") -> 
 
 
 def test__Image__valid(page_test_content_types: "PageObj") -> None:
-    # GLOBALFIX
 
     image = Image(page=page_test_content_types, path="./contents/image.jpg")
 
@@ -139,7 +137,6 @@ def test__Video__mimetypes(page_test_content_types: "PageObj") -> None:
 
 
 def test__TextBlock__valid(page_test_content_types: "PageObj") -> None:
-    # GLOBALFIX
 
     config = {
         Key.PATH: "./contents/text-block.md",

@@ -7,8 +7,7 @@ import pytest
 from easel.site.defaults import Defaults
 from easel.site.errors import ConfigLoadError
 from easel.site.helpers import SafeDict, Utils
-
-from .test_configs import TestYAML
+from tests.test_configs import TestYAML
 
 
 # -----------------------------------------------------------------------------

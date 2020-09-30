@@ -11,8 +11,7 @@ from easel.site.pages import (
     PageClass,
     PageObj,
 )
-
-from .test_configs import (
+from tests.test_configs import (
     PageTestConfig,
     test_config__layout,
     test_config__layout_gallery,
@@ -20,6 +19,12 @@ from .test_configs import (
     test_config__lazy_gallery,
     test_config__test_content_types,
 )
+
+
+@pytest.fixture(autouse=True)
+def reset__Globals_site_paths_root():
+    yield
+    Globals.reset()
 
 
 # -----------------------------------------------------------------------------
@@ -104,7 +109,7 @@ def show_captions_pages() -> Dict["PageClass", "PageTestConfig"]:
 # -----------------------------------------------------------------------------
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def page_test_content_types() -> "PageObj":
     """Returns an instantiated Layout page referring to the page directory in
     ./tests/sites/site-misc-tests/contents/pages/page-test-content-types. This

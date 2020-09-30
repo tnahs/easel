@@ -1,15 +1,5 @@
-import pytest
-
 from easel.site.globals import Globals
-
-from .test_configs import TestSites
-
-
-@pytest.fixture(autouse=True)
-def reset__Globals_site_paths_root():
-    Globals.site_paths._root = None
-    yield
-    Globals.site_paths._root = None
+from tests.test_configs import TestSites
 
 
 def test__debug() -> None:

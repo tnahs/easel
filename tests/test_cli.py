@@ -2,8 +2,7 @@ import click.testing
 import pytest
 
 from easel.__main__ import cli
-
-from .test_configs import TestSites
+from tests.test_configs import TestSites
 
 
 @pytest.fixture

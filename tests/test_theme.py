@@ -5,20 +5,18 @@ import pytest
 from easel.site.errors import SiteConfigError, ThemeConfigError
 from easel.site.globals import Globals
 from easel.site.helpers import SafeDict
-
-from .test_configs import TESTING_DATA_ROOT, TestSites
-
-
-@pytest.fixture(autouse=True)
-def reset__Globals_site_paths_root():
-    Globals.site_paths._root = None
-    yield
-    Globals.site_paths._root = None
+from tests.test_configs import TESTING_DATA_ROOT, TestSites
 
 
 # -----------------------------------------------------------------------------
 # ThemePaths
 # -----------------------------------------------------------------------------
+
+
+def test__invalid() -> None:
+
+    with pytest.raises(SiteConfigError):
+        Globals.theme_paths.root
 
 
 def test__builtin_valid_default() -> None:
@@ -49,7 +47,7 @@ def test__builtin_invalid() -> None:
 
 def test__installed_valid() -> None:
 
-    theme_path = str(TESTING_DATA_ROOT / "themes")
+    theme_path = str(TESTING_DATA_ROOT / "themes-installed")
 
     sys.path.append(theme_path)
 
@@ -60,7 +58,7 @@ def test__installed_valid() -> None:
 
 def test__installed_missing() -> None:
 
-    theme_path = str(TESTING_DATA_ROOT / "themes")
+    theme_path = str(TESTING_DATA_ROOT / "themes-installed")
 
     sys.path.append(theme_path)
 

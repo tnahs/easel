@@ -1,6 +1,5 @@
 from easel import Easel
-
-from .test_configs import TestSites
+from tests.test_configs import TestSites
 
 
 def test__pages():

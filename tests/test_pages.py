@@ -2,13 +2,15 @@ import pytest
 
 from easel.site.contents import ContentClass, Image, TextBlock
 from easel.site.errors import MissingFile, PageConfigError
+from easel.site.globals import Globals
 from easel.site.pages import PageClass
 
 from .conftest import PageTestConfig
 
 
 def run__Page__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
-    # GLOBALFIX
+
+    Globals.init(root=ptc.site)
 
     page = cls(path=ptc.path, config=ptc.page_yaml)
 
@@ -40,7 +42,8 @@ def run__Page__valid(cls: "PageClass", ptc: "PageTestConfig") -> None:
 def run__Page__no_date_cover_description(
     cls: "PageClass", ptc: "PageTestConfig"
 ) -> None:
-    # GLOBALFIX
+
+    Globals.init(root=ptc.site)
 
     page_yaml = ptc.page_yaml
 
