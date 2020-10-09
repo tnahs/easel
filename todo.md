@@ -2,22 +2,23 @@
 
 ## HIGH
 
-- Proxy image and proxy colors need re-working.
-- Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
 - Style and set content for footers in `base.html` and `menu-mobile.html`
 
 ## MEDIUM
 
-- Review and document how paths work in Markdown files.
 - Re-work the way the `Site` object is being created and move away from Flask's `current_app`. Seeing as `Site` is only dependant on Globals, it can be instantiated anywhere. In fact maybe it should be bound to the `Globals` object.
 - Standardize how we're using `*args` and `**kwargs` when creating `Pages`, `Menus` and `Contents`.
+- Review and document how paths work in Markdown files.
 
 ## LOW
 
 - Display a `Loading...` indicator when site-cache is being created.
-- Complete `testing-demo` site.
-- Locale detection for date formatting.
 - Redesign CLI so we can run `easel serve --site-root=./path --debug`
+- Proxies
+  - Proxy image and proxy colors need re-working.
+  - Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
+  - Proxy resolutions can set by the theme.
+- Locale detection for date formatting.
 
 ## THEME:SOROLLA
 
