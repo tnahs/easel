@@ -3,6 +3,7 @@
 ## HIGH
 
 - Style and set content for footers in `base.html` and `menu-mobile.html`
+- Uninstall isort and black. Use system-wide version.
 
 ## MEDIUM
 
