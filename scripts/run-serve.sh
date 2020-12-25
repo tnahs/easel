@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# scripts/run-serve.sh sorolla-demo
+# scripts/run-serve.sh testing-demo
+
 python -m src.easel \
     --debug \
     --loglevel="DEBUG" \

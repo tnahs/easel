@@ -16,9 +16,9 @@
 - Display a `Loading...` indicator when site-cache is being created.
 - Redesign CLI so we can run `easel serve --site-root=./path --debug`
 - Proxies
-  - Proxy image and proxy colors need re-working.
-  - Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
-  - Proxy resolutions can set by the theme.
+    - Proxy image and proxy colors need re-working.
+    - Maybe all `ContentItems` have a `Proxy` element and each on is implemented differently?
+    - Proxy resolutions can set by the theme.
 - Locale detection for date formatting.
 
 ## THEME:SOROLLA
@@ -29,17 +29,17 @@
 
 - Build method to create flat HTML site.
 - Move away from Flask.
-  - Serve the `build` folder.
-  - Try `watchdog`
-  - Live-reloading
-    - Reload `site.yaml` when the file is changed/saved.
+    - Serve the `build` folder.
+    - Try `watchdog`
+    - Live-reloading
+        - Reload `site.yaml` when the file is changed/saved.
 - Lossless image compression?
-  - PIL `image.save("optimized-image.jpg", "JPEG", optimize=True, quality=85)`
-    - `full.jpg`
-    - `full-optimized.jpg` <- Use with a toggle in the `site.yaml`.
-    - `small.jpg`
-    - `medium.jpg`
-    - `large.jpg`
+    - PIL `image.save("optimized-image.jpg", "JPEG", optimize=True, quality=85)`
+        - `full.jpg`
+        - `full-optimized.jpg` <- Use with a toggle in the `site.yaml`.
+        - `small.jpg`
+        - `medium.jpg`
+        - `large.jpg`
 
 ## QUESTIONS
 
@@ -51,21 +51,21 @@
 
 - Check proxy image generation for all Easel supported filetypes.
 - Sift through paths and URLs.
-  - The way `Page` objects are referenced and identified is not very well documented. The same goes for `FileContent` objects
+    - The way `Page` objects are referenced and identified is not very well documented. The same goes for `FileContent` objects
 - Square up `SitePaths.root` and `SitePaths.static`. It's a bit confusing.
 - Unified validation setup.
 - Documentation for using:
-  - <https://www.netlify.com/>
-  - <https://pages.github.com/>
+    - <https://www.netlify.com/>
+    - <https://pages.github.com/>
 - Lineup naming: invalid/valid supported/unsupported
 - Clean-up Error names.
 
 ## FEATURES
 
 - More CLI Tools:
-  - READ: <https://jekyllrb.com/docs/usage/>
+    - READ: <https://jekyllrb.com/docs/usage/>
 - 'Collection' Page (For relating pages or a blog.)
-  - A child of a 'Collection' Page would maintain a link to it's siblings and parent allowing navigation between them.
+    - A child of a 'Collection' Page would maintain a link to it's siblings and parent allowing navigation between them.
 - 'Landing' Page
 - 'Grid' that holds Content types
 - Better way to find dominant color of an image.
