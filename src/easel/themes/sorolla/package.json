@@ -1,4 +1,6 @@
 {
+    "name": "easel-theme-sorolla",
+    "version": "0.1.0",
     "scripts": {
         "dev": "gulp dev",
         "build": "gulp build"
