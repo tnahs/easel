@@ -5,7 +5,7 @@ from typing import Optional, Union
 import markdown as _markdown
 
 from .globals import Globals
-from .helpers import Utils
+from .utils import Utils
 
 
 class _Markdown:
@@ -13,7 +13,7 @@ class _Markdown:
     def _convert(
         string: str, base_path: Optional[Union[str, pathlib.Path]] = None
     ) -> str:
-        """ https://facelessuser.github.io/pymdown-extensions/ """
+        """https://facelessuser.github.io/pymdown-extensions/"""
 
         md = _markdown.Markdown(
             extensions=[
@@ -39,7 +39,7 @@ class _Markdown:
         return md.convert(string)
 
     def from_file(self, path: pathlib.Path) -> str:
-        """ Render Markdown from a file. """
+        """Render Markdown from a file."""
 
         """ 'base_path' is pre-pended to any 'path' or 'src' in <a>, <script>,
         <img>, and <link> tags, allowing the use of relative paths in markdown
@@ -61,10 +61,8 @@ class _Markdown:
         via https://facelessuser.github.io/pymdown-extensions/extensions/pathconverter/
         """
 
-        path_relative = path.relative_to(Globals.site_paths.root).parent
-        base_path = Utils.urlify(
-            f"{Globals.site_paths.static_url_path}{os.sep}{path_relative}"
-        )
+        path_relative = path.relative_to(Globals.site_root).parent
+        base_path = Utils.urlify(f"{Globals.static_url_path}{os.sep}{path_relative}")
 
         with open(path, encoding="utf-8") as f:
             string = f.read()
@@ -72,7 +70,7 @@ class _Markdown:
         return self._convert(string=string, base_path=base_path)
 
     def from_string(self, string: Optional[str] = None) -> str:
-        """ Render Markdown from a string. """
+        """Render Markdown from a string."""
 
         if string is None:
             return ""

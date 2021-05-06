@@ -1,0 +1,25 @@
+title: Demo-B
+author: Demo Full Name
+copyright: © 2020 Demo Full Name
+description: A demo for Demo Easel.
+
+menu:
+  - type: link-page
+    label: Images
+    path: ./contents/pages/images
+
+  - type: link-page
+    label: TextBlock
+    path: ./contents/pages/markdown
+
+  - type: link-page
+    label: Markdown
+    path: ./contents/pages/markdown
+
+  - type: link-page
+    label: Embedded
+    path: ./contents/pages/embedded
+
+header:
+  title:
+    label: Testing Demo

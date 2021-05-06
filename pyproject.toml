@@ -1,47 +1,35 @@
 [tool.poetry]
 name = "Easel"
-version = "2.0.0-dev"
-description = "Showcasing work for the lazy. Built on Flask, YAML, Markdown and directories."
-authors = ["Shant Ergenian <shant.ergenian@gmail.com>"]
-maintainers = ["Shant Ergenian <shant.ergenian@gmail.com>"]
+version = "3.0.0-dev"
+description = ""
+authors = []
+maintainers = []
 license = "MIT"
 readme = "README.md"
-homepage = "https://tnahs.github.io/easel/"
+homepage = ""
 repository = "https://github.com/tnahs/easel"
-documentation = "https://tnahs.github.io/easel/"
-keywords = ["Flask", "YAML", "Markdown", "Portfolio"]
+documentation = ""
+keywords = []
 packages = [
     { include = "easel", from = "src" },
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-flask = "^1.1.2"
-markdown = "^3.2.2"
-pymdown-extensions = "^7.1"
-pyyaml = "^5.3.1"
-Pillow = "^7.2.0"
+python = "^3.9"
+pydantic = "^1.8.1"
+PyYAML = "^5.4.1"
+isort = "^5.8.0"
+Markdown = "^3.3.4"
+pymdown-extensions = "^8.1.1"
+coverage = {extras = ["toml"], version = "^5.5"}
 
 [tool.poetry.dev-dependencies]
-gunicorn = "^20.0.4"
-mkdocs = "^1.1.2"
-mkdocs-material = "^5.5.3"
-coverage = {extras = ["toml"], version = "^5.3"}
-isort = "^5.5.1"
-pytest = "^6.0.2"
-black = "^20.8b1"
-
-[tool.poetry.scripts]
-easel = "easel.__main__:cli"
+pytest = "^5.2"
 
 [tool.isort]
 profile = "black"
 lines_after_imports = 2
 skip_gitignore = true
-
-# https://docs.pytest.org/en/stable/customize.html#pyproject-toml
-[tool.pytest.ini_options]
-testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
@@ -55,5 +43,5 @@ exclude_lines = [
 ]
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

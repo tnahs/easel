@@ -1,0 +1,26 @@
+index: true
+
+type: auto
+title: TextBlock
+
+contents:
+  - type: header
+    text: Lorem ipsum dolor sit amet consectetur adipisicing elit.
+    size: large
+
+  - type: markdown
+    path: ./lorem-00.md
+
+  - type: header
+    text: Eligendi, praesentium consectetur.
+    size: medium
+
+  - type: markdown
+    path: ./lorem-01.md
+
+  - type: header
+    text: Eligendi, praesentium consectetur.
+    size: small
+
+  - type: markdown
+    path: ./lorem-02.md

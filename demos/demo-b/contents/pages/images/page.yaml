@@ -1,0 +1,40 @@
+type: layout
+title: Images
+
+options:
+  show-captions: true
+
+contents:
+  - type: image
+    path: ./contents/alex-h-pflaum-SB_7KTtG_Cg-unsplash.jpg
+    caption:
+      title: Aut soluta nulla eius.
+      description: Blanditiis adipisci ex molestiae possimus saepe.
+
+  - type: image
+    path: ./contents/eugene-golovesov-7Jjd7K2Tsvw-unsplash.jpg
+    caption:
+      title: Dicta quod harum.
+      description: Corrupti enim aliquam cumque esse.
+
+  - type: image
+    path: ./contents/fotis-fotopoulos-2sZwYCvwGqI-unsplash.jpg
+    caption:
+      title: Optio tempore tenetur distinctio!
+
+  - type: image
+    path: ./contents/mariano-baraldi-vO0QRp9yyA0-unsplash.jpg
+    caption:
+      title: Maxime consectetur debitis.
+      description: Perferendis voluptatem provident velit dolorem commodi architecto, minima id autem quasi rem. Optio tempore tenetur distinctio! Maxime consectetur debitis. Ipsam sit optio eligendi odit pariatur magnam.
+
+  - type: image
+    path: ./contents/sharad-bhat-0FTjIH8eKNM-unsplash.jpg
+    caption:
+      title: Recusandae voluptatum maiores.
+
+  - type: image
+    path: ./contents/sharad-bhat-x8x2VuEUmOU-unsplash.jpg
+    caption:
+      title: Similique soluta.
+      description: Totam magnam dignissimos fugit? Dicta iure ea nulla atque voluptatibus eos porro alias, quaerat magni reiciendis voluptates ut ipsam sit optio eligendi odit pariatur magnam, reprehenderit distinctio.

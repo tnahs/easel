@@ -16,27 +16,3 @@ class ConfigLoadError(Error):
 
 class SiteConfigError(Error):
     pass
-
-
-class ThemeConfigError(Error):
-    pass
-
-
-class MenuConfigError(Error):
-    pass
-
-
-class PageConfigError(Error):
-    pass
-
-
-class ContentConfigError(Error):
-    pass
-
-
-class MissingFile(Error):
-    pass
-
-
-class UnsupportedContentType(Error):
-    pass

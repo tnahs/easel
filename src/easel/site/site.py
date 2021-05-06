@@ -1,154 +1,113 @@
 import logging
-from typing import TYPE_CHECKING, List, Optional
+import pathlib
+from typing import Any, Iterator, Optional
 
-from .defaults import Key
-from .errors import Error, SiteConfigError
+from .enums import E_Directory, E_Filename
+from .errors import SiteConfigError
 from .globals import Globals
-from .helpers import Utils
-from .menus import LinkPage, MenuFactory
-from .pages import PageFactory
-
-
-if TYPE_CHECKING:
-    from .globals import SiteConfig
-    from .menus import MenuObj
-    from .pages import PageObj
+from .menu import Menu
+from .model import BaseModel
+from .pages import Page
+from .utils import Utils
 
 
 logger = logging.getLogger(__name__)
 
 
-from .defaults import Defaults
+class Site(BaseModel):
 
+    title: str
+    author: Optional[str]
+    copyright: Optional[str]
+    description: Optional[str]
+    favicon: Optional[str]
+    menu: Optional[list[Menu]]
+    pages: list[Page]
 
-class Site:
+    def __str__(self) -> str:
+        return f"<{type(self).__name__} '{self.title}'>"
 
-    _pages: Optional[List["PageObj"]] = None
-    _menu: Optional[List["MenuObj"]] = None
+    def __init__(self) -> None:
 
-    _index: Optional["PageObj"] = None
+        self.validate__site_directory_structure()
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {Globals.site_paths.root}>"
+        pages = self.get_page_configs()
+        config = Utils.load_config(self.path / E_Filename.SITE_YAML.value)
 
-    def build(self) -> None:
+        super().__init__(pages=pages, **config)
 
-        logger.info(f"Building Site from {Globals.site_paths.root}.")
+        logger.info(f"Building Site from {self.path}.")
 
         if logger.getEffectiveLevel() > logging.DEBUG:  # pragma: no cover
             logger.info("Set 'loglevel' to 'DEBUG' for more information.")
 
-        self._build()
-        self._validate()
-
-    def _build(self) -> None:
-        self._build_pages()
-        self._build_menu()
-        self._set_index()
-
-    def _build_pages(self) -> None:
-
-        self._pages = [
-            PageFactory.build(path=path) for path in Globals.site_paths.iter_pages()
-        ]
-
-    def _build_menu(self) -> None:
-
-        if not self.config.menu:
+        if not self.menu:
             logger.warning(
-                f"No menu will be generated. Key '{Key.MENU}' in "
-                f"{Defaults.FILENAME_SITE_YAML} is empty."
+                f"No menu will be generated. Key 'menu' in "
+                f"{E_Filename.SITE_YAML.value} is empty."
             )
 
-        self._menu = [MenuFactory.build(config=config) for config in self.config.menu]
+    def validate__site_directory_structure(self) -> None:
 
-    def _set_index(self) -> None:
+        if not self.path_contents.exists():
+            raise SiteConfigError(
+                f"site directory missing '{E_Directory.CONTENTS.value}' sub-directory"
+            )
 
-        for page in self._pages:
+        if not self.path_pages.exists():
+            raise SiteConfigError(
+                f"site directory missing '{E_Directory.PAGES.value}' sub-directory"
+            )
 
-            if not page.is_index:
+    @property
+    def path(self) -> pathlib.Path:
+        return Globals.site_root
+
+    @property
+    def path_contents(self) -> pathlib.Path:
+        return self.path / E_Directory.CONTENTS.value
+
+    @property
+    def path_pages(self) -> pathlib.Path:
+        return self.path_contents / E_Directory.PAGES.value
+
+    '''
+    @property
+    def static_url_path(self) -> str:
+        """Returns the absolute url: /site"""
+        return Utils.urlify("site")
+
+    @property
+    def assets(self) -> list[str]:
+        """Returns a list of paths pointing to all the sub-directories and
+        files inside the 'contents' directory. This is useful for passing to a
+        file-watcher to trigger a new build or reload a server."""
+
+        return list(glob.glob(f"{self.path_contents}/**", recursive=True))
+    '''
+
+    def get_page_configs(self) -> Iterator[dict[str, Any]]:
+        """Returns a iterator consisting of 'valid' page paths. Paths
+        are filtered down to those which are directories, non private i.e names
+        starting with "." or "_", and directories which contain a 'page.yaml'
+        file."""
+
+        for path in self.path_pages.iterdir():
+
+            if not path.is_dir():
                 continue
 
-            self._index = page
+            if path.name.startswith(".") or path.name.startswith("_"):
+                continue
 
-    def _validate(self) -> None:
-        self._validate_menu()
-        self._validate_index()
-
-    def _validate_index(self) -> None:
-
-        # Boolean types sum like integers!
-        index_pages = sum([page.is_index for page in self._pages])
-
-        if index_pages > 1 or index_pages < 1:
-            raise SiteConfigError("Site must have one and only one 'index' page.")
-
-    def _validate_menu(self) -> None:
-
-        page_urls: List[str] = [page.url for page in self.pages]
-
-        menu_items: List["LinkPage"] = [
-            menu for menu in self.menu if isinstance(menu, LinkPage)
-        ]
-
-        for menu_item in menu_items:
-            if menu_item.url not in page_urls:
-                raise SiteConfigError(
-                    f"Menu item '{menu_item.label}' has no corresponding "
-                    f"page. Page '{menu_item.links_to}' not found."
+            if not list(path.glob(E_Filename.PAGE_YAML.value)):
+                logger.warning(
+                    f"Ignoring path {path}. Path contains no "
+                    f"'{E_Filename.PAGE_YAML.value}' file."
                 )
-
-    def rebuild_cache(self) -> None:
-        # TODO:LOW This method might have room for some optimization.
-
-        logger.info(f"Rebuilding site-cache to {Globals.site_paths.cache}.")
-
-        for page in self.pages:
-            for content in page.contents:
-
-                try:
-                    content.proxy_images.cache(force=True)  # type: ignore
-                    content.proxy_colors.cache(force=True)  # type: ignore
-                except AttributeError:
-                    continue
-
-    @property
-    def config(self) -> "SiteConfig":
-        return Globals.site_config
-
-    @property
-    def pages(self) -> List["PageObj"]:
-
-        if self._pages is None:
-            raise Error("Site must be built before accessing pages.")
-
-        return self._pages
-
-    @property
-    def menu(self) -> List["MenuObj"]:
-
-        if self._menu is None:
-            raise Error("Site must be built before accessing menu.")
-
-        return self._menu
-
-    @property
-    def index(self) -> "PageObj":
-
-        if self._index is None:
-            raise Error("Site must be built before accessing index.")
-
-        return self._index
-
-    def get_page(self, page_url: str) -> Optional["PageObj"]:
-
-        page_url = Utils.normalize_page_path(path=page_url)
-
-        for page in self.pages:
-
-            if page.url != page_url:
                 continue
 
-            return page
+            config = Utils.load_config(path / E_Filename.PAGE_YAML.value)
+            config["path"] = path
 
-        return None
+            yield config

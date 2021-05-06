@@ -1,0 +1,33 @@
+title: Demo-A
+author: Full Name
+copyright: © 2020 Full Name
+description: This is Demo-A
+
+menu:
+- type: link-page
+  label: Nature
+  path: ./contents/pages/nature
+
+- type: link-page
+  label: Patterns
+  path: ./contents/pages/patterns
+
+- type: link-page
+  label: Places
+  path: ./contents/pages/places
+
+- type: link-page
+  label: Food
+  path: ./contents/pages/food
+
+- type: spacer
+  size: small
+
+- type: link-page
+  label: About
+  path: ./contents/pages/about
+
+
+header:
+  title:
+    label: Joaquín Sorolla
