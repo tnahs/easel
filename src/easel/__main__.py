@@ -3,8 +3,7 @@ import pathlib
 import sys
 from typing import Optional, Sequence
 
-from easel.site.enums import E_Content
-
+from .site.enums import E_Content
 from .site import Site
 from .site.globals import Globals
 

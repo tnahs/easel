@@ -1,8 +1,6 @@
 import argparse
 import logging
 import subprocess
-import sys
-from typing import Optional, Sequence
 
 
 logging.basicConfig(
@@ -79,4 +77,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit(main())
